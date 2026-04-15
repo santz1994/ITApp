@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dynamic Asset Form Test</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <h3>Dynamic Asset Form Test</h3>
+        
+        <div class="form-group">
+            <label for="asset_model_id">Model</label>
+            <select class="form-control" id="asset_model_id">
+                <option value="">Select a model...</option>
+                <option value="1" data-asset-type="Desktop PC">Dell OptiPlex - Desktop PC</option>
+                <option value="2" data-asset-type="Laptop">HP EliteBook - Laptop</option>
+                <option value="3" data-asset-type="Monitor">Samsung Monitor - Monitor</option>
+                <option value="4" data-asset-type="Printer">HP LaserJet - USB Printer</option>
+            </select>
+            <small id="asset-type-info" class="text-muted" style="display: none;"></small>
+        </div>
+
+        <div class="pc-laptop-fields" style="display: none;">
+            <fieldset style="border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 4px;">
+                <legend style="font-size: 14px; font-weight: bold; color: #337ab7;">Computer Specifications</legend>
+                <div class="form-group">
+                    <label for="ip">IP Address</label>
+                    <input type="text" name="ip" class="form-control" placeholder="e.g., 192.168.1.100">
+                </div>
+                <div class="form-group">
+                    <label for="mac">MAC Address</label>
+                    <input type="text" name="mac" class="form-control" placeholder="e.g., 00:1B:44:11:3A:B7">
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#asset_model_id').on('change', function() {
+                var selectedOption = $(this).find('option:selected');
+                var assetType = selectedOption.data('asset-type');
+                var assetTypeInfo = $('#asset-type-info');
+                
+                // Hide all conditional fields first
+                $('.pc-laptop-fields').hide();
+                
+                if (assetType) {
+                    // Show asset type information
+                    assetTypeInfo.text('Asset Type: ' + assetType).show();
+                    
+                    // Show relevant fields based on asset type
+                    if (assetType.toLowerCase().includes('pc') || assetType.toLowerCase().includes('laptop')) {
+                        $('.pc-laptop-fields').show();
+                    }
+                } else {
+                    // Hide asset type info if no selection
+                    assetTypeInfo.hide();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

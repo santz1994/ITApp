@@ -1,0 +1,13 @@
+{
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-feature": "vendor/bin/phpunit --testsuite=Feature",
+        "test-browser": "php artisan dusk",
+        "test-parallel": "php artisan dusk --parallel --processes=4",
+        "test-coverage": "vendor/bin/phpunit --coverage-html storage/coverage",
+        "test-ci": "vendor/bin/phpunit --log-junit storage/logs/junit.xml"
+    },
+    "devDependencies": {
+        "laravel/dusk": "^7.0"
+    }
+}

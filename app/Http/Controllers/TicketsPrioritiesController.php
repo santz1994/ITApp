@@ -1,0 +1,52 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\TicketsPriority;
+use Illuminate\Support\Facades\Session;
+use App\Http\Requests\TicketsPriorities\StoreTicketsPriorityRequest;
+use App\Http\Requests\TicketsPriorities\UpdateTicketsPriorityRequest;
+
+class TicketsPrioritiesController extends Controller
+{
+  public function __construct()
+  {
+    $this->middleware('auth');
+  }
+
+  public function index()
+  {
+    $pageTitle = 'Ticket Priorities';
+    $ticketsPriorities = \App\Services\CacheService::getTicketPriorities();
+    return view('admin.ticket-priorities.index', compact('pageTitle', 'ticketsPriorities'));
+  }
+
+  public function store(StoreTicketsPriorityRequest $request)
+  {
+    $ticketsPriority = TicketsPriority::create($request->validated());
+
+    Session::flash('status', 'success');
+    Session::flash('title', 'Ticket Priority: ' . $ticketsPriority->priority);
+    Session::flash('message', 'Successfully created');
+
+    return redirect()->route('admin.ticket-priorities.index');
+  }
+
+  public function edit(TicketsPriority $ticketsPriority)
+  {
+    $pageTitle = 'Edit Ticket Priority - ' . $ticketsPriority->priority;
+    $ticketsPriorities = \App\Services\CacheService::getTicketPriorities();
+    return view('admin.ticket-priorities.edit', compact('pageTitle', 'ticketsPriorities', 'ticketsPriority'));
+  }
+
+  public function update(UpdateTicketsPriorityRequest $request, TicketsPriority $ticketsPriority)
+  {
+    $ticketsPriority->update($request->validated());
+
+    Session::flash('status', 'success');
+    Session::flash('title', 'Ticket Priority: ' . $ticketsPriority->priority);
+    Session::flash('message', 'Successfully updated');
+
+    return redirect()->route('admin.ticket-priorities.index');
+  }
+}

@@ -1,0 +1,171 @@
+/* NOTE: This file was archived on 2025-10-23.
+   Full original content moved to:
+   public/css/archive/2025-10-23/custom-components-original-2025-10-23.css
+
+   Left as a stub to avoid breaking existing asset references. */
+
+/* No active styles in this file. */
+
+.card-body {
+    padding: 20px;
+}
+
+.card-footer {
+    background: #f7f7f7;
+    border-top: 1px solid #e0e0e0;
+    padding: 15px 20px;
+}
+
+/* Status Indicators */
+.status-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.status-indicator.active {
+    background-color: #5cb85c;
+}
+
+.status-indicator.inactive {
+    background-color: #d2d6de;
+}
+
+.status-indicator.pending {
+    background-color: #f0ad4e;
+}
+
+.status-indicator.error {
+    background-color: #d73925;
+}
+
+/* Data Table Enhancements */
+.dataTables_wrapper .dataTables_length select {
+    padding: 4px 8px;
+    border: 1px solid #d2d6de;
+    border-radius: 3px;
+}
+
+.dataTables_wrapper .dataTables_filter input {
+    padding: 4px 8px;
+    border: 1px solid #d2d6de;
+    border-radius: 3px;
+    margin-left: 5px;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    padding: 6px 12px;
+    margin-left: 2px;
+    border: 1px solid #d2d6de;
+    border-radius: 3px;
+    text-decoration: none;
+    background: #fff;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: #e6e6e6;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: #337ab7;
+    color: white !important;
+    border-color: #337ab7;
+}
+
+/* Responsive Enhancements */
+@media (max-width: 768px) {
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .btn-group .btn {
+        margin-right: 0;
+        margin-bottom: 2px;
+        border-radius: 3px !important;
+    }
+    
+    .table-responsive {
+        font-size: 12px;
+    }
+    
+    .card-body {
+        padding: 15px;
+    }
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.slide-down {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Utility Classes */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.mb-0 { margin-bottom: 0; }
+.mb-10 { margin-bottom: 10px; }
+.mb-15 { margin-bottom: 15px; }
+.mb-20 { margin-bottom: 20px; }
+
+.mt-0 { margin-top: 0; }
+.mt-10 { margin-top: 10px; }
+.mt-15 { margin-top: 15px; }
+.mt-20 { margin-top: 20px; }
+
+.p-0 { padding: 0; }
+.p-10 { padding: 10px; }
+.p-15 { padding: 15px; }
+.p-20 { padding: 20px; }
+
+.cursor-pointer { cursor: pointer; }
+.cursor-not-allowed { cursor: not-allowed; }
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .card {
+        background: #2c3e50;
+        color: #ecf0f1;
+    }
+    
+    .card-header,
+    .card-footer {
+        background: #34495e;
+        border-color: #34495e;
+    }
+    
+    .form-control {
+        background: #34495e;
+        border-color: #34495e;
+        color: #ecf0f1;
+    }
+    
+    .form-control:focus {
+        background: #34495e;
+        border-color: #3498db;
+        color: #ecf0f1;
+    }
+}

@@ -1,0 +1,146 @@
+/* NOTE: This file was archived on 2025-10-23.
+   Full original content moved to:
+   public/css/archive/2025-10-23/global-search-original-2025-10-23.css
+
+   Left as a stub to avoid breaking existing asset references. */
+
+/* No active styles in this file. */
+
+/* Search Results */
+.search-results {
+    margin-top: 20px;
+}
+
+.search-section {
+    margin-bottom: 30px;
+}
+
+.search-section-title {
+    color: #3c8dbc;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #3c8dbc;
+}
+
+.search-results .list-group-item {
+    border-left: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.search-results .list-group-item:hover {
+    border-left-color: #3c8dbc;
+    background-color: #f9f9f9;
+    transform: translateX(5px);
+}
+
+.search-results .list-group-item h5 {
+    color: #333;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.search-results .list-group-item p {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.search-results .list-group-item small {
+    color: #999;
+    font-size: 12px;
+}
+
+.search-results .fa-2x {
+    margin-top: 10px;
+}
+
+/* Empty state */
+.search-results .text-muted i.fa-3x {
+    color: #ddd;
+    margin-bottom: 15px;
+}
+
+/* Loading state */
+.search-results .fa-spinner {
+    font-size: 24px;
+    color: #3c8dbc;
+}
+
+/* Quick Search (Autocomplete) */
+#quickSearchInput {
+    min-width: 250px;
+}
+
+.ui-autocomplete {
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 9999 !important;
+}
+
+.ui-menu-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.ui-menu-item:hover {
+    background-color: #3c8dbc;
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #globalSearchModal .modal-dialog {
+        margin: 10px;
+        margin-top: 50px;
+    }
+
+    #globalSearchInput {
+        font-size: 16px;
+        height: 40px;
+    }
+
+    #searchEntityType {
+        height: 40px;
+        margin-top: 10px;
+    }
+
+    .search-results .col-md-1 {
+        display: none;
+    }
+
+    .search-results .list-group-item h5 {
+        font-size: 14px;
+    }
+
+    .search-results .list-group-item p {
+        font-size: 13px;
+    }
+}
+
+/* Search button in navbar (optional) */
+.navbar-search-btn {
+    margin: 8px 5px;
+    padding: 8px 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.navbar-search-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.navbar-search-btn kbd {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    margin-left: 5px;
+}

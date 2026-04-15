@@ -1,0 +1,288 @@
+// Main application styles
+
+// Variables
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    
+    // Font settings
+    --font-family-sans-serif: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --font-size-base: 14px;
+    --line-height-base: 1.5;
+}
+
+// Base styles
+body {
+    font-family: var(--font-family-sans-serif);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+    color: #333;
+}
+
+// Custom button styles
+.btn {
+    border-radius: 4px;
+    font-weight: 500;
+    
+    &.btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        
+        &:hover {
+            background-color: darken(var(--primary-color), 10%);
+            border-color: darken(var(--primary-color), 10%);
+        }
+    }
+    
+    &.btn-success {
+        background-color: var(--success-color);
+        border-color: var(--success-color);
+    }
+    
+    &.btn-danger {
+        background-color: var(--danger-color);
+        border-color: var(--danger-color);
+    }
+    
+    &.btn-warning {
+        background-color: var(--warning-color);
+        border-color: var(--warning-color);
+        color: #000;
+    }
+}
+
+// Card/Box improvements
+.box, .card {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    
+    .box-header, .card-header {
+        background-color: var(--light-color);
+        border-bottom: 1px solid #dee2e6;
+        border-radius: 8px 8px 0 0;
+        padding: 15px 20px;
+        
+        .box-title, .card-title {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+        }
+    }
+    
+    .box-body, .card-body {
+        padding: 20px;
+    }
+}
+
+// Table improvements
+.table {
+    th {
+        background-color: var(--light-color);
+        font-weight: 600;
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    .badge {
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 12px;
+    }
+}
+
+// Form improvements
+.form-control {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    
+    &:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.15);
+    }
+}
+
+.form-group {
+    margin-bottom: 1rem;
+    
+    label {
+        font-weight: 600;
+        color: var(--dark-color);
+        margin-bottom: 0.5rem;
+    }
+}
+
+// Alert improvements
+.alert {
+    border-radius: 6px;
+    border: none;
+    padding: 12px 20px;
+    
+    &.alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border-left: 4px solid var(--success-color);
+    }
+    
+    &.alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border-left: 4px solid var(--danger-color);
+    }
+    
+    &.alert-warning {
+        background-color: #fff3cd;
+        color: #856404;
+        border-left: 4px solid var(--warning-color);
+    }
+    
+    &.alert-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border-left: 4px solid var(--info-color);
+    }
+}
+
+// Sidebar improvements
+.main-sidebar {
+    .sidebar {
+        .nav-sidebar {
+            .nav-item {
+                .nav-link {
+                    border-radius: 6px;
+                    margin: 2px 8px;
+                    
+                    &.active {
+                        background-color: var(--primary-color);
+                        color: white;
+                    }
+                    
+                    &:hover {
+                        background-color: rgba(255,255,255,0.1);
+                    }
+                }
+            }
+        }
+    }
+}
+
+// KPI Dashboard specific styles
+.kpi-dashboard {
+    .small-box {
+        border-radius: 10px;
+        position: relative;
+        overflow: hidden;
+        
+        .inner {
+            padding: 15px;
+            
+            h3 {
+                font-size: 2.2rem;
+                font-weight: 700;
+                margin: 0 0 10px 0;
+            }
+            
+            p {
+                font-size: 1rem;
+                margin: 0;
+            }
+        }
+        
+        .icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 70px;
+            opacity: 0.3;
+        }
+    }
+    
+    .info-box {
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        
+        .info-box-icon {
+            border-radius: 8px 0 0 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .info-box-content {
+            padding: 15px;
+        }
+    }
+}
+
+// Print styles
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .sidebar, .main-header, .content-header {
+        display: none !important;
+    }
+    
+    .content-wrapper {
+        margin-left: 0 !important;
+    }
+}
+
+// Responsive improvements
+@media (max-width: 768px) {
+    .box, .card {
+        margin-bottom: 15px;
+        
+        .box-body, .card-body {
+            padding: 15px;
+        }
+    }
+    
+    .table-responsive {
+        border: none;
+    }
+    
+    .btn {
+        margin-bottom: 5px;
+    }
+}
+
+// Loading spinner
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+// Status badges
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    
+    &.status-active { background-color: #28a745; color: white; }
+    &.status-inactive { background-color: #6c757d; color: white; }
+    &.status-maintenance { background-color: #ffc107; color: #000; }
+    &.status-broken { background-color: #dc3545; color: white; }
+    
+    &.priority-urgent { background-color: #dc3545; color: white; }
+    &.priority-high { background-color: #fd7e14; color: white; }
+    &.priority-medium { background-color: #ffc107; color: #000; }
+    &.priority-low { background-color: #28a745; color: white; }
+}

@@ -1,0 +1,685 @@
+/**
+ * ENHANCED UI/UX IMPROVEMENTS
+ * Modern interactive components and user experience enhancements
+ * Version: 2.0
+ * Date: November 21, 2025
+ */
+
+/* ========================================
+   LOADING STATES & PROGRESS INDICATORS
+   ======================================== */
+
+/* Global loading overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(3px);
+}
+
+.loading-content {
+    background: white;
+    padding: 30px 50px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3c8dbc;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Button loading state */
+.btn-loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.btn-loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+/* Progress bar enhancement */
+.progress-enhanced {
+    height: 25px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+.progress-enhanced .progress-bar {
+    line-height: 25px;
+    font-weight: 600;
+    transition: width 0.6s ease;
+}
+
+/* Skeleton loaders for content */
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 25%,
+        #e0e0e0 50%,
+        #f0f0f0 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+    border-radius: 4px;
+}
+
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.skeleton-text {
+    height: 16px;
+    margin-bottom: 8px;
+}
+
+.skeleton-title {
+    height: 24px;
+    width: 60%;
+    margin-bottom: 12px;
+}
+
+.skeleton-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+/* ========================================
+   TOAST NOTIFICATIONS
+   ======================================== */
+
+.toast-container {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    z-index: 9998;
+    max-width: 400px;
+}
+
+.toast {
+    background: white;
+    border-left: 4px solid;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    animation: slideInRight 0.3s ease-out;
+    position: relative;
+}
+
+.toast.toast-success { border-left-color: #00a65a; }
+.toast.toast-error { border-left-color: #dd4b39; }
+.toast.toast-warning { border-left-color: #f39c12; }
+.toast.toast-info { border-left-color: #3c8dbc; }
+
+.toast-icon {
+    font-size: 24px;
+    margin-right: 15px;
+    width: 30px;
+    text-align: center;
+}
+
+.toast-success .toast-icon { color: #00a65a; }
+.toast-error .toast-icon { color: #dd4b39; }
+.toast-warning .toast-icon { color: #f39c12; }
+.toast-info .toast-icon { color: #3c8dbc; }
+
+.toast-content {
+    flex: 1;
+}
+
+.toast-title {
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+
+.toast-message {
+    font-size: 13px;
+    color: #666;
+}
+
+.toast-close {
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    font-size: 18px;
+    line-height: 1;
+    padding: 0 5px;
+}
+
+.toast-close:hover {
+    opacity: 1;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+.toast.toast-removing {
+    animation: slideOutRight 0.3s ease-out forwards;
+}
+
+/* ========================================
+   MODAL ENHANCEMENTS
+   ======================================== */
+
+.modal-enhanced .modal-dialog {
+    margin-top: 10vh;
+    animation: modalSlideDown 0.3s ease-out;
+}
+
+@keyframes modalSlideDown {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-enhanced .modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 6px 6px 0 0;
+    padding: 20px 25px;
+}
+
+.modal-enhanced .modal-header .close {
+    color: white;
+    opacity: 0.8;
+    text-shadow: none;
+}
+
+.modal-enhanced .modal-header .close:hover {
+    opacity: 1;
+}
+
+.modal-enhanced .modal-body {
+    padding: 25px;
+}
+
+.modal-enhanced .modal-footer {
+    padding: 15px 25px;
+    background: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+/* ========================================
+   FORM ENHANCEMENTS
+   ======================================== */
+
+/* Floating labels */
+.form-floating {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.form-floating input,
+.form-floating select,
+.form-floating textarea {
+    width: 100%;
+    padding: 12px 15px 8px;
+    font-size: 14px;
+    border: 2px solid #d2d6de;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.form-floating label {
+    position: absolute;
+    top: 12px;
+    left: 15px;
+    font-size: 14px;
+    color: #999;
+    pointer-events: none;
+    transition: all 0.3s;
+}
+
+.form-floating input:focus,
+.form-floating input:not(:placeholder-shown),
+.form-floating select:focus,
+.form-floating select:not([value=""]),
+.form-floating textarea:focus,
+.form-floating textarea:not(:placeholder-shown) {
+    border-color: #3c8dbc;
+    outline: none;
+}
+
+.form-floating input:focus + label,
+.form-floating input:not(:placeholder-shown) + label,
+.form-floating select:focus + label,
+.form-floating select:not([value=""]) + label,
+.form-floating textarea:focus + label,
+.form-floating textarea:not(:placeholder-shown) + label {
+    top: -8px;
+    left: 10px;
+    font-size: 11px;
+    color: #3c8dbc;
+    background: white;
+    padding: 0 5px;
+}
+
+/* Input with icon */
+.input-with-icon {
+    position: relative;
+}
+
+.input-with-icon input {
+    padding-left: 40px;
+}
+
+.input-with-icon .input-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    font-size: 16px;
+}
+
+/* Custom checkbox/radio */
+.custom-control-enhanced {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    padding-left: 30px;
+    cursor: pointer;
+    user-select: none;
+    margin-bottom: 8px;
+}
+
+.custom-control-enhanced input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.custom-control-enhanced .checkmark {
+    position: absolute;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #fff;
+    border: 2px solid #d2d6de;
+    border-radius: 3px;
+    transition: all 0.2s;
+}
+
+.custom-control-enhanced input:checked ~ .checkmark {
+    background-color: #3c8dbc;
+    border-color: #3c8dbc;
+}
+
+.custom-control-enhanced .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.custom-control-enhanced input:checked ~ .checkmark:after {
+    display: block;
+}
+
+/* ========================================
+   CARD ENHANCEMENTS
+   ======================================== */
+
+.card-enhanced {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.card-enhanced:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.card-enhanced .card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 600;
+    padding: 15px 20px;
+    border-bottom: none;
+}
+
+.card-enhanced .card-body {
+    padding: 20px;
+}
+
+/* Stat cards */
+.stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card .stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin-bottom: 15px;
+}
+
+.stat-card.stat-primary .stat-icon {
+    background: rgba(60, 141, 188, 0.1);
+    color: #3c8dbc;
+}
+
+.stat-card.stat-success .stat-icon {
+    background: rgba(0, 166, 90, 0.1);
+    color: #00a65a;
+}
+
+.stat-card.stat-warning .stat-icon {
+    background: rgba(243, 156, 18, 0.1);
+    color: #f39c12;
+}
+
+.stat-card.stat-danger .stat-icon {
+    background: rgba(221, 75, 57, 0.1);
+    color: #dd4b39;
+}
+
+.stat-card .stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+.stat-card .stat-label {
+    color: #999;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-card .stat-change {
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+.stat-card .stat-change.positive {
+    color: #00a65a;
+}
+
+.stat-card .stat-change.negative {
+    color: #dd4b39;
+}
+
+/* ========================================
+   DATATABLE ENHANCEMENTS
+   ======================================== */
+
+.datatable-enhanced {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.datatable-enhanced .dataTables_wrapper {
+    padding: 20px;
+}
+
+.datatable-enhanced table.dataTable thead th {
+    background: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    padding: 15px 12px;
+}
+
+.datatable-enhanced table.dataTable tbody tr {
+    transition: background-color 0.2s;
+}
+
+.datatable-enhanced table.dataTable tbody tr:hover {
+    background-color: #f8f9fa !important;
+}
+
+.datatable-enhanced table.dataTable tbody td {
+    padding: 12px;
+    vertical-align: middle;
+}
+
+/* DataTable pagination enhancement */
+.dataTables_paginate .pagination {
+    margin: 10px 0;
+}
+
+.dataTables_paginate .pagination .page-link {
+    border-radius: 4px;
+    margin: 0 2px;
+    border: 1px solid #dee2e6;
+    color: #3c8dbc;
+    transition: all 0.2s;
+}
+
+.dataTables_paginate .pagination .page-link:hover {
+    background-color: #3c8dbc;
+    color: white;
+    border-color: #3c8dbc;
+}
+
+.dataTables_paginate .pagination .page-item.active .page-link {
+    background-color: #3c8dbc;
+    border-color: #3c8dbc;
+}
+
+/* ========================================
+   BADGE ENHANCEMENTS
+   ======================================== */
+
+.badge-enhanced {
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+/* ========================================
+   TOOLTIP ENHANCEMENTS
+   ======================================== */
+
+.tooltip-enhanced {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip-enhanced .tooltiptext {
+    visibility: hidden;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 8px 12px;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s, visibility 0.3s;
+    white-space: nowrap;
+    font-size: 12px;
+}
+
+.tooltip-enhanced .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+}
+
+.tooltip-enhanced:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* ========================================
+   RESPONSIVE ENHANCEMENTS
+   ======================================== */
+
+@media (max-width: 768px) {
+    .toast-container {
+        left: 10px;
+        right: 10px;
+        max-width: none;
+    }
+    
+    .stat-card {
+        margin-bottom: 15px;
+    }
+    
+    .card-enhanced {
+        margin-bottom: 15px;
+    }
+}
+
+/* ========================================
+   DARK MODE SUPPORT (OPTIONAL)
+   ======================================== */
+
+body.dark-mode {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+}
+
+body.dark-mode .card-enhanced,
+body.dark-mode .stat-card,
+body.dark-mode .datatable-enhanced {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+}
+
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+    background-color: #3a3a3a;
+    border-color: #555;
+    color: #e0e0e0;
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+
+@media print {
+    .loading-overlay,
+    .toast-container,
+    .btn,
+    .sidebar,
+    .main-header {
+        display: none !important;
+    }
+    
+    .content-wrapper {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+}

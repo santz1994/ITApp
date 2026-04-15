@@ -1,0 +1,424 @@
+/**
+ * Button Standards and Consistency
+ * Standardized button styles for the entire application
+ * Version: 1.0
+ * Date: October 16, 2025
+ */
+
+/* ========================================
+   BUTTON SIZES
+   ======================================== */
+
+/* Small buttons - For compact spaces, table actions */
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+}
+
+/* Medium buttons - Default size for forms */
+.btn-md, .btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    border-radius: 4px;
+}
+
+/* Large buttons - For primary CTAs */
+.btn-lg {
+    padding: 12px 24px;
+    font-size: 16px;
+    line-height: 1.3333333;
+    border-radius: 6px;
+}
+
+/* Extra small buttons - For icon-only actions */
+.btn-xs {
+    padding: 3px 8px;
+    font-size: 11px;
+    line-height: 1.5;
+    border-radius: 2px;
+}
+
+/* ========================================
+   BUTTON COLORS & MEANINGS
+   ======================================== */
+
+/* PRIMARY - Main actions (Create, Submit, Confirm) */
+.btn-primary {
+    background-color: #3c8dbc;
+    border-color: #367fa9;
+    color: #fff;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: #367fa9;
+    border-color: #2e6c94;
+}
+
+.btn-primary:active {
+    background-color: #2e6c94;
+    border-color: #245f82;
+}
+
+/* SUCCESS - Positive actions (Save, Approve, Accept) */
+.btn-success {
+    background-color: #00a65a;
+    border-color: #008d4c;
+    color: #fff;
+}
+
+.btn-success:hover,
+.btn-success:focus {
+    background-color: #008d4c;
+    border-color: #007a43;
+}
+
+.btn-success:active {
+    background-color: #007a43;
+    border-color: #00672f;
+}
+
+/* DANGER - Destructive actions (Delete, Remove, Cancel) */
+.btn-danger {
+    background-color: #dd4b39;
+    border-color: #d73925;
+    color: #fff;
+}
+
+.btn-danger:hover,
+.btn-danger:focus {
+    background-color: #d73925;
+    border-color: #c02d1a;
+}
+
+.btn-danger:active {
+    background-color: #c02d1a;
+    border-color: #a82315;
+}
+
+/* WARNING - Caution actions (Archive, Suspend) */
+.btn-warning {
+    background-color: #f39c12;
+    border-color: #e08e0b;
+    color: #fff;
+}
+
+.btn-warning:hover,
+.btn-warning:focus {
+    background-color: #e08e0b;
+    border-color: #c87f0a;
+}
+
+.btn-warning:active {
+    background-color: #c87f0a;
+    border-color: #a66908;
+}
+
+/* INFO - Informational actions (View Details, Export) */
+.btn-info {
+    background-color: #00c0ef;
+    border-color: #00acd6;
+    color: #fff;
+}
+
+.btn-info:hover,
+.btn-info:focus {
+    background-color: #00acd6;
+    border-color: #0097bc;
+}
+
+.btn-info:active {
+    background-color: #0097bc;
+    border-color: #007ea3;
+}
+
+/* DEFAULT/SECONDARY - Secondary actions (Back, Cancel, Close) */
+.btn-default,
+.btn-secondary {
+    background-color: #f4f4f4;
+    border-color: #ddd;
+    color: #444;
+}
+
+.btn-default:hover,
+.btn-default:focus,
+.btn-secondary:hover,
+.btn-secondary:focus {
+    background-color: #e7e7e7;
+    border-color: #cfcfcf;
+}
+
+.btn-default:active,
+.btn-secondary:active {
+    background-color: #ddd;
+    border-color: #c5c5c5;
+}
+
+/* ========================================
+   BUTTON ICONS
+   ======================================== */
+
+/* Icon positioning - Left aligned (default) */
+.btn > i {
+    margin-right: 6px;
+}
+
+/* Icon positioning - Right aligned */
+.btn > i.pull-right {
+    margin-right: 0;
+    margin-left: 6px;
+}
+
+/* Icon-only buttons */
+.btn-icon-only {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.btn-icon-only > i {
+    margin: 0;
+}
+
+/* Loading state icon */
+.btn .fa-spinner {
+    animation: fa-spin 1s infinite linear;
+}
+
+/* ========================================
+   BUTTON GROUPS & SPACING
+   ======================================== */
+
+/* Button groups */
+.btn-group {
+    display: inline-flex;
+    gap: 0;
+}
+
+.btn-group > .btn {
+    margin-right: 0;
+}
+
+.btn-group > .btn:not(:first-child) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.btn-group > .btn:not(:last-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+/* Button spacing in toolbars */
+.btn-toolbar > .btn,
+.btn-toolbar > .btn-group {
+    margin-right: 8px;
+}
+
+.btn-toolbar > .btn:last-child,
+.btn-toolbar > .btn-group:last-child {
+    margin-right: 0;
+}
+
+/* Button spacing in forms */
+.form-actions .btn {
+    margin-right: 8px;
+}
+
+.form-actions .btn:last-child {
+    margin-right: 0;
+}
+
+/* ========================================
+   BUTTON STATES
+   ======================================== */
+
+/* Disabled state */
+.btn:disabled,
+.btn.disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Loading state */
+.btn.loading {
+    position: relative;
+    pointer-events: none;
+}
+
+.btn.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: button-spin 0.6s linear infinite;
+}
+
+@keyframes button-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Focus state for accessibility */
+.btn:focus {
+    outline: 2px solid rgba(60, 141, 188, 0.5);
+    outline-offset: 2px;
+}
+
+/* Active/Pressed state */
+.btn:active {
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+}
+
+/* ========================================
+   SPECIAL BUTTON TYPES
+   ======================================== */
+
+/* Outline buttons */
+.btn-outline-primary {
+    background-color: transparent;
+    border-color: #3c8dbc;
+    color: #3c8dbc;
+}
+
+.btn-outline-primary:hover {
+    background-color: #3c8dbc;
+    color: #fff;
+}
+
+.btn-outline-success {
+    background-color: transparent;
+    border-color: #00a65a;
+    color: #00a65a;
+}
+
+.btn-outline-success:hover {
+    background-color: #00a65a;
+    color: #fff;
+}
+
+.btn-outline-danger {
+    background-color: transparent;
+    border-color: #dd4b39;
+    color: #dd4b39;
+}
+
+.btn-outline-danger:hover {
+    background-color: #dd4b39;
+    color: #fff;
+}
+
+/* Link-style buttons */
+.btn-link {
+    background-color: transparent;
+    border-color: transparent;
+    color: #3c8dbc;
+    text-decoration: none;
+}
+
+.btn-link:hover {
+    color: #2e6c94;
+    text-decoration: underline;
+}
+
+/* Block buttons - Full width */
+.btn-block {
+    display: block;
+    width: 100%;
+}
+
+/* ========================================
+   RESPONSIVE BUTTON ADJUSTMENTS
+   ======================================== */
+
+@media (max-width: 768px) {
+    /* Stack buttons vertically on mobile */
+    .btn-toolbar > .btn,
+    .btn-toolbar > .btn-group {
+        display: block;
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 8px;
+    }
+    
+    .btn-toolbar > .btn:last-child,
+    .btn-toolbar > .btn-group:last-child {
+        margin-bottom: 0;
+    }
+    
+    /* Make form buttons full width on mobile */
+    .form-actions .btn {
+        display: block;
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 8px;
+    }
+    
+    .form-actions .btn:last-child {
+        margin-bottom: 0;
+    }
+}
+
+/* ========================================
+   BUTTON USAGE GUIDELINES
+   ======================================== */
+
+/*
+ * COLOR USAGE:
+ * 
+ * PRIMARY (Blue)
+ *   - Create New, Add, Submit, Confirm, Save New
+ *   - Example: "Create Ticket", "Add User", "Submit Form"
+ * 
+ * SUCCESS (Green)
+ *   - Save, Update, Approve, Accept, Complete
+ *   - Example: "Save Changes", "Approve Request", "Mark Complete"
+ * 
+ * DANGER (Red)
+ *   - Delete, Remove, Reject, Cancel Permanently
+ *   - Example: "Delete User", "Remove Asset", "Reject Request"
+ * 
+ * WARNING (Orange)
+ *   - Archive, Suspend, Temporarily Disable, Caution
+ *   - Example: "Archive Ticket", "Suspend User", "Disable Feature"
+ * 
+ * INFO (Light Blue)
+ *   - View Details, Export, Download, Print
+ *   - Example: "View Details", "Export CSV", "Print Report"
+ * 
+ * DEFAULT/SECONDARY (Gray)
+ *   - Back, Cancel, Close, Dismiss
+ *   - Example: "Back to List", "Cancel", "Close Modal"
+ * 
+ * ICON GUIDELINES:
+ * 
+ * - Always place icons to the LEFT of text (default)
+ * - Use pull-right class for icons on the RIGHT
+ * - Use icon-only buttons for compact spaces (table actions)
+ * - Common icons:
+ *   - fa-plus: Create/Add
+ *   - fa-save: Save/Update
+ *   - fa-trash: Delete/Remove
+ *   - fa-eye: View/Preview
+ *   - fa-edit/fa-pencil: Edit
+ *   - fa-download: Download/Export
+ *   - fa-print: Print
+ *   - fa-times: Close/Cancel
+ *   - fa-check: Confirm/Accept
+ *   - fa-arrow-left: Back/Previous
+ * 
+ * SIZE GUIDELINES:
+ * 
+ * - btn-lg: Hero CTAs, important primary actions
+ * - btn-md (default): Forms, modals, standard actions
+ * - btn-sm: Toolbars, compact spaces, secondary actions
+ * - btn-xs: Table rows, inline actions, icon-only buttons
+ */

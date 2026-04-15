@@ -1,0 +1,421 @@
+/* NOTE: This file was archived on 2025-10-23.
+    Full original content moved to:
+    public/css/archive/2025-10-23/notifications-original-2025-10-23.css
+
+    Left as a stub to avoid breaking existing asset references. */
+
+/* No active styles in this file. */
+
+.notifications-menu .label {
+    position: absolute;
+    top: 9px;
+    right: 7px;
+    font-size: 9px;
+    font-weight: 600;
+    padding: 2px 5px;
+    line-height: 1;
+    border-radius: 10px;
+}
+
+.notifications-menu .dropdown-toggle {
+    position: relative;
+}
+
+.notifications-menu .notification-count {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* ========================================
+   Notification Dropdown
+   ======================================== */
+
+.notifications-menu .dropdown-menu {
+    width: 360px;
+    max-width: 90vw;
+    padding: 0;
+    margin: 0;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.notifications-menu .dropdown-menu .header {
+    padding: 12px 15px;
+    border-bottom: 1px solid #f4f4f4;
+    color: #444;
+    font-size: 14px;
+    font-weight: 600;
+    background: #fafafa;
+    border-radius: 4px 4px 0 0;
+}
+
+.notifications-menu .dropdown-menu .menu {
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.notifications-menu .notification-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.notification-item {
+    border-bottom: 1px solid #f4f4f4;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.notification-item:hover {
+    background-color: #f9f9f9;
+}
+
+.notification-item.unread {
+    background-color: #f0f8ff;
+    border-left: 3px solid #3c8dbc;
+}
+
+.notification-item.unread:hover {
+    background-color: #e6f4ff;
+}
+
+.notification-item > a {
+    display: block;
+    padding: 12px 15px;
+    color: #333;
+    text-decoration: none;
+}
+
+.notification-item > a:hover {
+    text-decoration: none;
+}
+
+.notification-item i {
+    font-size: 18px;
+    margin-right: 10px;
+    color: #3c8dbc;
+    vertical-align: middle;
+}
+
+.notification-item strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 13px;
+    color: #333;
+}
+
+.notification-item p {
+    margin: 0 0 4px 0;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #666;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.notification-item small {
+    font-size: 11px;
+    color: #999;
+}
+
+.notifications-menu .dropdown-menu .footer {
+    padding: 10px 15px;
+    border-top: 1px solid #f4f4f4;
+    text-align: center;
+    background: #fafafa;
+    border-radius: 0 0 4px 4px;
+}
+
+.notifications-menu .dropdown-menu .footer a {
+    color: #3c8dbc;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.notifications-menu .dropdown-menu .footer a:hover {
+    text-decoration: underline;
+}
+
+.mark-all-read-btn {
+    color: #999 !important;
+    font-size: 12px !important;
+}
+
+.mark-all-read-btn:hover {
+    color: #666 !important;
+}
+
+/* Empty state */
+.notification-list .text-center {
+    padding: 30px 15px;
+    color: #999;
+}
+
+/* Scrollbar styling */
+.notifications-menu .dropdown-menu .menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notifications-menu .dropdown-menu .menu::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.notifications-menu .dropdown-menu .menu::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+
+.notifications-menu .dropdown-menu .menu::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+/* ========================================
+   Toast Notifications
+   ======================================== */
+
+.toast-container {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    z-index: 9999;
+    max-width: 400px;
+}
+
+.toast-notification {
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-bottom: 15px;
+    padding: 15px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    border-left: 4px solid #3c8dbc;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    animation: slideIn 0.3s ease;
+    position: relative;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.toast-notification:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+.toast-notification.info {
+    border-left-color: #3c8dbc;
+}
+
+.toast-notification.success {
+    border-left-color: #00a65a;
+}
+
+.toast-notification.warning {
+    border-left-color: #f39c12;
+}
+
+.toast-notification.danger,
+.toast-notification.critical {
+    border-left-color: #dd4b39;
+}
+
+.toast-notification .close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1;
+    color: #999;
+    opacity: 0.5;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.toast-notification .close:hover {
+    opacity: 1;
+}
+
+.toast-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #f4f4f4;
+}
+
+.toast-notification.info .toast-icon {
+    background: #d9edf7;
+    color: #3c8dbc;
+}
+
+.toast-notification.success .toast-icon {
+    background: #d4edda;
+    color: #00a65a;
+}
+
+.toast-notification.warning .toast-icon {
+    background: #fcf8e3;
+    color: #f39c12;
+}
+
+.toast-notification.danger .toast-icon,
+.toast-notification.critical .toast-icon {
+    background: #f2dede;
+    color: #dd4b39;
+}
+
+.toast-icon i {
+    font-size: 20px;
+}
+
+.toast-content {
+    flex: 1;
+    padding-right: 20px;
+}
+
+.toast-content strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 14px;
+    color: #333;
+}
+
+.toast-content p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #666;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .notifications-menu .dropdown-menu {
+        width: 300px;
+        right: -10px;
+    }
+
+    .toast-container {
+        right: 10px;
+        left: 10px;
+        max-width: calc(100% - 20px);
+    }
+
+    .toast-notification {
+        padding: 12px;
+    }
+
+    .toast-icon {
+        width: 35px;
+        height: 35px;
+    }
+
+    .toast-icon i {
+        font-size: 18px;
+    }
+
+    .toast-content strong {
+        font-size: 13px;
+    }
+
+    .toast-content p {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .notifications-menu .dropdown-menu {
+        width: calc(100vw - 20px);
+        left: 10px;
+        right: 10px;
+    }
+
+    .notifications-menu .dropdown-menu .menu {
+        max-height: 300px;
+    }
+
+    .notification-item > a {
+        padding: 10px 12px;
+    }
+
+    .toast-container {
+        top: 60px;
+    }
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+    .notifications-menu .dropdown-menu {
+        background: #2c3e50;
+        border-color: #34495e;
+    }
+
+    .notifications-menu .dropdown-menu .header {
+        background: #34495e;
+        color: #ecf0f1;
+        border-bottom-color: #4a5f7f;
+    }
+
+    .notification-item {
+        border-bottom-color: #34495e;
+    }
+
+    .notification-item:hover {
+        background-color: #34495e;
+    }
+
+    .notification-item.unread {
+        background-color: #2c4a66;
+    }
+
+    .notification-item > a {
+        color: #ecf0f1;
+    }
+
+    .notification-item p {
+        color: #bdc3c7;
+    }
+
+    .toast-notification {
+        background: #2c3e50;
+        color: #ecf0f1;
+    }
+
+    .toast-content strong {
+        color: #ecf0f1;
+    }
+
+    .toast-content p {
+        color: #bdc3c7;
+    }
+}

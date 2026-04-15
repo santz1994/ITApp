@@ -1,0 +1,414 @@
+/**
+ * Custom Table Enhancements
+ * Provides consistent styling for all tables in the application
+ */
+
+/* Base Table Styling */
+.table-enhanced {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    background-color: #fff;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Table Header */
+.table-enhanced thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    padding: 12px 15px;
+    color: #495057;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Sortable Headers */
+.table-enhanced thead th.sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 30px;
+}
+
+.table-enhanced thead th.sortable:hover {
+    background-color: #e9ecef;
+}
+
+.table-enhanced thead th.sortable::after {
+    content: '\f0dc';
+    font-family: 'FontAwesome';
+    position: absolute;
+    right: 10px;
+    opacity: 0.3;
+}
+
+.table-enhanced thead th.sortable.asc::after {
+    content: '\f0de';
+    opacity: 1;
+}
+
+.table-enhanced thead th.sortable.desc::after {
+    content: '\f0dd';
+    opacity: 1;
+}
+
+/* Table Body */
+.table-enhanced tbody td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #dee2e6;
+    vertical-align: middle;
+    font-size: 14px;
+    color: #212529;
+}
+
+.table-enhanced tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table-enhanced tbody tr:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.table-enhanced tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Row Actions */
+.table-enhanced .row-actions {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    white-space: nowrap;
+}
+
+.table-enhanced tbody tr:hover .row-actions {
+    opacity: 1;
+}
+
+.table-enhanced .row-actions .btn {
+    padding: 4px 8px;
+    font-size: 12px;
+    margin-right: 4px;
+}
+
+.table-enhanced .row-actions .btn:last-child {
+    margin-right: 0;
+}
+
+/* Dropdown Actions */
+.table-enhanced .dropdown-actions {
+    display: inline-block;
+}
+
+.table-enhanced .dropdown-actions .dropdown-toggle {
+    padding: 4px 10px;
+    font-size: 14px;
+    background: transparent;
+    border: 1px solid #dee2e6;
+    color: #495057;
+}
+
+.table-enhanced .dropdown-actions .dropdown-toggle:hover {
+    background-color: #f8f9fa;
+}
+
+/* Status Badges */
+.table-enhanced .badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 12px;
+}
+
+/* Checkbox Column */
+.table-enhanced .checkbox-column {
+    width: 40px;
+    text-align: center;
+}
+
+.table-enhanced .checkbox-column input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* Empty State */
+.table-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+}
+
+.table-empty-state i {
+    font-size: 64px;
+    color: #dee2e6;
+    margin-bottom: 20px;
+}
+
+.table-empty-state h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #495057;
+}
+
+.table-empty-state p {
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+/* Pagination */
+.table-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+.table-pagination .pagination-info {
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.table-pagination .pagination {
+    margin: 0;
+}
+
+/* Bulk Actions Toolbar */
+.bulk-actions-toolbar {
+    display: none;
+    padding: 15px;
+    background-color: #e7f3ff;
+    border: 1px solid #b3d9ff;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.bulk-actions-toolbar.active {
+    display: flex;
+}
+
+.bulk-actions-toolbar .selected-count {
+    font-weight: 600;
+    margin-right: 15px;
+    color: #004085;
+}
+
+.bulk-actions-toolbar .btn {
+    margin-right: 8px;
+}
+
+/* Responsive Tables */
+@media (max-width: 768px) {
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .table-enhanced {
+        min-width: 600px;
+    }
+    
+    .table-enhanced thead th,
+    .table-enhanced tbody td {
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+    
+    .table-enhanced .row-actions {
+        opacity: 1;
+    }
+}
+
+/* Loading State */
+.table-loading {
+    position: relative;
+    min-height: 200px;
+}
+
+.table-loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.table-loading-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+}
+
+/* Zebra Striping (Optional) */
+.table-enhanced.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0,0,0,.02);
+}
+
+.table-enhanced.table-striped tbody tr:nth-of-type(odd):hover {
+    background-color: #f8f9fa;
+}
+
+/* Compact Table Variant */
+.table-enhanced.table-compact thead th,
+.table-enhanced.table-compact tbody td {
+    padding: 8px 10px;
+    font-size: 13px;
+}
+
+/* Bordered Table Variant */
+.table-enhanced.table-bordered thead th,
+.table-enhanced.table-bordered tbody td {
+    border: 1px solid #dee2e6;
+}
+
+/* ============================================
+   RESPONSIVE LAYOUT FIXES
+   ============================================ */
+
+/* Ensure content fills the viewport properly */
+.content-wrapper {
+    min-height: calc(100vh - 100px);
+}
+
+/* Page Header Responsive Fixes */
+.content-header {
+    padding: 15px;
+    margin: 0;
+}
+
+.content-header .container-fluid {
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+.content-header h1 {
+    margin: 0 0 10px;
+    font-size: 28px;
+    font-weight: 400;
+}
+
+.content-header .text-muted {
+    margin: 0 0 10px;
+    font-size: 14px;
+}
+
+/* Breadcrumb Responsive */
+.content-header .breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    font-size: 13px;
+}
+
+/* Action Buttons Responsive */
+.content-header .float-sm-right {
+    margin-top: 0;
+}
+
+.content-header .float-sm-right .btn {
+    margin-left: 5px;
+    white-space: nowrap;
+}
+
+/* Container Fluid Fixes */
+.container-fluid {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+/* Box Responsive */
+.box {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+/* Table Responsive Container */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+    .content-header h1 {
+        font-size: 24px;
+    }
+    
+    .content-header .float-sm-right {
+        float: none !important;
+        margin-top: 10px;
+    }
+    
+    .content-header .float-sm-right .btn {
+        display: block;
+        width: 100%;
+        margin: 5px 0;
+    }
+    
+    .content-header .row {
+        display: block;
+    }
+    
+    .content-header .col-sm-6 {
+        width: 100%;
+    }
+    
+    /* Table buttons wrap on mobile */
+    .table-enhanced .btn-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2px;
+    }
+    
+    .table-enhanced .btn-group .btn {
+        margin: 2px;
+    }
+    
+    /* Stack form groups on mobile */
+    .box-body .row .col-md-6,
+    .box-body .row .col-md-4,
+    .box-body .row .col-md-3 {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
+
+/* Tablet Adjustments */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .content-header h1 {
+        font-size: 26px;
+    }
+}
+
+/* Ensure proper box sizing */
+* {
+    box-sizing: border-box;
+}
+
+/* Fix any overflow issues */
+body {
+    overflow-x: hidden;
+}
+
+.wrapper {
+    overflow-x: hidden;
+}

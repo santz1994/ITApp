@@ -1,0 +1,258 @@
+﻿Added index: tickets_priority_sla_idx
+Added index: tickets_assigned_status_idx
+Added index: tickets_asset_created_idx
+Added index: assets_status_division_idx
+Added index: assets_assigned_status_idx
+Added index: assets_purchase_warranty_idx
+Added index: daily_activities_user_date_idx
+Added index: daily_activities_ticket_type_idx
+Added index: users_created_at_idx
+Γ£à Added index: tickets_status_priority_idx
+Γ£à Added index: tickets_type_status_idx
+Γ£à Added index: tickets_assigned_status_created_idx
+Γ£à Added index: tickets_user_created_idx
+Γ£à Added index: tickets_location_status_idx
+Γ£à Added index: tickets_asset_status_idx
+Γ£à Added index: tickets_code_idx
+Γ£à Added index: tickets_closed_idx
+Γ£à Added index: assets_status_assigned_idx
+Γ£à Added index: assets_division_status_idx
+Γ£à Added index: assets_model_status_idx
+Γ£à Added index: assets_supplier_idx
+Γ£à Added index: assets_serial_number_idx
+Γ£à Added index: assets_ip_address_idx
+Γ£à Added index: assets_mac_address_idx
+Γ£à Added index: assets_warranty_type_idx
+ΓÅ¡∩╕Å  Index 'assets_purchase_warranty_idx' already exists. Skipping.
+Γ£à Added index: assets_qr_code_idx
+Γ£à Added index: users_email_idx
+Γ£à Added index: users_name_idx
+Γ£à Added index: users_api_token_idx
+ΓÅ¡∩╕Å  Index 'users_created_at_idx' already exists. Skipping.
+Γ£à Added index: asset_models_manufacturer_idx
+Γ£à Added index: asset_models_type_idx
+Γ£à Added index: asset_models_mfg_type_idx
+ΓÜá∩╕Å  Table 'notifications' does not exist. Skipping index 'notifications_user_read_idx'.
+ΓÜá∩╕Å  Table 'notifications' does not exist. Skipping index 'notifications_type_idx'.
+ΓÜá∩╕Å  Table 'notifications' does not exist. Skipping index 'notifications_created_at_idx'.
+Γ£à Added index: activity_logs_causer_created_idx
+Γ£à Added index: activity_logs_subject_idx
+Γ£à Added index: activity_logs_event_idx
+Γ£à Added index: activity_logs_causer_idx
+ΓÜá∩╕Å  Table 'file_attachments' does not exist. Skipping index 'file_attachments_attachable_idx'.
+ΓÜá∩╕Å  Table 'file_attachments' does not exist. Skipping index 'file_attachments_uploaded_by_idx'.
+ΓÜá∩╕Å  Table 'file_attachments' does not exist. Skipping index 'file_attachments_file_type_idx'.
+Γ£à Added index: maintenance_logs_asset_completed_idx
+Γ£à Added index: maintenance_logs_type_idx
+Γ£à Added index: maintenance_logs_status_idx
+Γ£à Added index: maintenance_logs_performed_by_idx
+Γ£à Added index: maintenance_logs_ticket_idx
+Γ£à Added index: maintenance_logs_scheduled_date_idx
+Γ£à Added index: locations_name_idx
+Γ£à Added index: divisions_name_idx
+Γ£à Added index: sla_policies_is_active_idx
+Γ£à Added index: sla_policies_priority_active_idx
+Γ£à Added index: tickets_entries_ticket_created_idx
+Γ£à Added index: tickets_entries_user_idx
+Γ£à Added index: model_has_roles_model_idx
+Γ£à Added index: model_has_roles_role_idx
+Γ£à Added index: model_has_permissions_model_idx
+Γ£à Added index: sessions_user_id_idx
+Γ£à Added index: sessions_last_activity_idx
+ΓÜá∩╕Å  SQLite detected: please recreate test database or manually alter `asset_tag` length to 64 chars.
+.\vendor\bin\phpunit : [2025-12-01 12:55:56] testing.INFO: ticket_assets table recreated with correct data types and FK constraints  
+At line:1 char:1
++ .\vendor\bin\phpunit --filter download_errors_requires_import_summary ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([2025-12-01 12:...K constraints  :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+[2025-12-01 12:56:02] testing.INFO: Location denormalization: Backfilled 0 assets with current locations (SQLite)  
+
+            try { if (class_exists(\Database\Seeders\LocationsTableSeeder::class)) { (new \Database\Seeders\LocationsTableSeeder())->run(); } } catch (\Throwable $__e) {}
+            try { if (class_exists(\Database\Seeders\RolesTableSeeder::class)) { (new \Database\Seeders\RolesTableSeeder())->run(); } } catch (\Throwable $__e) {}
+            try { if (class_exists(\Database\Seeders\TestUsersTableSeeder::class)) { (new \Database\Seeders\TestUsersTableSeeder())->run(); } } catch (\Throwable $__e) {}
+
+class TicketPriorityTest extends TestCase
+{
+     use DatabaseTransactions;
+
+     public static function setUpBeforeClass(): void
+     {
+          parent::setUpBeforeClass();
+          try { if (class_exists(\Database\Seeders\LocationsTableSeeder::class)) { (new \Database\Seeders\LocationsTableSeeder())->run(); } } catch (\Throwable $__e) {}
+          try { if (class_exists(\Database\Seeders\RolesTableSeeder::class)) { (new \Database\Seeders\RolesTableSeeder())->run(); } } catch (\Throwable $__e) {}
+          try { if (class_exists(\Database\Seeders\TestUsersTableSeeder::class)) { (new \Database\Seeders\TestUsersTableSeeder())->run(); } } catch (\Throwable $__e) {}
+     }
+
+    public function testUserCannotAccessTicketPrioritiesView()
+    {
+      $user = User::where('name', 'User User')->get()->first();
+
+      $this->actingAs($user)
+           ->get('/admin/ticket-priorities')
+           ->assertResponseStatus('403');
+    }
+
+    public function testAdminCannotAccessTicketPrioritiesView()
+    {
+      $user = User::where('name', 'Admin User')->get()->first();
+
+      $this->actingAs($user)
+           ->get('/admin/ticket-priorities')
+           ->assertResponseStatus('403');
+    }
+
+    public function testTicketPrioritiesViewWithLoggedInSuperAdmin()
+    {
+      $user = User::where('name', 'Super Admin User')->get()->first();
+
+      $this->actingAs($user)
+           ->visit('/admin/ticket-priorities')
+           ->see('Ticket Priorities');
+    }
+
+    public function testCreateNewTicketPriority()
+    {
+      $user = User::where('name', 'Super Admin User')->get()->first();
+
+      $this->actingAs($user)
+           ->visit('/admin/ticket-priorities')
+           ->see('Create Ticket Priority')
+           ->type('Random Priority', 'priority')
+           ->press('Add New Ticket Priority')
+           ->seePageIs('/admin/ticket-priorities')
+           ->seeInDatabase('tickets_priorities', ['priority' => 'Random Priority']);
+    }
+
+    public function testEditTicketPriority()
+    {
+      $user = User::where('name', 'Super Admin User')->get()->first();
+
+      $this->actingAs($user)
+           ->visit('/admin/ticket-priorities')
+           ->see('Create Ticket Priority')
+           ->type('Random Priority', 'priority')
+           ->press('Add New Ticket Priority')
+           ->seePageIs('/admin/ticket-priorities')
+           ->seeInDatabase('tickets_priorities', ['priority' => 'Random Priority']);
+
+      $ticketPriority = TicketsPriority::get()->last();
+
+      $this->actingAs($user)
+           ->visit('/admin/ticket-priorities/' . $ticketPriority->id . '/edit')
+           ->see('Random Priority')
+           ->type('Different Priority', 'priority')
+           ->press('Edit Ticket Priority')
+           ->seePageIs('/admin/ticket-priorities')
+           ->see('Successfully updated')
+           ->seeInDatabase('tickets_priorities', ['priority' => 'Different Priority']);
+    }
+}
+PHPUnit 9.6.29 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.4.11
+Configuration: Z:\htdocs\quty2\phpunit.xml
+Warning:       Your XML configuration validates against a deprecated schema.
+Suggestion:    Migrate your XML configuration using "--migrate-configuration"!
+
+[2025-12-01 12:57:53] testing.INFO: ticket_assets table recreated with correct data types and FK constraints  
+
+[2025-12-01 12:57:59] testing.INFO: Location denormalization: Backfilled 0 assets with current locations (SQLite)  
+
+"Routes containing import-errors:" // tests\Feature\AssetsImportErrorsDownloadTest.php:38
+array:1 [
+  159 => array:4 [
+    "uri" => "assets/import-errors-download"
+    "methods" => array:2 [
+      0 => "GET"
+      1 => "HEAD"
+    ]
+    "action" => "App\Http\Controllers\AssetsController@downloadImportErrors"
+    "middleware" => array:4 [
+      0 => "web"
+      1 => "web"
+      2 => "auth"
+      3 => "role:admin|super-admin"
+    ]
+  ]
+] // tests\Feature\AssetsImportErrorsDownloadTest.php:38
+F                                                                   1 / 1 (100%)Added index: tickets_priority_sla_idx
+Added index: tickets_assigned_status_idx
+Added index: tickets_asset_created_idx
+Added index: assets_status_division_idx
+Added index: assets_assigned_status_idx
+Added index: assets_purchase_warranty_idx
+Added index: daily_activities_user_date_idx
+Added index: daily_activities_ticket_type_idx
+Added index: users_created_at_idx
+Γ£à Added index: tickets_status_priority_idx
+Γ£à Added index: tickets_type_status_idx
+Γ£à Added index: tickets_assigned_status_created_idx
+Γ£à Added index: tickets_user_created_idx
+Γ£à Added index: tickets_location_status_idx
+Γ£à Added index: tickets_asset_status_idx
+Γ£à Added index: tickets_code_idx
+Γ£à Added index: tickets_closed_idx
+Γ£à Added index: assets_status_assigned_idx
+Γ£à Added index: assets_division_status_idx
+Γ£à Added index: assets_model_status_idx
+Γ£à Added index: assets_supplier_idx
+Γ£à Added index: assets_serial_number_idx
+Γ£à Added index: assets_ip_address_idx
+Γ£à Added index: assets_mac_address_idx
+Γ£à Added index: assets_warranty_type_idx
+ΓÅ¡∩╕Å  Index 'assets_purchase_warranty_idx' already exists. Skipping.
+Γ£à Added index: assets_qr_code_idx
+Γ£à Added index: users_email_idx
+Γ£à Added index: users_name_idx
+Γ£à Added index: users_api_token_idx
+ΓÅ¡∩╕Å  Index 'users_created_at_idx' already exists. Skipping.
+Γ£à Added index: asset_models_manufacturer_idx
+Γ£à Added index: asset_models_type_idx
+Γ£à Added index: asset_models_mfg_type_idx
+ΓÜá∩╕Å  Table 'notifications' does not exist. Skipping index 'notifications_user_read_idx'.
+ΓÜá∩╕Å  Table 'notifications' does not exist. Skipping index 'notifications_type_idx'.
+ΓÜá∩╕Å  Table 'notifications' does not exist. Skipping index 'notifications_created_at_idx'.
+Γ£à Added index: activity_logs_causer_created_idx
+Γ£à Added index: activity_logs_subject_idx
+Γ£à Added index: activity_logs_event_idx
+Γ£à Added index: activity_logs_causer_idx
+ΓÜá∩╕Å  Table 'file_attachments' does not exist. Skipping index 'file_attachments_attachable_idx'.
+ΓÜá∩╕Å  Table 'file_attachments' does not exist. Skipping index 'file_attachments_uploaded_by_idx'.
+ΓÜá∩╕Å  Table 'file_attachments' does not exist. Skipping index 'file_attachments_file_type_idx'.
+Γ£à Added index: maintenance_logs_asset_completed_idx
+Γ£à Added index: maintenance_logs_type_idx
+Γ£à Added index: maintenance_logs_status_idx
+Γ£à Added index: maintenance_logs_performed_by_idx
+Γ£à Added index: maintenance_logs_ticket_idx
+Γ£à Added index: maintenance_logs_scheduled_date_idx
+Γ£à Added index: locations_name_idx
+Γ£à Added index: divisions_name_idx
+Γ£à Added index: sla_policies_is_active_idx
+Γ£à Added index: sla_policies_priority_active_idx
+Γ£à Added index: tickets_entries_ticket_created_idx
+Γ£à Added index: tickets_entries_user_idx
+Γ£à Added index: model_has_roles_model_idx
+Γ£à Added index: model_has_roles_role_idx
+Γ£à Added index: model_has_permissions_model_idx
+Γ£à Added index: sessions_user_id_idx
+Γ£à Added index: sessions_last_activity_idx
+ΓÜá∩╕Å  SQLite detected: please recreate test database or manually alter `asset_tag` length to 64 chars.
+
+
+Time: 01:34.979, Memory: 52.00 MB
+
+There was 1 failure:
+
+1) Tests\Feature\AssetsImportErrorsDownloadTest::download_errors_requires_import_summary_in_session
+Expected response status code [201, 301, 302, 303, 307, 308] but received 404.
+Failed asserting that false is true.
+
+Z:\htdocs\quty2\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:173
+Z:\htdocs\quty2\tests\Feature\AssetsImportErrorsDownloadTest.php:43
+Z:\htdocs\quty2\vendor\laravel\framework\src\Illuminate\Foundation\Testing\TestCase.php:62
+
+FAILURES!
+Tests: 1, Assertions: 3, Failures: 1.

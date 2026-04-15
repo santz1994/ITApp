@@ -1,0 +1,551 @@
+/**
+ * ITQuty - Enhanced UX Styles
+ * Quick Wins Implementation
+ */
+
+/* ===================================
+   1. GLOBAL LOADING SPINNER
+   =================================== */
+
+.global-loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    
+    /* Multiple centering methods for compatibility */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* Ensure it stays on top and centered */
+    pointer-events: none;
+    
+    /* Use transform and opacity for GPU-accelerated animations */
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+    will-change: opacity, transform;
+}
+
+.global-loading.show {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: all;
+}
+
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    
+    /* Use opacity instead of rgba for better performance */
+    background: #000;
+    opacity: 0.25;
+    transition: opacity 0.25s ease-out;
+    will-change: opacity;
+}
+
+.global-loading.show .loading-overlay {
+    opacity: 0.3;
+}
+
+.loading-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    background: #fff;
+    padding: 30px 40px;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    text-align: center;
+    z-index: 1;
+    
+    /* Perfect centering with transform translate */
+    /* Initial state: centered but scaled down and moved down slightly */
+    transform: translate(-50%, calc(-50% + 10px)) scale(0.9);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    will-change: transform;
+    
+    /* Responsive */
+    max-width: 90%;
+}
+
+.global-loading.show .loading-spinner {
+    /* Final state: perfectly centered with full scale */
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.loading-spinner .spinner-border {
+    width: 3rem;
+    height: 3rem;
+    border-width: 0.3em;
+}
+
+.loading-text {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+    /* Accessibility: ensure text is readable */
+    line-height: 1.5;
+}
+
+/* Optimized spinner animation using transform only */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.spinner-border {
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    vertical-align: text-bottom;
+    border: 0.25em solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    
+    /* Use transform for GPU acceleration */
+    animation: spin 0.75s linear infinite;
+    will-change: transform;
+}
+
+/* ===================================
+   2. BUTTON ENHANCEMENTS
+   =================================== */
+
+.btn {
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn[disabled],
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Button with icon spacing */
+.btn i {
+    margin-right: 5px;
+}
+
+.btn i:last-child {
+    margin-right: 0;
+    margin-left: 5px;
+}
+
+/* ===================================
+   3. FORM ENHANCEMENTS
+   =================================== */
+
+.form-control:focus {
+    border-color: #3c8dbc;
+    box-shadow: 0 0 0 0.2rem rgba(60, 141, 188, 0.25);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: #333;
+}
+
+.required-field::after {
+    content: " *";
+    color: #dd4b39;
+}
+
+.char-counter {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+}
+
+/* Invalid feedback enhancement */
+.invalid-feedback {
+    display: block;
+    color: #dd4b39;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.form-control.is-invalid {
+    border-color: #dd4b39;
+}
+
+.form-control.is-valid {
+    border-color: #00a65a;
+}
+
+/* ===================================
+   4. TABLE ENHANCEMENTS
+   =================================== */
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    border-bottom: 2px solid #f4f4f4;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+    color: #666;
+}
+
+.table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+.table-actions {
+    white-space: nowrap;
+}
+
+.table-actions .btn {
+    padding: 2px 8px;
+    font-size: 12px;
+    margin-right: 3px;
+}
+
+/* Bulk actions toolbar */
+.bulk-actions-toolbar {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    border: 1px solid #dee2e6;
+    display: none;
+}
+
+.bulk-actions-toolbar .btn {
+    margin-right: 5px;
+}
+
+.selected-count {
+    font-weight: 600;
+    color: #3c8dbc;
+}
+
+/* ===================================
+   5. CARD ENHANCEMENTS
+   =================================== */
+
+.box {
+    border-radius: 4px;
+    transition: box-shadow 0.3s ease;
+}
+
+.box:hover {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.box-header {
+    padding: 15px;
+    border-bottom: 1px solid #f4f4f4;
+}
+
+.box-title {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.box-body {
+    padding: 15px;
+}
+
+/* ===================================
+   6. BADGE ENHANCEMENTS
+   =================================== */
+
+.badge {
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 3px;
+}
+
+.badge-primary {
+    background-color: #3c8dbc;
+}
+
+.badge-success {
+    background-color: #00a65a;
+}
+
+.badge-warning {
+    background-color: #f39c12;
+}
+
+.badge-danger {
+    background-color: #dd4b39;
+}
+
+.badge-info {
+    background-color: #00c0ef;
+}
+
+/* ===================================
+   7. TOOLTIP ENHANCEMENTS
+   =================================== */
+
+.tooltip {
+    font-size: 12px;
+}
+
+.tooltip-inner {
+    max-width: 250px;
+    padding: 8px 12px;
+    background-color: #333;
+    border-radius: 4px;
+}
+
+/* ===================================
+   8. ALERT ENHANCEMENTS
+   =================================== */
+
+.alert {
+    border-radius: 4px;
+    border-left: 4px solid;
+    animation: slideInDown 0.3s ease;
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alert-success {
+    border-left-color: #00a65a;
+}
+
+.alert-info {
+    border-left-color: #00c0ef;
+}
+
+.alert-warning {
+    border-left-color: #f39c12;
+}
+
+.alert-danger {
+    border-left-color: #dd4b39;
+}
+
+.alert i {
+    margin-right: 8px;
+}
+
+/* ===================================
+   9. BREADCRUMB ENHANCEMENTS
+   =================================== */
+
+.breadcrumb {
+    background: transparent;
+    padding: 10px 0;
+    margin-bottom: 20px;
+}
+
+.breadcrumb > li + li:before {
+    content: "›";
+    padding: 0 8px;
+    color: #999;
+}
+
+.breadcrumb > .active {
+    color: #777;
+}
+
+/* ===================================
+   10. SEARCH BAR ENHANCEMENTS
+   =================================== */
+
+.search-form {
+    position: relative;
+}
+
+.search-form .form-control {
+    padding-right: 35px;
+}
+
+.search-form .search-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    pointer-events: none;
+}
+
+/* ===================================
+   11. EMPTY STATE
+   =================================== */
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-state-icon {
+    font-size: 64px;
+    color: #ddd;
+    margin-bottom: 20px;
+}
+
+.empty-state-title {
+    font-size: 20px;
+    font-weight: 500;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.empty-state-description {
+    font-size: 14px;
+    color: #999;
+    margin-bottom: 20px;
+}
+
+/* ===================================
+   12. RESPONSIVE ENHANCEMENTS
+   =================================== */
+
+@media (max-width: 768px) {
+    .table-responsive {
+        border: none;
+    }
+    
+    .box-header {
+        padding: 10px;
+    }
+    
+    .box-body {
+        padding: 10px;
+    }
+    
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .btn-group .btn {
+        margin-bottom: 5px;
+    }
+    
+    .table-actions .btn {
+        display: block;
+        width: 100%;
+        margin-bottom: 3px;
+    }
+}
+
+/* ===================================
+   13. UTILITY CLASSES
+   =================================== */
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.text-muted {
+    color: #999 !important;
+}
+
+.mb-0 {
+    margin-bottom: 0 !important;
+}
+
+.mt-10 {
+    margin-top: 10px !important;
+}
+
+.mb-10 {
+    margin-bottom: 10px !important;
+}
+
+.p-10 {
+    padding: 10px !important;
+}
+
+/* ===================================
+   14. STATUS INDICATORS
+   =================================== */
+
+.status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.status-dot.status-active {
+    background-color: #00a65a;
+}
+
+.status-dot.status-inactive {
+    background-color: #dd4b39;
+}
+
+.status-dot.status-pending {
+    background-color: #f39c12;
+}
+
+.status-dot.status-maintenance {
+    background-color: #00c0ef;
+}
+
+/* ===================================
+   15. PRINT STYLES
+   =================================== */
+
+@media print {
+    .no-print,
+    .main-sidebar,
+    .main-header,
+    .btn,
+    .breadcrumb,
+    .box-header .box-tools {
+        display: none !important;
+    }
+    
+    .content-wrapper {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .box {
+        border: none !important;
+        box-shadow: none !important;
+    }
+}

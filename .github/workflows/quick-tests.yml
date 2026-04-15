@@ -1,0 +1,131 @@
+name: Quick Tests (API Only)
+
+# This workflow runs only fast API tests for quick feedback
+# Use this for draft PRs or work-in-progress commits
+
+on:
+  push:
+    branches: [develop, feature/**, bugfix/**]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [develop]
+
+jobs:
+  quick-api-tests:
+    name: Quick API Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: mbstring, dom, fileinfo, sqlite, pdo_sqlite
+          coverage: none
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Create environment files
+        run: |
+          cat > .env << 'EOF'
+          APP_NAME=IMS Quty Karunia
+          APP_ENV=testing
+          APP_KEY=base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACc=
+          APP_DEBUG=true
+          APP_URL=http://localhost
+
+          LOG_CHANNEL=stack
+          LOG_LEVEL=debug
+
+          DB_CONNECTION=sqlite
+          DB_DATABASE=database/database.sqlite
+
+          BROADCAST_DRIVER=log
+          CACHE_DRIVER=array
+          FILESYSTEM_DISK=local
+          QUEUE_CONNECTION=sync
+          SESSION_DRIVER=array
+          SESSION_LIFETIME=120
+
+          MAIL_MAILER=log
+          EOF
+
+          cp .env .env.testing
+
+      - name: Create storage directories
+        run: |
+          mkdir -p storage/logs
+          mkdir -p storage/framework/{sessions,views,cache}
+          chmod -R 777 storage
+
+      - name: Create bootstrap cache directory
+        run: |
+          mkdir -p bootstrap/cache
+          chmod -R 777 bootstrap/cache
+
+      - name: Create SQLite database
+        run: |
+          mkdir -p database
+          touch database/database.sqlite
+
+      - name: Run database migrations
+        run: php artisan migrate --env=testing --force
+
+      - name: Seed test data (CRITICAL - must succeed)
+        run: |
+          php artisan db:seed --class=RolesTableSeeder --force
+          echo "✅ Roles seeded successfully"
+
+      - name: Run API Automated Tests (Fast - 15 tests)
+        run: php vendor/bin/phpunit --filter=ApiAutomatedTest --stop-on-failure --verbose
+
+      - name: Run Meeting Room Tests (15 tests)
+        run: php vendor/bin/phpunit --filter=MeetingRoomBookingTest --stop-on-failure --verbose
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ job.status }}' === 'success' ? '✅ PASSED' : '❌ FAILED';
+            const emoji = '${{ job.status }}' === 'success' ? '✅' : '❌';
+
+            const comment = `## ${emoji} Quick API Tests
+
+            **Status:** ${status}
+
+            - ⚡ Fast API tests completed
+            - **30 tests total** (15 API + 15 Meeting Room)
+            - **50+ assertions** covering critical features
+            - Target: >95% success rate
+
+            **Tests Covered:**
+            ✅ Authentication & Authorization (RBAC)
+            ✅ Ticket Management (CRUD + Audit Logs)
+            ✅ Asset Management (CRUD + Requests)
+            ✅ Meeting Room Booking (BLOCKED bypass + Quick edit)
+            ✅ Search & Notifications
+            ✅ Validation & Security
+
+            ${status.includes('FAILED') ? '⚠️ **Action Required:** Fix failing tests before merging. Full browser tests will run when merged to master/develop.' : '✅ **Looking good!** Full browser tests will run on merge.'}
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
