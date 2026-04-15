@@ -29,12 +29,7 @@ if (file_exists($legacy)) {
     // Fallback: Define a minimal home route for tests
     Route::get('/', function () {
         if (Auth::check()) {
-            // Redirect users based on their role
-            /** @var \App\User $user */
-            $user = Auth::user();
-            if (user_has_role($user, 'user')) {
-                return redirect('/tickets');
-            }
+            // Always redirect authenticated users to the main portal.
             return redirect('/home');
         }
         return redirect('/login');

@@ -5,10 +5,10 @@
         <!-- Sidebar Menu -->
         <ul class="sidebar-menu">
             <li class="header">Navigation</li>            
-            <!-- 🏠 Home (Admin=2, SuperAdmin=3, Management=4) -->
-            @role(['admin', 'super-admin', 'management'])
-              <li><a href="{{ url('home') }}"><i class='fa fa-home'></i> <span>Home</span></a></li>
-            @endrole            
+            <!-- 🏠 Main Portal (All authenticated users) -->
+            @auth
+              <li><a href="{{ route('home') }}"><i class='fa fa-home'></i> <span>Main Portal</span></a></li>
+            @endauth            
             <!-- 🏷️ Assets (Admin=2, SuperAdmin=3, Management=4 view-only) -->
             @can('view-assets')
               <li class="treeview">

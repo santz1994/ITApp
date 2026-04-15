@@ -14,7 +14,8 @@ Route::middleware(['web', 'auth'])->group(function () {
     // ========================================
     // HOME/DASHBOARD (All authenticated users)
     // ========================================
-    Route::get('/home', [\App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    Route::get('/home', [\App\Http\Controllers\MainPortalController::class, 'index'])->name('home');
+    Route::get('/portal', [\App\Http\Controllers\MainPortalController::class, 'index'])->name('portal.index');
     Route::redirect('/dashboard', '/home');
     
     // Asset Requests available to all authenticated users (create/view their requests)

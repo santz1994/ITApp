@@ -1,6 +1,6 @@
 ﻿-- MySQL dump 10.13  Distrib 9.4.0, for Win64 (x86_64)
 --
--- Host: 192.168.1.87    Database: itquty
+-- Host: localhost    Database: ITApp
 -- ------------------------------------------------------
 -- Server version	5.5.5-10.4.32-MariaDB
 
