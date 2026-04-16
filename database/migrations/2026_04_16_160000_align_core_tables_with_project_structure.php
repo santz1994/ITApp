@@ -120,11 +120,19 @@ return new class extends Migration {
         }
 
         if (Schema::hasColumn('users', 'username') && Schema::hasColumn('users', 'email')) {
-            DB::statement("UPDATE users SET username = CONCAT(LOWER(SUBSTRING_INDEX(email, '@', 1)), '_', id) WHERE (username IS NULL OR username = '') AND email IS NOT NULL");
+            if ($this->isMysql()) {
+                DB::statement("UPDATE users SET username = CONCAT(LOWER(SUBSTRING_INDEX(email, '@', 1)), '_', id) WHERE (username IS NULL OR username = '') AND email IS NOT NULL");
+            } else {
+                DB::statement("UPDATE users SET username = LOWER(CASE WHEN instr(email, '@') > 0 THEN substr(email, 1, instr(email, '@') - 1) ELSE email END) || '_' || id WHERE (username IS NULL OR username = '') AND email IS NOT NULL");
+            }
         }
 
         if (Schema::hasColumn('users', 'first_name') && Schema::hasColumn('users', 'last_name') && Schema::hasColumn('users', 'name')) {
-            DB::statement("UPDATE users SET first_name = TRIM(SUBSTRING_INDEX(name, ' ', 1)), last_name = NULLIF(TRIM(SUBSTRING(name, LENGTH(SUBSTRING_INDEX(name, ' ', 1)) + 2)), '') WHERE (first_name IS NULL OR first_name = '') AND name IS NOT NULL AND name <> ''");
+            if ($this->isMysql()) {
+                DB::statement("UPDATE users SET first_name = TRIM(SUBSTRING_INDEX(name, ' ', 1)), last_name = NULLIF(TRIM(SUBSTRING(name, LENGTH(SUBSTRING_INDEX(name, ' ', 1)) + 2)), '') WHERE (first_name IS NULL OR first_name = '') AND name IS NOT NULL AND name <> ''");
+            } else {
+                DB::statement("UPDATE users SET first_name = name WHERE (first_name IS NULL OR first_name = '') AND name IS NOT NULL AND name <> ''");
+            }
         }
 
         if (
@@ -134,7 +142,11 @@ return new class extends Migration {
             Schema::hasColumn('model_has_roles', 'role_id') &&
             Schema::hasColumn('model_has_roles', 'model_type')
         ) {
-            DB::statement("UPDATE users u LEFT JOIN (SELECT model_id, MIN(role_id) AS primary_role_id FROM model_has_roles WHERE model_type = 'App\\\\User' GROUP BY model_id) m ON m.model_id = u.id SET u.role_id = m.primary_role_id WHERE u.role_id IS NULL AND m.primary_role_id IS NOT NULL");
+            if ($this->isMysql()) {
+                DB::statement("UPDATE users u LEFT JOIN (SELECT model_id, MIN(role_id) AS primary_role_id FROM model_has_roles WHERE model_type = 'App\\\\User' GROUP BY model_id) m ON m.model_id = u.id SET u.role_id = m.primary_role_id WHERE u.role_id IS NULL AND m.primary_role_id IS NOT NULL");
+            } else {
+                DB::statement("UPDATE users SET role_id = (SELECT MIN(role_id) FROM model_has_roles WHERE model_type = 'App\\User' AND model_id = users.id) WHERE role_id IS NULL");
+            }
         }
     }
 
