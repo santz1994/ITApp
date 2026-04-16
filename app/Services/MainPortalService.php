@@ -22,15 +22,24 @@ class MainPortalService
     public function buildPortalData(User $user): array
     {
         $metrics = $this->portalRepository->getMetricsForUser($user);
+        $isStandardUser = $this->isStandardUser($user);
 
         return [
             'metrics' => $metrics,
             'modules' => $this->resolveModules($user, $metrics),
+            'quickLinks' => $this->buildQuickLinks($user),
             'recentTickets' => $this->portalRepository->getRecentTicketsForUser($user),
+            'ticketStatusBreakdown' => $this->portalRepository->getTicketStatusBreakdownForUser($user),
+            'meetingStatusBreakdown' => $this->portalRepository->getMeetingStatusBreakdownForUser($user),
+            'recentMeetingBookings' => $this->portalRepository->getRecentMeetingBookingsForUser($user),
+            'recentAssetRequests' => $this->portalRepository->getRecentAssetRequestsForUser($user),
+            'workspaceContext' => $this->portalRepository->getUserWorkspaceContext($user),
+            'roleHighlights' => $this->buildRoleHighlights($user, $metrics),
             'userRoleNames' => user_get_role_names($user)->values()->all(),
             'primaryRoleLabel' => $this->formatPrimaryRole($user),
             'jakartaNow' => now('Asia/Jakarta'),
             'subtitle' => $this->buildSubtitle($user),
+            'assetMetricLabel' => $isStandardUser ? 'My Assets' : 'Total Assets',
         ];
     }
 
@@ -45,7 +54,10 @@ class MainPortalService
                 'description' => 'Create, monitor, and resolve IT support tickets with clear SLA visibility.',
                 'icon' => 'fa-life-ring',
                 'theme' => 'primary',
-                'url' => $this->routeOrFallback($isStandardUser ? 'tickets.user-index' : 'tickets.index'),
+                'url' => $this->routeFirstAvailable([
+                    $isStandardUser ? 'tickets.user-index' : 'tickets.index',
+                    'tickets.index',
+                ]),
                 'stat' => $metrics['open_tickets'] ?? 0,
                 'stat_label' => 'Open Tickets',
                 'roles' => [],
@@ -67,7 +79,10 @@ class MainPortalService
                 'description' => 'Track company assets, ownership, lifecycle, and maintenance workload.',
                 'icon' => 'fa-cubes',
                 'theme' => 'info',
-                'url' => $this->routeOrFallback($isStandardUser ? 'assets.user-index' : 'assets.index'),
+                'url' => $this->routeFirstAvailable([
+                    $isStandardUser ? 'assets.user-index' : 'assets.index',
+                    'assets.index',
+                ]),
                 'stat' => $metrics['total_assets'] ?? 0,
                 'stat_label' => $isStandardUser ? 'My Assets' : 'Total Assets',
                 'roles' => [],
@@ -78,7 +93,7 @@ class MainPortalService
                 'description' => 'Submit and monitor procurement requests linked to asset operations.',
                 'icon' => 'fa-shopping-cart',
                 'theme' => 'warning',
-                'url' => $this->routeOrFallback('asset-requests.index'),
+                'url' => $this->routeFirstAvailable(['purchase-requests.index', 'asset-requests.index']),
                 'stat' => $metrics['pending_requests'] ?? 0,
                 'stat_label' => 'Pending Requests',
                 'roles' => [],
@@ -156,9 +171,98 @@ class MainPortalService
         return $availableModules;
     }
 
+    private function buildQuickLinks(User $user): array
+    {
+        $isStandardUser = $this->isStandardUser($user);
+
+        return [
+            'tickets' => $this->routeFirstAvailable([
+                $isStandardUser ? 'tickets.user-index' : 'tickets.index',
+                'tickets.index',
+            ]),
+            'meeting_rooms' => $this->routeOrFallback('meeting-room-bookings.index'),
+            'purchase_requests' => $this->routeFirstAvailable(['purchase-requests.index', 'asset-requests.index']),
+            'assets' => $this->routeFirstAvailable([
+                $isStandardUser ? 'assets.user-index' : 'assets.index',
+                'assets.index',
+            ]),
+        ];
+    }
+
+    private function buildRoleHighlights(User $user, array $metrics): array
+    {
+        if (user_has_role($user, 'receptionist')) {
+            return [
+                $this->highlight('Meetings Today', $metrics['meetings_today'] ?? 0, 'fa-calendar-check-o', 'green'),
+                $this->highlight('Upcoming 7 Days', $metrics['upcoming_meetings_7d'] ?? 0, 'fa-calendar', 'aqua'),
+                $this->highlight('Open Tickets', $metrics['open_tickets'] ?? 0, 'fa-life-ring', 'yellow'),
+                $this->highlight('Pending Requests', $metrics['pending_requests'] ?? 0, 'fa-shopping-cart', 'blue'),
+            ];
+        }
+
+        if (user_has_any_role($user, ['admin', 'super-admin', 'developer'])) {
+            return [
+                $this->highlight('Assigned Open Tickets', $metrics['assigned_open_tickets'] ?? 0, 'fa-user-circle', 'aqua'),
+                $this->highlight('Open Tickets', $metrics['open_tickets'] ?? 0, 'fa-life-ring', 'yellow'),
+                $this->highlight('Pending Meeting Approvals', $metrics['pending_meeting_approvals'] ?? 0, 'fa-clock-o', 'orange'),
+                $this->highlight('Pending Requests', $metrics['pending_requests'] ?? 0, 'fa-shopping-cart', 'blue'),
+            ];
+        }
+
+        if (user_has_any_role($user, ['director', 'management'])) {
+            return [
+                $this->highlight('Open Tickets', $metrics['open_tickets'] ?? 0, 'fa-line-chart', 'aqua'),
+                $this->highlight('Pending Approvals', $metrics['pending_meeting_approvals'] ?? 0, 'fa-check-square-o', 'orange'),
+                $this->highlight('Meetings Today', $metrics['meetings_today'] ?? 0, 'fa-calendar-check-o', 'green'),
+                $this->highlight('Approved Requests (Month)', $metrics['approved_requests_month'] ?? 0, 'fa-check', 'blue'),
+            ];
+        }
+
+        return [
+            $this->highlight('My Open Tickets', $metrics['open_tickets'] ?? 0, 'fa-ticket', 'aqua'),
+            $this->highlight('My Pending Requests', $metrics['pending_requests'] ?? 0, 'fa-shopping-basket', 'yellow'),
+            $this->highlight('Meetings Today', $metrics['meetings_today'] ?? 0, 'fa-calendar', 'green'),
+            $this->highlight('My Assets', $metrics['total_assets'] ?? 0, 'fa-cubes', 'blue'),
+        ];
+    }
+
+    private function highlight(string $label, int $value, string $icon, string $theme): array
+    {
+        return [
+            'label' => $label,
+            'value' => $value,
+            'icon' => $icon,
+            'theme' => $theme,
+        ];
+    }
+
     private function routeOrFallback(string $routeName): string
     {
         return Route::has($routeName) ? route($routeName) : '#';
+    }
+
+    /**
+     * Resolve the first existing route from the provided list.
+     */
+    private function routeFirstAvailable(array $routeNames): string
+    {
+        foreach ($routeNames as $routeName) {
+            if (empty($routeName)) {
+                continue;
+            }
+
+            if (Route::has($routeName)) {
+                return route($routeName);
+            }
+        }
+
+        return '#';
+    }
+
+    private function isStandardUser(User $user): bool
+    {
+        return user_has_role($user, 'user')
+            && !user_has_any_role($user, ['admin', 'super-admin', 'management', 'director', 'receptionist']);
     }
 
     private function isAllowedForRoles(User $user, array $roles): bool

@@ -11,9 +11,17 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
+use App\Services\PurchaseRequestApprovalWorkflowService;
 
 class AssetRequestController extends Controller
 {
+    protected PurchaseRequestApprovalWorkflowService $approvalWorkflowService;
+
+    public function __construct(PurchaseRequestApprovalWorkflowService $approvalWorkflowService)
+    {
+        $this->approvalWorkflowService = $approvalWorkflowService;
+    }
+
     /**
      * Get the authenticated user
      * 
@@ -261,16 +269,15 @@ class AssetRequestController extends Controller
         ]);
 
         try {
-            $assetRequest->update([
-                'status' => 'approved',
-                'approved_by' => Auth::id(),
-                'approved_at' => now(),
-                'admin_notes' => $request->admin_notes
-            ]);
+            $this->approvalWorkflowService->approve(
+                $assetRequest,
+                (int) Auth::id(),
+                $request->input('admin_notes')
+            );
             
             return redirect()->route('asset-requests.show', $assetRequest->id)
                            ->with('success', 'Permintaan asset berhasil disetujui');
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return back()->with('error', 'Gagal menyetujui permintaan: ' . $e->getMessage());
         }
     }
@@ -290,16 +297,15 @@ class AssetRequestController extends Controller
         ]);
 
         try {
-            $assetRequest->update([
-                'status' => 'rejected',
-                'approved_by' => Auth::id(),
-                'approved_at' => now(),
-                'admin_notes' => $request->admin_notes
-            ]);
+            $this->approvalWorkflowService->reject(
+                $assetRequest,
+                (int) Auth::id(),
+                $request->input('admin_notes')
+            );
             
             return redirect()->route('asset-requests.show', $assetRequest->id)
                            ->with('success', 'Permintaan asset berhasil ditolak');
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return back()->with('error', 'Gagal menolak permintaan: ' . $e->getMessage());
         }
     }
@@ -315,19 +321,25 @@ class AssetRequestController extends Controller
         }
 
         $request->validate([
-            'fulfillment_notes' => 'nullable|string|max:1000'
+            'fulfillment_notes' => 'nullable|string|max:1000',
+            'fulfilled_asset_id' => 'nullable|exists:assets,id',
         ]);
 
         try {
-            $assetRequest->update([
-                'status' => 'fulfilled',
-                'fulfilled_at' => now(),
-                'fulfillment_notes' => $request->fulfillment_notes
-            ]);
+            $fulfilledAssetId = $request->filled('fulfilled_asset_id')
+                ? (int) $request->input('fulfilled_asset_id')
+                : null;
+
+            $this->approvalWorkflowService->fulfill(
+                $assetRequest,
+                (int) Auth::id(),
+                $request->input('fulfillment_notes'),
+                $fulfilledAssetId
+            );
             
             return redirect()->route('asset-requests.show', $assetRequest->id)
                            ->with('success', 'Permintaan asset berhasil dipenuhi');
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return back()->with('error', 'Gagal memenuhi permintaan: ' . $e->getMessage());
         }
     }

@@ -8,6 +8,7 @@ use App\MeetingRoomBooking;
 use App\Ticket;
 use App\TicketsStatus;
 use App\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 class MainPortalRepository
@@ -18,8 +19,11 @@ class MainPortalRepository
     public function getMetricsForUser(User $user): array
     {
         $isPersonalScope = $this->shouldUsePersonalScope($user);
+        $canViewAllAssetRequests = $this->canViewAllAssetRequests($user);
         $closedStatusIds = $this->getClosedStatusIds();
-        $todayWib = now('Asia/Jakarta')->toDateString();
+        $todayWib = now('Asia/Jakarta');
+        $upcomingWindowWib = $todayWib->copy()->addDays(7);
+        $monthStartWib = now('Asia/Jakarta')->startOfMonth()->toDateTimeString();
 
         $openTickets = $this->safeCount(function () use ($isPersonalScope, $user, $closedStatusIds) {
             $query = Ticket::query();
@@ -33,7 +37,7 @@ class MainPortalRepository
 
         $meetingsToday = $this->safeCount(function () use ($isPersonalScope, $user, $todayWib) {
             $query = MeetingRoomBooking::query()
-                ->whereDate('start_datetime', $todayWib)
+                ->whereDate('start_datetime', $todayWib->toDateString())
                 ->whereIn('status', ['pending', 'approved']);
 
             if ($isPersonalScope) {
@@ -52,16 +56,9 @@ class MainPortalRepository
         });
 
         $pendingRequests = $this->safeCount(function () use ($isPersonalScope, $user) {
-            $query = AssetRequest::query()->where('status', 'pending');
-
-            if ($isPersonalScope) {
-                $query->where(function ($subQuery) use ($user) {
-                    $subQuery->where('requested_by', $user->id)
-                        ->orWhere('user_id', $user->id);
-                });
-            }
-
-            return $query->count();
+            return $this->assetRequestScopedQuery($user)
+                ->where('status', 'pending')
+                ->count();
         });
 
         $pendingMeetingApprovals = $this->safeCount(function () use ($user) {
@@ -80,6 +77,50 @@ class MainPortalRepository
             return User::query()->where('is_active', true)->count();
         });
 
+        $assignedOpenTickets = $this->safeCount(function () use ($user, $closedStatusIds) {
+            return Ticket::query()
+                ->where('assigned_to', $user->id)
+                ->whereNotIn('ticket_status_id', $closedStatusIds)
+                ->count();
+        });
+
+        $upcomingMeetings7Days = $this->safeCount(function () use ($isPersonalScope, $user, $todayWib, $upcomingWindowWib) {
+            $query = MeetingRoomBooking::query()
+                ->whereBetween('start_datetime', [$todayWib->toDateTimeString(), $upcomingWindowWib->toDateTimeString()])
+                ->whereIn('status', ['pending', 'approved']);
+
+            if ($isPersonalScope) {
+                $query->where('user_id', $user->id);
+            }
+
+            return $query->count();
+        });
+
+        $totalRequests = $this->safeCount(function () use ($user) {
+            return $this->assetRequestScopedQuery($user)->count();
+        });
+
+        $approvedRequestsMonth = $this->safeCount(function () use ($user, $monthStartWib) {
+            return $this->assetRequestScopedQuery($user)
+                ->where('status', 'approved')
+                ->where('created_at', '>=', $monthStartWib)
+                ->count();
+        });
+
+        $fulfilledRequestsMonth = $this->safeCount(function () use ($user, $monthStartWib) {
+            return $this->assetRequestScopedQuery($user)
+                ->where('status', 'fulfilled')
+                ->where('created_at', '>=', $monthStartWib)
+                ->count();
+        });
+
+        $rejectedRequestsMonth = $this->safeCount(function () use ($user, $monthStartWib) {
+            return $this->assetRequestScopedQuery($user)
+                ->where('status', 'rejected')
+                ->where('created_at', '>=', $monthStartWib)
+                ->count();
+        });
+
         return [
             'open_tickets' => $openTickets,
             'meetings_today' => $meetingsToday,
@@ -87,6 +128,14 @@ class MainPortalRepository
             'pending_requests' => $pendingRequests,
             'pending_meeting_approvals' => $pendingMeetingApprovals,
             'active_users' => $activeUsers,
+            'assigned_open_tickets' => $assignedOpenTickets,
+            'upcoming_meetings_7d' => $upcomingMeetings7Days,
+            'total_requests' => $totalRequests,
+            'approved_requests_month' => $approvedRequestsMonth,
+            'fulfilled_requests_month' => $fulfilledRequestsMonth,
+            'rejected_requests_month' => $rejectedRequestsMonth,
+            'can_view_all_asset_requests' => $canViewAllAssetRequests,
+            'is_personal_scope' => $isPersonalScope,
         ];
     }
 
@@ -108,6 +157,185 @@ class MainPortalRepository
         } catch (\Throwable $exception) {
             return collect();
         }
+    }
+
+    /**
+     * Fetch recent purchase requests for quick portal snapshot.
+     */
+    public function getRecentAssetRequestsForUser(User $user, int $limit = 6): Collection
+    {
+        try {
+            return $this->assetRequestScopedQuery($user)
+                ->with(['assetType', 'requestedBy', 'approvedBy'])
+                ->orderBy('created_at', 'desc')
+                ->take($limit)
+                ->get();
+        } catch (\Throwable $exception) {
+            return collect();
+        }
+    }
+
+    /**
+     * Ticket status breakdown to support IT Support widget.
+     */
+    public function getTicketStatusBreakdownForUser(User $user): array
+    {
+        $closedStatusIds = $this->getClosedStatusIds();
+
+        $openCount = $this->safeCount(function () use ($user, $closedStatusIds) {
+            return $this->ticketScopedQuery($user)
+                ->whereNotIn('ticket_status_id', $closedStatusIds)
+                ->count();
+        });
+
+        $assignedOpenCount = $this->safeCount(function () use ($user, $closedStatusIds) {
+            return $this->ticketScopedQuery($user)
+                ->where('assigned_to', $user->id)
+                ->whereNotIn('ticket_status_id', $closedStatusIds)
+                ->count();
+        });
+
+        $urgentOpenCount = $this->safeCount(function () use ($user, $closedStatusIds) {
+            return $this->ticketScopedQuery($user)
+                ->whereNotIn('ticket_status_id', $closedStatusIds)
+                ->whereHas('ticket_priority', function (Builder $priorityQuery) {
+                    $priorityQuery->whereIn('priority', ['Urgent', 'High', 'urgent', 'high']);
+                })
+                ->count();
+        });
+
+        $resolvedCount = $this->safeCount(function () use ($user) {
+            return $this->ticketScopedQuery($user)
+                ->whereHas('ticket_status', function (Builder $statusQuery) {
+                    $statusQuery->whereIn('status', ['Resolved', 'resolved']);
+                })
+                ->count();
+        });
+
+        $closedCount = $this->safeCount(function () use ($user) {
+            return $this->ticketScopedQuery($user)
+                ->whereHas('ticket_status', function (Builder $statusQuery) {
+                    $statusQuery->whereIn('status', ['Closed', 'closed']);
+                })
+                ->count();
+        });
+
+        return [
+            'open' => $openCount,
+            'assigned_open' => $assignedOpenCount,
+            'urgent_open' => $urgentOpenCount,
+            'resolved' => $resolvedCount,
+            'closed' => $closedCount,
+        ];
+    }
+
+    /**
+     * Meeting booking status breakdown to support Meeting Room widget.
+     */
+    public function getMeetingStatusBreakdownForUser(User $user): array
+    {
+        $statuses = ['pending', 'approved', 'rejected', 'finished', 'cancelled'];
+        $breakdown = [];
+
+        foreach ($statuses as $status) {
+            $breakdown[$status] = $this->safeCount(function () use ($user, $status) {
+                return $this->meetingScopedQuery($user)
+                    ->where('status', $status)
+                    ->count();
+            });
+        }
+
+        return $breakdown;
+    }
+
+    /**
+     * Recent meeting bookings for Meeting Room widget.
+     */
+    public function getRecentMeetingBookingsForUser(User $user, int $limit = 6): Collection
+    {
+        try {
+            return $this->meetingScopedQuery($user)
+                ->with(['user', 'approver'])
+                ->orderBy('start_datetime', 'desc')
+                ->take($limit)
+                ->get();
+        } catch (\Throwable $exception) {
+            return collect();
+        }
+    }
+
+    /**
+     * Get user workspace context data for richer portal header.
+     */
+    public function getUserWorkspaceContext(User $user): array
+    {
+        try {
+            $user->loadMissing(['division', 'location']);
+
+            $lastLoginWib = $user->last_login_at
+                ? $user->last_login_at->copy()->timezone('Asia/Jakarta')
+                : null;
+
+            return [
+                'division' => optional($user->division)->name ?: '-',
+                'location' => optional($user->location)->location_name
+                    ?: (optional($user->location)->office ?: '-'),
+                'building' => optional($user->location)->building ?: '-',
+                'last_login_wib' => $lastLoginWib,
+                'last_login_human' => $lastLoginWib ? $lastLoginWib->diffForHumans() : 'Never',
+                'is_active' => (bool) $user->is_active,
+            ];
+        } catch (\Throwable $exception) {
+            return [
+                'division' => '-',
+                'location' => '-',
+                'building' => '-',
+                'last_login_wib' => null,
+                'last_login_human' => 'Unknown',
+                'is_active' => false,
+            ];
+        }
+    }
+
+    private function assetRequestScopedQuery(User $user): Builder
+    {
+        $query = AssetRequest::query();
+
+        if (!$this->canViewAllAssetRequests($user)) {
+            $query->where(function ($subQuery) use ($user) {
+                $subQuery->where('requested_by', $user->id)
+                    ->orWhere('user_id', $user->id);
+            });
+        }
+
+        return $query;
+    }
+
+    private function ticketScopedQuery(User $user): Builder
+    {
+        $query = Ticket::query();
+
+        if ($this->shouldUsePersonalScope($user)) {
+            $query->where('user_id', $user->id);
+        }
+
+        return $query;
+    }
+
+    private function meetingScopedQuery(User $user): Builder
+    {
+        $query = MeetingRoomBooking::query();
+
+        if ($this->shouldUsePersonalScope($user)) {
+            $query->where('user_id', $user->id);
+        }
+
+        return $query;
+    }
+
+    private function canViewAllAssetRequests(User $user): bool
+    {
+        return user_has_any_role($user, ['admin', 'super-admin']);
     }
 
     private function shouldUsePersonalScope(User $user): bool

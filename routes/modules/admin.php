@@ -20,6 +20,8 @@ Route::middleware(['web', 'auth'])->group(function () {
     
     // Asset Requests available to all authenticated users (create/view their requests)
     Route::resource('asset-requests', \App\Http\Controllers\AssetRequestController::class);
+    Route::get('/purchase-requests', [\App\Http\Controllers\PurchaseRequestPortalController::class, 'index'])
+        ->name('purchase-requests.index');
     
     // ========================================
     // MANAGEMENT DASHBOARD

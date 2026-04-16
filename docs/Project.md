@@ -1,5 +1,31 @@
 ## Tasks :
 
+## Progress Update (2026-04-16)
+
+### Newly Implemented in Code
+- Purchase Request approval flow is now handled by a dedicated workflow service:
+    - `PurchaseRequestApprovalWorkflowService`
+    - `AssetRequestController` approve/reject/fulfill actions now delegate business logic to service layer.
+    - Approval/rejection now persist notes consistently to `approval_notes` (legacy-safe).
+    - Fulfillment transition now validates allowed status flow and writes audit log snapshots.
+- Main Portal expanded with dedicated operational summary widgets:
+    - IT Support Summary widget (open, assigned, urgent, resolved/closed + recent tickets table)
+    - Meeting Room Summary widget (pending, approved, finished, cancelled/rejected + recent booking table)
+    - New repository/service data providers added for ticket + meeting status breakdown and recent meeting list.
+- Added module-specific feature tests for Purchase Request portal:
+    - Guest redirect behavior for `/purchase-requests`
+    - Authenticated portal rendering
+    - Role-based visibility (`Review Pending Approvals` shown for admin only)
+    - Data scoping verification (standard user sees own requests only, admin sees all)
+- Codebase cleanup completed for clearly unused artifacts:
+    - Removed `resources/views/debug-view-test.blade.php`
+    - Removed `public/test_dynamic_form.html`
+
+### In Progress / Next Batch
+- Add dedicated Form Request classes for approval/reject/fulfill actions in Purchase Request domain.
+- Add feature tests for approval transition guards (fulfilled/rejected edge cases).
+- Add approval-center widget (tickets/meeting/purchase) on Main Portal (pending your approval).
+
 ## Progress Update (2026-04-15)
 
 ### Approved and Implemented in Code
@@ -29,21 +55,44 @@
 - Added feature test coverage for main portal access:
     - Guest redirect behavior
     - Authenticated portal rendering
+- Database setup and restore completed on local MySQL (`localhost:3306`) using `root` (blank password, per current `.env`).
+    - Target database created first: `itapp` (matches current `.env` value `DB_DATABASE=itapp`).
+    - Pre-import backup artifact verified:
+        - `database/pre_import_itapp_20260415_160706.sql`
+        - Timestamp: `2026-04-15 16:07:06`
+        - Size: `1263` bytes
+    - SQL dump imported successfully: `database/backup_itquty_2026-04-15_122739.sql`
+    - Post-import validation:
+        - Tables: `65`
+        - Assets: `156`
+        - Users: `93`
+        - Tickets: `0`
+- Main Portal enhanced with role-focused operational snapshots and richer workspace context:
+    - User context panel now shows division, location, building, last login, and account status.
+    - Role Focus Snapshot now adapts KPI cards by role (user/receptionist/admin/management).
+    - Dynamic quick links prevent dead-end route navigation for role-specific paths.
+- Dedicated Purchase Request module hub implemented (Controller + Service + Repository + View):
+    - New route: `/purchase-requests` (`purchase-requests.index`)
+    - Summary cards: total, pending, approved this month, fulfilled this month
+    - Status breakdown + quick actions + recent request table
+    - Uses existing `asset_requests` flow for backward compatibility while preparing modular refactor
+- Main Portal now includes purchase request snapshot table for cross-module visibility.
 
 ### In Progress / Next Batch
-- Expand module-level dashboards (per role) with deeper KPI widgets.
-- Integrate richer user info panel (division, location, latest activity).
-- Continue modular refactor for Purchase Request domain (dedicated structure).
+- Connect Purchase Request module to dedicated approval workflow service (separate from controller actions).
+- Add module-specific feature tests for `/purchase-requests` and role-based visibility.
+- Expand IT Support and Meeting Room modules with dedicated summary widgets similar to Purchase Request module.
 
 ### Ideas Added (Pending Your Approval - No Code Yet)
-- Add a compact "Portal Personalization" setting (module order and quick links per user).
-- Add bilingual toggle indicator (ID/EN) directly in portal header.
-- Add approval-center widget (tickets/meeting/purchase) with one-click action queue.
+- Add a compact "Portal Personalization" setting (module order and quick links per user). (Approve by me)
+- Add bilingual toggle indicator (ID/EN) directly in portal header. (Approve by me)
+- Add approval-center widget (tickets/meeting/purchase) with one-click action queue. 
 
-1. Refractor the codebase to improve readability and maintainability.
+## Phase Ideas:
+1. Refactor the codebase to improve readability and maintainability.
  - After login use main portal to navigate to different sections of the application.
  - Implement a dashboard to display key metrics and user information.
- - The Structure is change to a modular apllication with clear separation of concerns.
+ - The Structure is change to a modular application with clear separation of concerns.
    a. IT Support Module: Handle all IT support related functionalities, including ticket management and user support.
    b. Meeting Room: Manage meeting room bookings, availability, and scheduling.
    c. Assets Management: Track and manage company assets, including inventory and maintenance schedules.
@@ -69,6 +118,87 @@
 5. Optimize performance to ensure fast loading times and smooth user experience.
     - Implement caching strategies to reduce server load and improve response times.
     - Optimize database queries to enhance performance and reduce latency.
+6. Database setup and restore:
+    - Set up a local MySQL database using the credentials specified in the `.env` file.
+    - Create the target database (`itapp`) if it does not already exist.
+    - Import the provided SQL dump file (`database/backup_itquty_2026-04-15_122739.sql`) into the local MySQL database to restore the application data.
+    - Change the database structure to match the new modular design of the application, ensuring that all necessary tables and relationships are properly defined to support the new features and functionalities. But modification the backup file to match the new structure of the database, and then import it to the local MySQL database.
+7. UI/UX & Frontend improvements:
+    - Redesign the user interface to align with the new modular structure of the application, ensuring that it is intuitive and user-friendly.
+    - Implement a dashboard on the main portal to display key metrics and user information, providing users with a quick overview of their activities and relevant data.
+    - Ensure that the design is responsive and accessible across different devices and screen sizes.
+8. Implement additional features based on user feedback and requirements, such as:
+    - A compact "Portal Personalization" setting to allow users to customize their portal experience by rearranging module order and adding quick links to frequently used features.
+    - A bilingual toggle indicator (Indonesian/English) in the portal header to allow users to switch between languages easily.
+    - An approval-center widget that aggregates pending tickets, meeting room bookings, and purchase requests for authorized users, allowing them to review and take action with one click.
+9. Backend improvements:
+    - Refactor the backend code to improve readability, maintainability, and scalability, following best practices and design patterns.
+    - Implement a service layer to handle business logic and a repository layer for data access, ensuring a clear separation of concerns and easier maintenance.
+    - Add comprehensive test coverage for the new features and functionalities to ensure reliability and facilitate future development.
+10. Codebase cleanup:
+    - Remove any unused or redundant code, files, and assets to improve maintainability and reduce clutter in the codebase.
+    - Ensure that all remaining code is well-documented and follows consistent coding standards for better readability and collaboration among developers.
+11. Ticketing:
+    - Ticket auto-assignment based on asset category and technician expertise to streamline the support process and ensure that tickets are handled by the most qualified staff.
+    - Implement a ticket escalation process for unresolved tickets to ensure timely resolution and customer satisfaction.
+    - Add a knowledge base feature to allow support staff to document solutions and best practices for common issues, improving efficiency and consistency in handling support requests.
+12. Meeting Room:
+    - Implement a calendar view for meeting room schedules to provide a visual representation of bookings and availability.
+    - Add a feature to allow users to check meeting room availability in real-time through an LCD display, providing convenient access to this information.
+    - Implement a booking approval workflow for meeting rooms that require authorization, ensuring proper management of resources and preventing conflicts.
+13. Assets Management:
+    - Implement a comprehensive asset tracking system that includes inventory management, maintenance scheduling, and disposal processes.
+    - Add a feature to generate and print labels for assets, including QR codes or barcodes for easy tracking and management.
+    - Implement an asset import/export feature to allow bulk management of asset data using CSV or Excel files.
+    - Add a QR code scanning functionality to quickly access asset information and update asset status using a mobile device or scanner.
+14. Purchase Request:
+    - Implement a clear and efficient purchase request process that includes request submission, approval workflows, and tracking of procurement status.
+    - Add a feature to allow users to view the status of their purchase requests and receive notifications about updates or approvals.
+    - Integrate the purchase request module with the assets management module to track the assets being purchased and their maintenance schedules.
+15. User Management:
+    - Implement a user management system that allows administrators to create and manage user accounts, roles, and permissions.
+    - Add features for users to view and update their profile information, including changing passwords and managing personal settings.
+    - Implement role-based access control to ensure that users only have access to features and data relevant to their roles.
+    - Add a feature to allow administrators to monitor user activity and manage user sessions for enhanced security and oversight.
+    - Implement a user activity monitoring system to track user interactions and identify potential security issues or performance bottlenecks.
+    - Add an API management feature to allow administrators to manage API integrations and configurations for seamless connectivity with external systems and services.
+    - Implement a system maintenance feature to allow administrators to schedule and manage system maintenance tasks, ensuring optimal performance and reliability of the application.
+    - Add a chatbox management feature to allow administrators to manage and configure the chatbox feature for real-time communication with support staff, enhancing user experience and support efficiency.
+    - Implement an AI management feature to allow administrators to manage and configure AI features and functionalities within the application, such as chatbots, predictive analytics, and automation tools, providing advanced capabilities and improving overall user experience.
+    - All user can have many roles.
+        - Roles: Guest, User, Receptionist, Human Resources, Administrator (IT Support Staff), Director (Management), Developer (IT Programmer Staff)
+        - Access level :
+            - LV 0 : Guest (Unauthenticated users, with access to limited features such as login and registration pages)
+            - LV 1 : User (Default role for all authenticated users, with access to basic features and functionalities)
+            - LV 2 : Receptionist (Access to meeting room management and user support features)
+            - LV 3 : Human Resources (Access to user management and profile features)
+            - LV 8 : Director (Management) (Access to view all tickets, meeting room bookings, assets, and purchase requests for users under their supervision, as well as KPI dashboards and user management features)
+            - LV 9 : Administrator (IT Support Staff) (Access to IT support module, meeting room management, assets management, purchase request management, user management, and settings)
+            - LV 10 : Developer (IT Programmer Staff) (Access to all features and functionalities, including IT support module, meeting room management, assets management, purchase request management, user management, settings, and additional developer tools for managing the application, future enhancements, and debugging)
+16. Gamification:
+    - Konsep Visual Badge (Warna & Efek)Anda bisa merancang badge ini dengan gaya Cyber-Tech atau Industrial, menggunakan bentuk dasar seperti Hexagon (segi enam) atau Pill (kapsul), dipadukan dengan kode warna khusus.
+        LV 0 : Guest / Stranger | Gray / Silver(#9CA3AF) | Static: Desain sederhana tanpa efek, menunjukkan status non-authenticated. | Ikon Siluet manusia dengan tanda tanya atau kunci terbuka.
+        LV 1 : User / The Operator | Steel Blue / Slate(#64748B) | Static: Desain matte yang bersih dan solid tanpa efek cahaya, menunjukkan fungsi utilitarian di lantai produksi. | Ikon Gear tunggal atau bentuk kotak solid.
+        LV 2 : Receptionist / The Navigator | Neon Cyan(#06B6D4) | Soft Pulse: Efek glow tipis yang berdetak lambat, merepresentasikan sinyal, arah, dan ketersediaan ruangan. | Ikon Radar atau Location Pin dalam bingkai sirkular.
+        LV 3 : Human Resources / The Sync Ops | Emerald Green(#10B981) | Border Glow: Bingkai menyala terang, melambangkan status "Aman/Terhubung" untuk urusan personalia dan user data. | Ikon Node jaringan atau siluet manusia digital.
+        LV 8 : Director / The Prime | Cyber Gold(#F59E0B) | Metallic Shine: Gradien emas dengan kilapan statis (seperti pantulan cahaya logam), menunjukkan otoritas eksekutif. | Ikon Mahkota minimalis atau Bintang bersudut tajam.
+        LV 9 : Administrator / The SysOp | Crimson Red / Orange(#EF4444) | Warning Glow: Warna merah menyala dengan bayangan kuat (heavy box-shadow), menandakan kontrol operasional dan penanganan isu kritis. | Ikon Wrench silang atau tameng pelindung (Shield).
+        LV 10 : Developer / The Architect | Deep Violet / Matrix Green | Glitch / RGB Shift: Efek animasi glitch sesekali atau warna yang perlahan bergeser (breathing neon). Menandakan akses absolut ke source code dan database. | Ikon Mata (The All-Seeing Eye) atau logo Infinity (∞).
+    - Penempatan Badge dalam UI/UX Aplikasi
+        Agar badge ini fungsional dan tidak hanya sekadar kosmetik, letakkan di beberapa area strategis:
+        1. Header / Top Navigation Bar:
+        Di pojok kanan atas layar, di sebelah foto profil atau nama pengguna, tampilkan badge kecil. Misalnya: [D] Daniel • [Badge: LV 10 Developer]. Ini menjadi pengingat konstan tentang hak akses mereka.
+        2. Ticket Management & Chatbox:
+        Saat ada balasan di tiket IT Support, badge ini muncul di sebelah nama komentator.
+            "Wah, tiket saya langsung dibalas oleh seseorang dengan badge merah [LV 10 Administrator] atau badge ungu [LV 10 Developer]!"
+            Ini memberikan ketenangan bagi pembuat tiket bahwa masalah mereka ditangani oleh ahlinya.
+        3. Approval Logs (Purchase Request / Handover Asset):
+        Di dalam riwayat dokumen, berikan stempel badge pada nama yang menyetujui. Misalnya, Approved by Feti [Badge Emas: LV 8 Prime]. Ini membuat rekam jejak audit (audit trail) menjadi sangat jelas secara visual.
+        4. Halaman Profile:
+        Sediakan area khusus di tengah halaman profil yang menampilkan versi besar dan detail dari badge mereka, lengkap dengan animasi penuhnya.
+17. Implementasi AI: (Pending need my approval - Just for Administrator, Director and Developer use only)
+    - Tambahkan fitur AI untuk meningkatkan pengalaman pengguna dan efisiensi operasional, seperti chatbot untuk dukungan otomatis, analitik prediktif untuk wawasan kinerja, dan alat otomatisasi untuk menyederhanakan proses.
+    - Fitur AI akan diimplementasikan dalam fase proyek yang akan datang, dengan fungsionalitas spesifik yang akan ditentukan berdasarkan kebutuhan dan umpan balik pengguna. (Pending need my approval) (AI features will be implemented in the future phase of the project, and specific functionalities will be determined based on user needs and feedback) (Just for Administrator, Director and Developer use only)
 
 
 ## Structure of the application:
@@ -79,7 +209,10 @@
     - User Registration (Allow new users to create an account with email verification for added security)
 
 # MAIN PORTAL
-A. Common user interface for all modules:
+A. Guest Interface
+- Access to login and registration pages only, with no access to other features or modules of the application. Guests will be redirected to the login page if they attempt to access any restricted areas of the application.
+
+B. Common user interface for all modules:
 - Portal Menu (Dashboard)
     - IT Support Module
         - Ticket Management
@@ -107,7 +240,7 @@ A. Common user interface for all modules:
         - Update Profile
         - Change Password
 
-B. Director Interface
+C. Director Interface
 - Portal Menu (Dashboard)
     - IT Support Module
         - View all tickets created by users under the director's supervision
@@ -126,7 +259,7 @@ B. Director Interface
         - Update Profile
         - Change Password
 
-C. Receptionist Interface
+D. Receptionist Interface
 - Portal Menu (Dashboard)
     - Meeting Room
         - View and manage all meeting room bookings and schedules for users under the receptionist's supervision. (Can drag and drop to update booking room status)
@@ -141,7 +274,7 @@ C. Receptionist Interface
     - LCD Screen
         - View meeting room schedule and availability on a large display for easy reference by employees.
 
-D. Administrator Interface (IT Support Staff)
+E. Administrator Interface (IT Support Staff)
 - Portal Menu (Dashboard)
     - IT Support Module
         - Ticket Management
@@ -200,7 +333,7 @@ D. Administrator Interface (IT Support Staff)
         - Update Profile
         - Change Password
 
-E. Developer Interface (IT Programmer Staff)
+F. Developer Interface (IT Programmer Staff)
 - Portal Menu (Dashboard)
     - IT Support Module
         - Ticket Management
