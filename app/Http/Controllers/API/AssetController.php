@@ -458,8 +458,8 @@ class AssetController extends Controller
                     'id' => $ticket->id,
                     'title' => $ticket->title,
                     'description' => $ticket->description,
-                    'status' => $ticket->status->name ?? null,
-                    'priority' => $ticket->priority->name ?? null,
+                    'status' => $ticket->ticket_status->status ?? null,
+                    'priority' => $ticket->ticket_priority->priority ?? null,
                     'created_at' => $ticket->created_at
                 ];
             });

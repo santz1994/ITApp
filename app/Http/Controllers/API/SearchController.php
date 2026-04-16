@@ -92,11 +92,11 @@ class SearchController extends Controller
                     'subject' => $ticket->subject,
                     'priority' => [
                         'id' => $ticket->ticket_priority_id,
-                        'name' => $ticket->priority->name ?? null,
+                        'name' => $ticket->ticket_priority->priority ?? null,
                     ],
                     'status' => [
                         'id' => $ticket->ticket_status_id,
-                        'name' => $ticket->status->name ?? null,
+                        'name' => $ticket->ticket_status->status ?? null,
                     ],
                     'created_at' => $ticket->created_at,
                     'relevance_score' => $ticket->relevance_score ?? null,

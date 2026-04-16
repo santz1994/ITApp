@@ -27,9 +27,11 @@ class Ticket extends Model implements HasMedia
   
   protected $fillable = [
     'user_id', 'location_id', 'ticket_status_id', 'ticket_type_id', 
-    'ticket_priority_id', 'subject', 'description', 'ticket_code',
+    'ticket_priority_id', 'subject', 'title', 'description', 'ticket_code',
+    'status', 'priority', 'category',
     'assigned_to', 'assigned_at', 'assignment_type', 'sla_due',
-    'first_response_at', 'resolved_at', 'asset_id'
+    'assigned_agent_id', 'sla_due_date', 'status_history',
+    'first_response_at', 'resolved_at', 'asset_id', 'resolution_notes'
   ];
 
   /**
@@ -51,9 +53,11 @@ class Ticket extends Model implements HasMedia
   protected $casts = [
     'assigned_at' => 'datetime',
     'sla_due' => 'datetime',
+    'sla_due_date' => 'datetime',
     'first_response_at' => 'datetime',
     'resolved_at' => 'datetime',
     'closed' => 'datetime',
+    'status_history' => 'array',
   ];
 
   /**
@@ -201,6 +205,11 @@ class Ticket extends Model implements HasMedia
     return $this->belongsTo(User::class, 'assigned_to');
   }
 
+  public function assignedAgent()
+  {
+    return $this->belongsTo(User::class, 'assigned_agent_id');
+  }
+
   public function location()
   {
     return $this->belongsTo(Location::class);
@@ -255,6 +264,16 @@ class Ticket extends Model implements HasMedia
   // ACCESSORS & MUTATORS
   // ========================
   
+  /**
+   * Keep API compatibility where title is expected while subject remains canonical.
+   */
+  protected function title(): Attribute
+  {
+    return Attribute::make(
+      get: fn ($value) => $value ?: $this->subject
+    );
+  }
+
   /**
    * Format ticket subject for display (uppercase first letter)
    */

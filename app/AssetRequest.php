@@ -13,10 +13,24 @@ class AssetRequest extends Model
     protected $fillable = [
         'requested_by', 'user_id', 'asset_type_id', 'justification', 'priority', 'status',
         'approved_by', 'approved_at', 'approval_notes', 
-        'fulfilled_asset_id', 'fulfilled_at', 'request_number'
+        'fulfilled_asset_id', 'fulfilled_at', 'request_number',
+        'item_name', 'category', 'quantity', 'approval_history', 'vendor',
+        'estimated_cost', 'actual_cost', 'delivery_date', 'receipt_image',
+        'purchase_notes', 'purchase_history'
     ];
 
     protected $dates = ['approved_at', 'fulfilled_at'];
+
+    protected $casts = [
+        'approved_at' => 'datetime',
+        'fulfilled_at' => 'datetime',
+        'delivery_date' => 'date',
+        'quantity' => 'integer',
+        'estimated_cost' => 'decimal:2',
+        'actual_cost' => 'decimal:2',
+        'approval_history' => 'array',
+        'purchase_history' => 'array',
+    ];
 
     // Relationships
     public function requestedBy()

@@ -42,12 +42,18 @@ class User extends Authenticatable
    * @var array
    */
   protected $fillable = [
+      'username',
+      'first_name',
+      'last_name',
       'name', 
       'email', 
       'password', 
+      'role_id',
       'division_id', 
       'location_id', 
       'phone',
+      'portal_preferences',
+      'profile_picture',
       // Notification preferences
       'notify_email',
       'notify_ticket_created',
@@ -87,6 +93,7 @@ class User extends Authenticatable
       'email_verified_at' => 'datetime',
       'last_login_at' => 'datetime',
       'is_active' => 'boolean',
+      'role_id' => 'integer',
       'portal_preferences' => 'array',
   ];
 
@@ -150,6 +157,15 @@ class User extends Authenticatable
   public function location()
   {
     return $this->belongsTo(\App\Location::class);
+  }
+
+  /**
+   * Optional primary role reference for quick LV lookups.
+   * Canonical RBAC remains many-to-many via Spatie roles.
+   */
+  public function primaryRoleEntity()
+  {
+    return $this->belongsTo(Role::class, 'role_id');
   }
 
   public function adminOnlineStatus()

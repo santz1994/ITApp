@@ -3,6 +3,13 @@
 ## Progress Update (2026-04-16)
 
 ### Newly Implemented in Code
+- Elevated user account `daniel@quty.co.id` to Developer (LV 10) with compatibility-safe role mapping:
+    - Created missing `developer` role (`guard_name = web`) in `roles` table.
+    - Assigned Developer role to user in both `model_has_roles` (Spatie) and legacy `role_user` mapping tables.
+    - Preserved existing `super-admin` role assignment to avoid legacy access regression while enabling LV 10 badge/runtime checks.
+    - Cleared permission cache with `php artisan permission:cache-reset`.
+    - Verified assignment by SQL joins showing user roles now include `super-admin` and `developer`.
+    - Safety procedure completed: pre-change DB backup created and validated at `database/pre_role_update_20260416_150456.sql` before mutation.
 - Purchase Request approval flow is now handled by a dedicated workflow service:
     - `PurchaseRequestApprovalWorkflowService`
     - `AssetRequestController` approve/reject/fulfill actions now delegate business logic to service layer.
@@ -253,6 +260,7 @@
 2. Implement a responsive design to ensure the application is accessible on various devices.
     - Use CSS frameworks like Bootstrap or Tailwind CSS to create a responsive layout.
         - Ensure that all features and functionalities are accessible and usable on mobile devices, tablets, and desktops.
+    - Implement a dark mode toggle to allow users to switch between light and dark themes for better accessibility and user preference. (Pending need my approval)
 3. Integrate a notification system to keep users informed about important updates and events.
     - Implement email notifications for critical events such as ticket updates, meeting room bookings, and asset maintenance reminders. (Pending need my approval)
     - Use in-app notifications to provide real-time updates to users while they are using the application.
@@ -264,6 +272,7 @@
     - Implement caching strategies to reduce server load and improve response times.
     - Optimize database queries to enhance performance and reduce latency.
     - Implement pagination for data-heavy views to improve load times and user experience when dealing with large datasets (e.g., tickets, assets, purchase requests).
+    - Use asynchronous processing for long-running tasks (e.g., report generation, bulk updates) to keep the application responsive and provide feedback to users about task progress and completion.
 6. Database setup and restore:
     - Set up a local MySQL database using the credentials specified in the `.env` file.
     - Create the target database (`itapp`) if it does not already exist.
@@ -289,6 +298,8 @@
     - Implement a service layer to handle business logic and a repository layer for data access, ensuring a clear separation of concerns and easier maintenance.
     - Add comprehensive test coverage for the new features and functionalities to ensure reliability and facilitate future development.
     - Implement a dedicated workflow service for handling purchase request approvals, separating the business logic from controller actions and ensuring a more modular and maintainable codebase.
+        - Add API endpoints for managing portal personalization settings, allowing users to save their preferences for module order and quick links.
+        - Implement a notification system to send email notifications for critical events such as ticket updates, meeting room bookings, and asset maintenance reminders.
 10. Codebase cleanup:
     - Remove any unused or redundant code, files, and assets to improve maintainability and reduce clutter in the codebase.
     - Ensure that all remaining code is well-documented and follows consistent coding standards for better readability and collaboration among developers.
@@ -296,15 +307,22 @@
     - Ticket auto-assignment based on asset category and technician expertise to streamline the support process and ensure that tickets are handled by the most qualified staff.
     - Implement a ticket escalation process for unresolved tickets to ensure timely resolution and customer satisfaction.
     - Add a knowledge base feature to allow support staff to document solutions and best practices for common issues, improving efficiency and consistency in handling support requests.
+        - Implement a ticket prioritization system to help support staff manage their workload and address critical issues first.
+        - Add a feature to allow users to track the status of their tickets and receive notifications about updates or resolutions.
+        - Integrate the ticketing system with the assets management module to track which assets are associated with support tickets and their maintenance schedules.
 12. Meeting Room:
     - Implement a calendar view for meeting room schedules to provide a visual representation of bookings and availability.
     - Add a feature to allow users to check meeting room availability in real-time through an LCD display, providing convenient access to this information.
     - Implement a booking approval workflow for meeting rooms that require authorization, ensuring proper management of resources and preventing conflicts.
+        - Add a feature to allow users to view and manage their meeting room bookings, including the ability to cancel or reschedule bookings as needed.
+        - Integrate the meeting room booking system with calendar applications (e.g., Google Calendar, Outlook) to allow users to sync their bookings and receive reminders.
 13. Assets Management:
     - Implement a comprehensive asset tracking system that includes inventory management, maintenance scheduling, and disposal processes.
     - Add a feature to generate and print labels for assets, including QR codes or barcodes for easy tracking and management.
     - Implement an asset import/export feature to allow bulk management of asset data using CSV or Excel files.
     - Add a QR code scanning functionality to quickly access asset information and update asset status using a mobile device or scanner.
+        - Integrate the assets management module with the ticketing system to track which assets are associated with support tickets and their maintenance schedules, providing a holistic view of asset performance and support history.
+        - Implement a maintenance scheduling feature that allows users to set up regular maintenance tasks for assets, receive notifications about upcoming maintenance, and track the history of maintenance activities for each asset.
 14. Purchase Request:
     - Implement a clear and efficient purchase request process that includes request submission, approval workflows, and tracking of procurement status.
     - Add a feature to allow users to view the status of their purchase requests and receive notifications about updates or approvals.
@@ -353,7 +371,21 @@
 17. Implementasi AI: (Pending need my approval - Just for Administrator, Director and Developer use only)
     - Tambahkan fitur AI untuk meningkatkan pengalaman pengguna dan efisiensi operasional, seperti chatbot untuk dukungan otomatis, analitik prediktif untuk wawasan kinerja, dan alat otomatisasi untuk menyederhanakan proses.
     - Fitur AI akan diimplementasikan dalam fase proyek yang akan datang, dengan fungsionalitas spesifik yang akan ditentukan berdasarkan kebutuhan dan umpan balik pengguna. (Pending need my approval) (AI features will be implemented in the future phase of the project, and specific functionalities will be determined based on user needs and feedback) (Just for Administrator, Director and Developer use only)
-18. Update README.md file to include comprehensive documentation of the project, including setup instructions, feature descriptions, and contribution guidelines to facilitate collaboration and onboarding of new developers. CONTRIBUTING.md file will also be created to provide clear guidelines for contributing to the project, including coding standards, pull request process, and issue reporting. LICENSE.md file will be added to specify the terms under which the project is licensed, ensuring proper usage and distribution of the codebase.
+18. Form management:
+    - Implement a comprehensive form management system to handle various types of forms related to asset handover, lending, return, and disposal processes.
+    - Allow administrators to create, manage, update, and print forms for asset handover, lending, return, and disposal processes, providing a streamlined workflow for managing company assets and ensuring proper documentation of asset transactions.
+        - Integrate the form management system with the assets management module to ensure that all asset-related transactions are properly documented and tracked, providing a holistic view of asset performance and history.
+        - Implement features for users to view and manage their forms, including the ability to submit new forms, track the status of existing forms, and receive notifications about updates or approvals related to their forms.
+19. Database structure update:
+    - Modify the existing database structure to align with the new modular design of the application, ensuring that all necessary tables and relationships are properly defined to support the new features and functionalities.
+    - This may involve creating new tables for modules such as Assets Management, Purchase Request, and User Management, as well as updating existing tables to accommodate changes in data requirements and relationships between modules.
+    - Ensure that the database structure is optimized for performance and scalability, allowing for efficient data retrieval and management as the application grows and evolves.
+    - Drop any redundant or obsolete tables that are no longer needed in the new structure to maintain a clean and efficient database schema.
+20. User Support and Documentation:
+    - Implement a user support system that includes a comprehensive FAQ section and a contact support feature to assist users with any issues or questions they may have while using the application.
+    - The FAQ section will provide answers to common questions and troubleshooting tips, while the contact support feature will allow users to submit inquiries directly to the support team for personalized assistance.
+21. Update README.md file to include comprehensive documentation of the project, including setup instructions, feature descriptions, and contribution guidelines to facilitate collaboration and onboarding of new developers. CONTRIBUTING.md file will also be created to provide clear guidelines for contributing to the project, including coding standards, pull request process, and issue reporting. LICENSE.md file will be added to specify the terms under which the project is licensed, ensuring proper usage and distribution of the codebase.
+
 
 ## Structure of the application:
 # LOGIN PAGE

@@ -440,12 +440,12 @@ class TicketController extends Controller
             ] : null,
             'status' => [
                 'id' => $ticket->ticket_status_id,
-                'name' => $ticket->status->name ?? null,
+                'name' => $ticket->ticket_status->status ?? null,
                 'badge' => $ticket->status_badge
             ],
             'priority' => [
                 'id' => $ticket->ticket_priority_id,
-                'name' => $ticket->priority->name ?? null,
+                'name' => $ticket->ticket_priority->priority ?? null,
                 'color' => $ticket->priority_color
             ],
             'assigned_user' => $ticket->assignedUser ? [
@@ -584,11 +584,11 @@ class TicketController extends Controller
                 'subject' => $ticket->subject,
                 'priority' => [
                     'id' => $ticket->ticket_priority_id,
-                    'name' => $ticket->priority->name ?? null,
+                    'name' => $ticket->ticket_priority->priority ?? null,
                 ],
                 'status' => [
                     'id' => $ticket->ticket_status_id,
-                    'name' => $ticket->status->name ?? null,
+                    'name' => $ticket->ticket_status->status ?? null,
                 ],
                 'assigned_to' => $ticket->assignedUser ? [
                     'id' => $ticket->assignedUser->id,

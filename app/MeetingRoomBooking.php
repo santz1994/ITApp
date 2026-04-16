@@ -8,12 +8,15 @@ class MeetingRoomBooking extends Model
 {
     protected $fillable = [
         'room_name',
+        'room_id',
         'user_id',
         'requester_name', // Name of person requesting (can differ from user account)
         'department', // Bagian/Departemen
         'requester_position', // Jabatan Pemohon
         'start_datetime',
+        'start_time',
         'end_datetime',
+        'end_time',
         'purpose',
         'meeting_description', // Deskripsi/Keterangan Rapat
         'meeting_needs', // Keperluan Rapat
@@ -28,8 +31,11 @@ class MeetingRoomBooking extends Model
     ];
 
     protected $casts = [
+        'room_id' => 'integer',
         'start_datetime' => 'datetime',
+        'start_time' => 'datetime',
         'end_datetime' => 'datetime',
+        'end_time' => 'datetime',
         'approved_at' => 'datetime',
         'manager_approved_at' => 'datetime',
         'finished_at' => 'datetime',
@@ -42,6 +48,14 @@ class MeetingRoomBooking extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Get the room master data for this booking.
+     */
+    public function meetingRoom()
+    {
+        return $this->belongsTo(MeetingRoom::class, 'room_id');
     }
 
     /**

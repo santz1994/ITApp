@@ -30,7 +30,14 @@ class Asset extends Model implements HasMedia
   protected $fillable = [
     'asset_tag', 'name', 'serial_number', 'model_id', 'division_id', 'location_id', 'supplier_id', 
     'purchase_date', 'warranty_months', 'warranty_type_id', 'invoice_id', 
-    'ip_address', 'mac_address', 'qr_code', 'status_id', 'assigned_to', 'notes', 'purchase_order_id'
+    'ip_address', 'mac_address', 'qr_code', 'status_id', 'assigned_to', 'notes', 'purchase_order_id',
+    'category', 'asset_type', 'brand', 'building', 'department', 'location_name', 'status_name',
+    'code', 'maintenance_schedule', 'ticket_history', 'maintenance_history', 'disposal_history',
+    'lending_history', 'return_history',
+    'rfid_tag', 'warranty_expiration_date', 'supplier_name', 'cost',
+    'depreciation_schedule', 'location_history', 'assigned_user_id',
+    'maintenance_status', 'maintenance_notes', 'disposal_status', 'disposal_notes',
+    'lending_status', 'lending_notes', 'return_status', 'return_notes', 'image'
   ];
 
   /**
@@ -44,6 +51,15 @@ class Asset extends Model implements HasMedia
   protected $casts = [
     'purchase_date' => 'date',
     'warranty_months' => 'integer',
+    'warranty_expiration_date' => 'datetime',
+    'cost' => 'decimal:2',
+    'ticket_history' => 'array',
+    'maintenance_history' => 'array',
+    'disposal_history' => 'array',
+    'lending_history' => 'array',
+    'return_history' => 'array',
+    'depreciation_schedule' => 'array',
+    'location_history' => 'array',
   ];
 
   /**
