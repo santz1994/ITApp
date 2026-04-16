@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\CreateAssetRequestRequest;
+use App\Http\Requests\ApprovePurchaseRequestRequest;
+use App\Http\Requests\RejectPurchaseRequestRequest;
+use App\Http\Requests\FulfillPurchaseRequestRequest;
 use App\AssetRequest;
 use App\AssetType;
 use App\User;
@@ -257,22 +260,20 @@ class AssetRequestController extends Controller
     /**
      * Approve asset request
      */
-    public function approve(Request $request, AssetRequest $assetRequest)
+    public function approve(ApprovePurchaseRequestRequest $request, AssetRequest $assetRequest)
     {
         // Only admin can approve
         if (!$this->user()->hasRole(['admin', 'super-admin'])) {
             abort(403, 'Tidak memiliki akses untuk menyetujui permintaan');
         }
 
-        $request->validate([
-            'admin_notes' => 'nullable|string|max:1000'
-        ]);
+        $validated = $request->validated();
 
         try {
             $this->approvalWorkflowService->approve(
                 $assetRequest,
                 (int) Auth::id(),
-                $request->input('admin_notes')
+                $validated['admin_notes'] ?? null
             );
             
             return redirect()->route('asset-requests.show', $assetRequest->id)
@@ -285,22 +286,20 @@ class AssetRequestController extends Controller
     /**
      * Reject asset request
      */
-    public function reject(Request $request, AssetRequest $assetRequest)
+    public function reject(RejectPurchaseRequestRequest $request, AssetRequest $assetRequest)
     {
         // Only admin can reject
         if (!$this->user()->hasRole(['admin', 'super-admin'])) {
             abort(403, 'Tidak memiliki akses untuk menolak permintaan');
         }
 
-        $request->validate([
-            'admin_notes' => 'required|string|max:1000'
-        ]);
+        $validated = $request->validated();
 
         try {
             $this->approvalWorkflowService->reject(
                 $assetRequest,
                 (int) Auth::id(),
-                $request->input('admin_notes')
+                $validated['admin_notes'] ?? null
             );
             
             return redirect()->route('asset-requests.show', $assetRequest->id)
@@ -313,27 +312,24 @@ class AssetRequestController extends Controller
     /**
      * Mark request as fulfilled
      */
-    public function fulfill(Request $request, AssetRequest $assetRequest)
+    public function fulfill(FulfillPurchaseRequestRequest $request, AssetRequest $assetRequest)
     {
         // Only admin can fulfill
         if (!$this->user()->hasRole(['admin', 'super-admin'])) {
             abort(403, 'Tidak memiliki akses untuk memenuhi permintaan');
         }
 
-        $request->validate([
-            'fulfillment_notes' => 'nullable|string|max:1000',
-            'fulfilled_asset_id' => 'nullable|exists:assets,id',
-        ]);
+        $validated = $request->validated();
 
         try {
-            $fulfilledAssetId = $request->filled('fulfilled_asset_id')
-                ? (int) $request->input('fulfilled_asset_id')
+            $fulfilledAssetId = array_key_exists('fulfilled_asset_id', $validated) && $validated['fulfilled_asset_id'] !== null
+                ? (int) $validated['fulfilled_asset_id']
                 : null;
 
             $this->approvalWorkflowService->fulfill(
                 $assetRequest,
                 (int) Auth::id(),
-                $request->input('fulfillment_notes'),
+                $validated['fulfillment_notes'] ?? null,
                 $fulfilledAssetId
             );
             

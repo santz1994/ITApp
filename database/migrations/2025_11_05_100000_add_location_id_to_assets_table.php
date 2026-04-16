@@ -79,7 +79,9 @@ return new class extends Migration
                     ->whereNotNull('location_id')
                     ->count();
                 
-                \Log::info("Location denormalization: Backfilled {$updatedCount} assets with current locations (SQLite)");
+                if (!app()->runningUnitTests()) {
+                    \Log::info("Location denormalization: Backfilled {$updatedCount} assets with current locations (SQLite)");
+                }
             } catch (\Exception $e) {
                 \Log::error("Location denormalization backfill failed (SQLite): " . $e->getMessage());
             }
@@ -110,7 +112,9 @@ return new class extends Migration
                 ->whereNotNull('location_id')
                 ->count();
             
-            \Log::info("Location denormalization: Backfilled {$updatedCount} assets with current locations");
+            if (!app()->runningUnitTests()) {
+                \Log::info("Location denormalization: Backfilled {$updatedCount} assets with current locations");
+            }
         } catch (\Exception $e) {
             \Log::error("Location denormalization backfill failed: " . $e->getMessage());
             // Don't throw exception - this is just a data migration

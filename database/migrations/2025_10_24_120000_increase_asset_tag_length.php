@@ -23,7 +23,7 @@ return new class extends Migration
             // We'll skip automatic rewriting here to avoid complexity; developers can
             // recreate the test DB or run the appropriate sqlite migration manually.
             // Log a friendly notice instead.
-            echo "⚠️  SQLite detected: please recreate test database or manually alter `asset_tag` length to 64 chars.\n";
+            $this->writeOutput("⚠️  SQLite detected: please recreate test database or manually alter `asset_tag` length to 64 chars.");
         }
     }
 
@@ -35,7 +35,16 @@ return new class extends Migration
         if (DB::getDriverName() === 'mysql' || DB::getDriverName() === 'pgsql') {
             DB::statement("ALTER TABLE `assets` MODIFY `asset_tag` VARCHAR(10) NOT NULL");
         } else {
-            echo "⚠️  SQLite detected: manual rollback may be required (asset_tag length).\n";
+            $this->writeOutput("⚠️  SQLite detected: manual rollback may be required (asset_tag length).");
         }
+    }
+
+    private function writeOutput(string $message): void
+    {
+        if (app()->runningUnitTests()) {
+            return;
+        }
+
+        echo $message . "\n";
     }
 };

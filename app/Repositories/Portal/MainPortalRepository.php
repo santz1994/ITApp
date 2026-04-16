@@ -24,6 +24,8 @@ class MainPortalRepository
         $todayWib = now('Asia/Jakarta');
         $upcomingWindowWib = $todayWib->copy()->addDays(7);
         $monthStartWib = now('Asia/Jakarta')->startOfMonth()->toDateTimeString();
+        $useDirectorSupervisionScope = $this->shouldUseDirectorSupervisionScope($user);
+        $directorDivisionId = $this->directorDivisionId($user);
 
         $openTickets = $this->safeCount(function () use ($isPersonalScope, $user, $closedStatusIds) {
             $query = Ticket::query();
@@ -61,12 +63,18 @@ class MainPortalRepository
                 ->count();
         });
 
-        $pendingMeetingApprovals = $this->safeCount(function () use ($user) {
-            if (!user_has_any_role($user, ['director', 'admin', 'super-admin', 'management'])) {
+        $pendingMeetingApprovals = $this->safeCount(function () use ($user, $useDirectorSupervisionScope, $directorDivisionId) {
+            if (!user_has_any_role($user, ['director', 'admin', 'super-admin', 'management', 'developer'])) {
                 return 0;
             }
 
-            return MeetingRoomBooking::query()->where('status', 'pending')->count();
+            $query = MeetingRoomBooking::query()->where('status', 'pending');
+
+            if ($useDirectorSupervisionScope) {
+                $this->applyDirectorScopeToMeetingQuery($query, $user, $directorDivisionId);
+            }
+
+            return $query->count();
         });
 
         $activeUsers = $this->safeCount(function () use ($user) {
@@ -82,6 +90,44 @@ class MainPortalRepository
                 ->where('assigned_to', $user->id)
                 ->whereNotIn('ticket_status_id', $closedStatusIds)
                 ->count();
+        });
+
+        $unassignedOpenTickets = $this->safeCount(function () use ($user, $closedStatusIds, $useDirectorSupervisionScope, $directorDivisionId) {
+            if (!user_has_any_role($user, ['admin', 'super-admin', 'developer', 'director', 'management'])) {
+                return 0;
+            }
+
+            $query = Ticket::query()
+                ->whereNotIn('ticket_status_id', $closedStatusIds)
+                ->where(function (Builder $query) {
+                    $query->whereNull('assigned_to')
+                        ->orWhere('assigned_to', 0);
+                });
+
+            if ($useDirectorSupervisionScope) {
+                $this->applyDirectorScopeToTicketQuery($query, $user, $directorDivisionId);
+            }
+
+            return $query->count();
+        });
+
+        $pendingRequestsApprovalCenter = $this->safeCount(function () use ($user, $useDirectorSupervisionScope, $directorDivisionId) {
+            if (!user_has_any_role($user, ['admin', 'super-admin', 'developer', 'director', 'management'])) {
+                return 0;
+            }
+
+            $query = AssetRequest::query()->where('status', 'pending');
+
+            if ($useDirectorSupervisionScope) {
+                $this->applyDirectorScopeToAssetRequestQuery($query, $user, $directorDivisionId);
+            } elseif (!$this->canViewAllApprovalCenterRequests($user)) {
+                $query->where(function (Builder $subQuery) use ($user) {
+                    $subQuery->where('requested_by', $user->id)
+                        ->orWhere('user_id', $user->id);
+                });
+            }
+
+            return $query->count();
         });
 
         $upcomingMeetings7Days = $this->safeCount(function () use ($isPersonalScope, $user, $todayWib, $upcomingWindowWib) {
@@ -129,6 +175,10 @@ class MainPortalRepository
             'pending_meeting_approvals' => $pendingMeetingApprovals,
             'active_users' => $activeUsers,
             'assigned_open_tickets' => $assignedOpenTickets,
+            'unassigned_open_tickets' => $unassignedOpenTickets,
+            'approval_center_ticket_queue' => $unassignedOpenTickets,
+            'approval_center_meeting_queue' => $pendingMeetingApprovals,
+            'approval_center_purchase_queue' => $pendingRequestsApprovalCenter,
             'upcoming_meetings_7d' => $upcomingMeetings7Days,
             'total_requests' => $totalRequests,
             'approved_requests_month' => $approvedRequestsMonth,
@@ -342,6 +392,66 @@ class MainPortalRepository
     {
         return user_has_role($user, 'user')
             && !user_has_any_role($user, ['admin', 'super-admin', 'management', 'director', 'receptionist']);
+    }
+
+    private function shouldUseDirectorSupervisionScope(User $user): bool
+    {
+        return user_has_any_role($user, ['director', 'management'])
+            && !user_has_any_role($user, ['admin', 'super-admin', 'developer']);
+    }
+
+    private function directorDivisionId(User $user): ?int
+    {
+        $divisionId = (int) ($user->division_id ?? 0);
+
+        return $divisionId > 0 ? $divisionId : null;
+    }
+
+    private function applyDirectorScopeToTicketQuery(Builder $query, User $user, ?int $divisionId): void
+    {
+        if ($divisionId !== null) {
+            $query->whereHas('user', function (Builder $userQuery) use ($divisionId) {
+                $userQuery->where('division_id', $divisionId);
+            });
+
+            return;
+        }
+
+        $query->where('user_id', $user->id);
+    }
+
+    private function applyDirectorScopeToMeetingQuery(Builder $query, User $user, ?int $divisionId): void
+    {
+        if ($divisionId !== null) {
+            $query->whereHas('user', function (Builder $userQuery) use ($divisionId) {
+                $userQuery->where('division_id', $divisionId);
+            });
+
+            return;
+        }
+
+        $query->where('user_id', $user->id);
+    }
+
+    private function applyDirectorScopeToAssetRequestQuery(Builder $query, User $user, ?int $divisionId): void
+    {
+        if ($divisionId !== null) {
+            $query->whereHas('requestedBy', function (Builder $userQuery) use ($divisionId) {
+                $userQuery->where('division_id', $divisionId);
+            });
+
+            return;
+        }
+
+        $query->where(function (Builder $subQuery) use ($user) {
+            $subQuery->where('requested_by', $user->id)
+                ->orWhere('user_id', $user->id);
+        });
+    }
+
+    private function canViewAllApprovalCenterRequests(User $user): bool
+    {
+        return user_has_any_role($user, ['admin', 'super-admin', 'developer']);
     }
 
     private function getClosedStatusIds(): array

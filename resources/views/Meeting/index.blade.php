@@ -13,14 +13,22 @@
     'actions' => '
         <div class="btn-group" role="group">
             <a href="'.route('meeting-room-bookings.create').'" class="btn btn-success">
-                <i class="fa fa-plus"></i> <span class="hidden-xs">New Booking</span>
+                <i class="fa fa-plus"></i> <span class="hidden-xs" data-i18n="meeting.action.new_booking">New Booking</span>
             </a>
             <a href="'.route('meeting-room-bookings.calendar').'" class="btn btn-primary">
-                <i class="fa fa-calendar"></i> <span class="hidden-xs">Calendar</span>
+                <i class="fa fa-calendar"></i> <span class="hidden-xs" data-i18n="meeting.action.calendar">Calendar</span>
             </a>
         </div>
     '
 ])
+
+<div class="pull-right" style="margin-top: -52px; margin-bottom: 16px; margin-right: 15px;">
+    <div class="btn-group btn-group-xs" role="group" aria-label="Meeting Room Language Toggle">
+        <button type="button" class="btn btn-default" id="meetingLanguageEnglish" data-lang="en">EN</button>
+        <button type="button" class="btn btn-default" id="meetingLanguageIndonesian" data-lang="id">ID</button>
+    </div>
+</div>
+<div class="clearfix"></div>
 
 <div class="container-fluid">
 
@@ -45,7 +53,7 @@
             <div class="small-box bg-aqua" onclick="filterByStatus('all')" style="cursor: pointer;">
                 <div class="inner">
                     <h3>{{ $stats['total'] ?? 0 }}</h3>
-                    <p>Total Bookings</p>
+                    <p data-i18n="meeting.summary.total_bookings">Total Bookings</p>
                 </div>
                 <div class="icon">
                     <i class="fa fa-calendar"></i>
@@ -57,7 +65,7 @@
             <div class="small-box bg-yellow" onclick="filterByStatus('pending')" style="cursor: pointer;">
                 <div class="inner">
                     <h3>{{ $stats['pending'] ?? 0 }}</h3>
-                    <p>Pending Approval</p>
+                    <p data-i18n="meeting.summary.pending_approval">Pending Approval</p>
                 </div>
                 <div class="icon">
                     <i class="fa fa-clock-o"></i>
@@ -69,7 +77,7 @@
             <div class="small-box bg-green" onclick="filterByStatus('approved')" style="cursor: pointer;">
                 <div class="inner">
                     <h3>{{ $stats['approved'] ?? 0 }}</h3>
-                    <p>Approved</p>
+                    <p data-i18n="meeting.summary.approved">Approved</p>
                 </div>
                 <div class="icon">
                     <i class="fa fa-check-circle"></i>
@@ -81,7 +89,7 @@
             <div class="small-box bg-red" onclick="filterByStatus('rejected')" style="cursor: pointer;">
                 <div class="inner">
                     <h3>{{ $stats['rejected'] ?? 0 }}</h3>
-                    <p>Rejected</p>
+                    <p data-i18n="meeting.summary.rejected">Rejected</p>
                 </div>
                 <div class="icon">
                     <i class="fa fa-times-circle"></i>
@@ -95,7 +103,7 @@
             <div class="small-box bg-blue" onclick="filterByStatus('finished')" style="cursor: pointer;">
                 <div class="inner">
                     <h3>{{ $stats['finished'] ?? 0 }}</h3>
-                    <p>Finished</p>
+                    <p data-i18n="meeting.summary.finished">Finished</p>
                 </div>
                 <div class="icon">
                     <i class="fa fa-check"></i>
@@ -107,7 +115,7 @@
             <div class="small-box bg-gray" onclick="filterByStatus('cancelled')" style="cursor: pointer;">
                 <div class="inner">
                     <h3>{{ $stats['cancelled'] ?? 0 }}</h3>
-                    <p>Cancelled</p>
+                    <p data-i18n="meeting.summary.cancelled">Cancelled</p>
                 </div>
                 <div class="icon">
                     <i class="fa fa-ban"></i>
@@ -119,7 +127,7 @@
             <div class="small-box bg-purple" onclick="filterByStatus('today')" style="cursor: pointer;">
                 <div class="inner">
                     <h3>{{ $stats['today'] ?? 0 }}</h3>
-                    <p>Today's Bookings</p>
+                    <p data-i18n="meeting.summary.today_bookings">Today's Bookings</p>
                 </div>
                 <div class="icon">
                     <i class="fa fa-calendar-o"></i>
@@ -134,14 +142,14 @@
                 <div class="box-header with-border">
                     <h3 class="box-title">
                         <i class="fa fa-calendar-check-o"></i> 
-                        Booking Requests
+                        <span data-i18n="meeting.table.title">Booking Requests</span>
                         <span class="badge bg-blue" id="bookingCount">{{ $bookings->count() }}</span>
                     </h3>
                     <div class="box-tools pull-right">
                         <div class="btn-group" role="group" style="margin-right: 5px;">
                             @role(['receptionist', 'admin', 'super-admin'])
                             <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#monthlyReportModal">
-                                <i class="fa fa-file-excel-o"></i> Export
+                                <i class="fa fa-file-excel-o"></i> <span data-i18n="meeting.action.export">Export</span>
                             </button>
                             @endrole
                         </div>
@@ -156,19 +164,19 @@
                     <ul class="nav nav-tabs" style="margin-bottom: 15px;">
                         <li class="{{ (!request('tab') || request('tab') == 'all') ? 'active' : '' }}">
                             <a href="{{ route('meeting-room-bookings.index') }}" data-tab="all">
-                                <i class="fa fa-list"></i> All Bookings
+                                <i class="fa fa-list"></i> <span data-i18n="meeting.tabs.all_bookings">All Bookings</span>
                                 <span class="badge bg-blue">{{ $stats['total'] ?? 0 }}</span>
                             </a>
                         </li>
                         <li class="{{ request('tab') == 'my-bookings' ? 'active' : '' }}">
                             <a href="{{ route('meeting-room-bookings.index', ['tab' => 'my-bookings']) }}" data-tab="my-bookings">
-                                <i class="fa fa-user"></i> My Bookings
+                                <i class="fa fa-user"></i> <span data-i18n="meeting.tabs.my_bookings">My Bookings</span>
                             </a>
                         </li>
                         @if(user_has_role(Auth::user(), 'director') || user_has_role(Auth::user(), 'admin') || user_has_role(Auth::user(), 'super-admin'))
                         <li class="{{ request('tab') == 'pending' ? 'active' : '' }}">
                             <a href="{{ route('meeting-room-bookings.index', ['tab' => 'pending']) }}" data-tab="pending">
-                                <i class="fa fa-clock-o"></i> Pending Approval
+                                <i class="fa fa-clock-o"></i> <span data-i18n="meeting.tabs.pending_approval">Pending Approval</span>
                                 @if(isset($stats['pending']) && $stats['pending'] > 0)
                                     <span class="badge bg-yellow">{{ $stats['pending'] }}</span>
                                 @endif
@@ -182,15 +190,15 @@
                         <table id="bookingsTable" class="table table-bordered table-striped">
                             <thead>
                                 <tr>
-                                    <th style="width: 60px;">ID</th>
-                                    <th>Room</th>
-                                    <th>Date & Time</th>
-                                    <th>Requester</th>
-                                    <th>Department</th>
-                                    <th>Duration</th>
-                                    <th>Attendees</th>
-                                    <th>Status</th>
-                                    <th style="width: 200px;">Actions</th>
+                                    <th style="width: 60px;" data-i18n="meeting.table.id">ID</th>
+                                    <th data-i18n="meeting.table.room">Room</th>
+                                    <th data-i18n="meeting.table.date_time">Date & Time</th>
+                                    <th data-i18n="meeting.table.requester">Requester</th>
+                                    <th data-i18n="meeting.table.department">Department</th>
+                                    <th data-i18n="meeting.table.duration">Duration</th>
+                                    <th data-i18n="meeting.table.attendees">Attendees</th>
+                                    <th data-i18n="meeting.table.status">Status</th>
+                                    <th style="width: 200px;" data-i18n="meeting.table.actions">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -321,10 +329,10 @@
                                     <td colspan="9" class="text-center">
                                         <div class="empty-state">
                                             <i class="fa fa-calendar fa-3x text-muted"></i>
-                                            <h4>No Bookings Found</h4>
-                                            <p>Start by creating your first booking request.</p>
+                                            <h4 data-i18n="meeting.table.empty_title">No Bookings Found</h4>
+                                            <p data-i18n="meeting.table.empty_subtitle">Start by creating your first booking request.</p>
                                             <a href="{{ route('meeting-room-bookings.create') }}" class="btn btn-primary">
-                                                <i class="fa fa-plus"></i> Create Booking
+                                                <i class="fa fa-plus"></i> <span data-i18n="meeting.action.create_booking">Create Booking</span>
                                             </a>
                                         </div>
                                     </td>
@@ -349,20 +357,20 @@
                 <div class="modal-header bg-green">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                     <h4 class="modal-title">
-                        <i class="fa fa-check-circle"></i> Approve Booking Request
+                        <i class="fa fa-check-circle"></i> <span data-i18n="meeting.modal.approve.title">Approve Booking Request</span>
                     </h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Notes (Optional)</label>
+                        <label data-i18n="meeting.modal.approve.notes_label">Notes (Optional)</label>
                         <textarea name="director_notes" class="form-control" rows="3" 
-                                  placeholder="Add notes for approval..."></textarea>
+                                  placeholder="Add notes for approval..." data-i18n-placeholder="meeting.modal.approve.notes_placeholder"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><span data-i18n="meeting.modal.cancel">Cancel</span></button>
                     <button type="submit" class="btn btn-success">
-                        <i class="fa fa-check"></i> Approve
+                        <i class="fa fa-check"></i> <span data-i18n="meeting.modal.approve.action">Approve</span>
                     </button>
                 </div>
             </form>
@@ -379,22 +387,22 @@
                 <div class="modal-header bg-red">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                     <h4 class="modal-title">
-                        <i class="fa fa-times-circle"></i> Reject Booking Request
+                        <i class="fa fa-times-circle"></i> <span data-i18n="meeting.modal.reject.title">Reject Booking Request</span>
                     </h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Rejection Reason <span class="text-danger">*</span></label>
+                        <label><span data-i18n="meeting.modal.reject.reason_label">Rejection Reason</span> <span class="text-danger">*</span></label>
                         <textarea name="director_notes" class="form-control" rows="3" 
-                                  placeholder="Explain why this booking is rejected..." 
+                                  placeholder="Explain why this booking is rejected..." data-i18n-placeholder="meeting.modal.reject.reason_placeholder"
                                   required minlength="10"></textarea>
-                        <small class="text-muted">Minimum 10 characters required</small>
+                        <small class="text-muted" data-i18n="meeting.modal.reject.min_chars">Minimum 10 characters required</small>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><span data-i18n="meeting.modal.cancel">Cancel</span></button>
                     <button type="submit" class="btn btn-danger">
-                        <i class="fa fa-times"></i> Reject
+                        <i class="fa fa-times"></i> <span data-i18n="meeting.modal.reject.action">Reject</span>
                     </button>
                 </div>
             </form>
@@ -411,13 +419,13 @@
                     <span>&times;</span>
                 </button>
                 <h4 class="modal-title">
-                    <i class="fa fa-file-excel-o"></i> Download Laporan Bulanan Excel
+                    <i class="fa fa-file-excel-o"></i> <span data-i18n="meeting.modal.report.title">Download Monthly Excel Report</span>
                 </h4>
             </div>
             <div class="modal-body">
                 <form id="monthlyReportForm" method="GET" action="{{ route('meeting-room-bookings.report.monthly-excel') }}">
                     <div class="form-group">
-                        <label for="report_month">Pilih Bulan:</label>
+                        <label for="report_month" data-i18n="meeting.modal.report.month_label">Select Month:</label>
                         <select class="form-control" id="report_month" name="month" required>
                             <option value="1" {{ now()->month == 1 ? 'selected' : '' }}>Januari</option>
                             <option value="2" {{ now()->month == 2 ? 'selected' : '' }}>Februari</option>
@@ -434,7 +442,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="report_year">Pilih Tahun:</label>
+                        <label for="report_year" data-i18n="meeting.modal.report.year_label">Select Year:</label>
                         <select class="form-control" id="report_year" name="year" required>
                             @for($year = now()->year; $year >= now()->year - 5; $year--)
                                 <option value="{{ $year }}" {{ now()->year == $year ? 'selected' : '' }}>
@@ -445,14 +453,14 @@
                     </div>
                     <div class="alert alert-info">
                         <i class="fa fa-info-circle"></i>
-                        Laporan akan berisi data booking dengan status <strong>Approved</strong> atau <strong>Finished</strong> pada bulan yang dipilih.
+                        <span data-i18n="meeting.modal.report.info">The report includes booking data with status <strong>Approved</strong> or <strong>Finished</strong> for the selected month.</span>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><span data-i18n="meeting.modal.cancel">Cancel</span></button>
                 <button type="button" class="btn btn-success" id="btnDownloadReport">
-                    <i class="fa fa-download"></i> Download Excel
+                    <i class="fa fa-download"></i> <span data-i18n="meeting.modal.report.download">Download Excel</span>
                 </button>
             </div>
         </div>
@@ -498,7 +506,251 @@
 @push('scripts')
 <script src="{{ asset('js/datatable-enhancements.js') }}?v={{ time() }}"></script>
 <script>
+(function() {
+    var translations = {
+        en: {
+            'meeting.summary.total_bookings': 'Total Bookings',
+            'meeting.summary.pending_approval': 'Pending Approval',
+            'meeting.summary.approved': 'Approved',
+            'meeting.summary.rejected': 'Rejected',
+            'meeting.summary.finished': 'Finished',
+            'meeting.summary.cancelled': 'Cancelled',
+            'meeting.summary.today_bookings': "Today's Bookings",
+            'meeting.table.title': 'Booking Requests',
+            'meeting.table.count_suffix': 'Bookings',
+            'meeting.table.id': 'ID',
+            'meeting.table.room': 'Room',
+            'meeting.table.date_time': 'Date & Time',
+            'meeting.table.requester': 'Requester',
+            'meeting.table.department': 'Department',
+            'meeting.table.duration': 'Duration',
+            'meeting.table.attendees': 'Attendees',
+            'meeting.table.status': 'Status',
+            'meeting.table.actions': 'Actions',
+            'meeting.table.empty_title': 'No Bookings Found',
+            'meeting.table.empty_subtitle': 'Start by creating your first booking request.',
+            'meeting.tabs.all_bookings': 'All Bookings',
+            'meeting.tabs.my_bookings': 'My Bookings',
+            'meeting.tabs.pending_approval': 'Pending Approval',
+            'meeting.action.new_booking': 'New Booking',
+            'meeting.action.calendar': 'Calendar',
+            'meeting.action.export': 'Export',
+            'meeting.action.create_booking': 'Create Booking',
+            'meeting.ui.loading': 'Loading...',
+            'meeting.modal.cancel': 'Cancel',
+            'meeting.modal.approve.title': 'Approve Booking Request',
+            'meeting.modal.approve.notes_label': 'Notes (Optional)',
+            'meeting.modal.approve.notes_placeholder': 'Add notes for approval...',
+            'meeting.modal.approve.action': 'Approve',
+            'meeting.modal.reject.title': 'Reject Booking Request',
+            'meeting.modal.reject.reason_label': 'Rejection Reason',
+            'meeting.modal.reject.reason_placeholder': 'Explain why this booking is rejected...',
+            'meeting.modal.reject.min_chars': 'Minimum 10 characters required',
+            'meeting.modal.reject.action': 'Reject',
+            'meeting.modal.report.title': 'Download Monthly Excel Report',
+            'meeting.modal.report.month_label': 'Select Month:',
+            'meeting.modal.report.year_label': 'Select Year:',
+            'meeting.modal.report.info': 'The report includes booking data with status Approved or Finished for the selected month.',
+            'meeting.modal.report.download': 'Download Excel',
+            'meeting.runtime.confirm.finish': 'Finish this meeting now?\n\nMeeting will be marked as FINISHED even if it has not reached the scheduled end time.',
+            'meeting.runtime.confirm.cancel_booking': 'Are you sure you want to cancel this booking?',
+            'meeting.runtime.confirm.delete_booking': 'Are you sure you want to delete this booking? This action cannot be undone.',
+            'meeting.runtime.success.finish': 'Meeting finished successfully!',
+            'meeting.runtime.error.finish_failed': 'Failed to finish meeting',
+            'meeting.runtime.error_prefix': 'Error:',
+            'meeting.runtime.validation.month_year': 'Please select month and year first!',
+            'meeting.datatable.length_menu': 'Show _MENU_ bookings per page',
+            'meeting.datatable.info': 'Showing _START_ to _END_ of _TOTAL_ bookings',
+            'meeting.datatable.info_empty': 'No bookings to show',
+            'meeting.datatable.info_filtered': '(filtered from _MAX_ total bookings)',
+            'meeting.datatable.search': 'Quick Search:',
+            'meeting.datatable.loading': 'Loading...',
+            'meeting.datatable.processing': 'Processing...',
+            'meeting.datatable.button.excel': 'Excel',
+            'meeting.datatable.button.csv': 'CSV',
+            'meeting.datatable.button.pdf': 'PDF',
+            'meeting.datatable.button.copy': 'Copy',
+            'meeting.datatable.button.columns': 'Columns'
+        },
+        id: {
+            'meeting.summary.total_bookings': 'Total Booking',
+            'meeting.summary.pending_approval': 'Menunggu Persetujuan',
+            'meeting.summary.approved': 'Disetujui',
+            'meeting.summary.rejected': 'Ditolak',
+            'meeting.summary.finished': 'Selesai',
+            'meeting.summary.cancelled': 'Dibatalkan',
+            'meeting.summary.today_bookings': 'Booking Hari Ini',
+            'meeting.table.title': 'Permintaan Booking',
+            'meeting.table.count_suffix': 'Booking',
+            'meeting.table.id': 'ID',
+            'meeting.table.room': 'Ruangan',
+            'meeting.table.date_time': 'Tanggal & Waktu',
+            'meeting.table.requester': 'Pemohon',
+            'meeting.table.department': 'Departemen',
+            'meeting.table.duration': 'Durasi',
+            'meeting.table.attendees': 'Peserta',
+            'meeting.table.status': 'Status',
+            'meeting.table.actions': 'Aksi',
+            'meeting.table.empty_title': 'Belum Ada Booking',
+            'meeting.table.empty_subtitle': 'Mulai dengan membuat permintaan booking pertama Anda.',
+            'meeting.tabs.all_bookings': 'Semua Booking',
+            'meeting.tabs.my_bookings': 'Booking Saya',
+            'meeting.tabs.pending_approval': 'Antrian Persetujuan',
+            'meeting.action.new_booking': 'Booking Baru',
+            'meeting.action.calendar': 'Kalender',
+            'meeting.action.export': 'Ekspor',
+            'meeting.action.create_booking': 'Buat Booking',
+            'meeting.ui.loading': 'Memuat...',
+            'meeting.modal.cancel': 'Batal',
+            'meeting.modal.approve.title': 'Setujui Permintaan Booking',
+            'meeting.modal.approve.notes_label': 'Catatan (Opsional)',
+            'meeting.modal.approve.notes_placeholder': 'Tambahkan catatan persetujuan...',
+            'meeting.modal.approve.action': 'Setujui',
+            'meeting.modal.reject.title': 'Tolak Permintaan Booking',
+            'meeting.modal.reject.reason_label': 'Alasan Penolakan',
+            'meeting.modal.reject.reason_placeholder': 'Jelaskan alasan penolakan booking ini...',
+            'meeting.modal.reject.min_chars': 'Minimal 10 karakter',
+            'meeting.modal.reject.action': 'Tolak',
+            'meeting.modal.report.title': 'Unduh Laporan Bulanan Excel',
+            'meeting.modal.report.month_label': 'Pilih Bulan:',
+            'meeting.modal.report.year_label': 'Pilih Tahun:',
+            'meeting.modal.report.info': 'Laporan berisi data booking dengan status Approved atau Finished pada bulan yang dipilih.',
+            'meeting.modal.report.download': 'Unduh Excel',
+            'meeting.runtime.confirm.finish': 'Selesaikan rapat ini sekarang?\n\nRapat akan ditandai FINISHED walaupun belum mencapai waktu selesai yang dijadwalkan.',
+            'meeting.runtime.confirm.cancel_booking': 'Apakah Anda yakin ingin membatalkan booking ini?',
+            'meeting.runtime.confirm.delete_booking': 'Apakah Anda yakin ingin menghapus booking ini? Tindakan ini tidak dapat dibatalkan.',
+            'meeting.runtime.success.finish': 'Rapat berhasil diselesaikan!',
+            'meeting.runtime.error.finish_failed': 'Gagal menyelesaikan rapat',
+            'meeting.runtime.error_prefix': 'Kesalahan:',
+            'meeting.runtime.validation.month_year': 'Pilih bulan dan tahun terlebih dahulu!',
+            'meeting.datatable.length_menu': 'Tampilkan _MENU_ booking per halaman',
+            'meeting.datatable.info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ booking',
+            'meeting.datatable.info_empty': 'Tidak ada booking untuk ditampilkan',
+            'meeting.datatable.info_filtered': '(difilter dari total _MAX_ booking)',
+            'meeting.datatable.search': 'Pencarian Cepat:',
+            'meeting.datatable.loading': 'Memuat...',
+            'meeting.datatable.processing': 'Memproses...',
+            'meeting.datatable.button.excel': 'Excel',
+            'meeting.datatable.button.csv': 'CSV',
+            'meeting.datatable.button.pdf': 'PDF',
+            'meeting.datatable.button.copy': 'Salin',
+            'meeting.datatable.button.columns': 'Kolom'
+        }
+    };
+
+    var currentLanguage = 'en';
+    var userId = '{{ (int) auth()->id() }}';
+    var languageStorageKey = 'itapp.portal.preferences.v1.user.' + userId;
+    var englishButton = document.getElementById('meetingLanguageEnglish');
+    var indonesianButton = document.getElementById('meetingLanguageIndonesian');
+
+    function getLanguage() {
+        try {
+            var raw = window.localStorage.getItem(languageStorageKey);
+            if (!raw) {
+                return 'en';
+            }
+
+            var parsed = JSON.parse(raw);
+            return parsed && parsed.language === 'id' ? 'id' : 'en';
+        } catch (error) {
+            return 'en';
+        }
+    }
+
+    function saveLanguage(language) {
+        try {
+            var raw = window.localStorage.getItem(languageStorageKey);
+            var parsed = raw ? JSON.parse(raw) : {};
+            parsed.language = language === 'id' ? 'id' : 'en';
+            window.localStorage.setItem(languageStorageKey, JSON.stringify(parsed));
+        } catch (error) {
+            // Keep silent if localStorage is unavailable.
+        }
+    }
+
+    function getLabel(key) {
+        var dictionary = translations[currentLanguage] || translations.en;
+        return dictionary[key] || key;
+    }
+
+    function meetingLabel(key, fallback) {
+        return getLabel(key) || fallback;
+    }
+
+    function refreshMeetingDataTableUiTranslations() {
+        if (!window.jQuery) {
+            return;
+        }
+
+        var $wrapper = window.jQuery('#bookingsTable_wrapper');
+        if (!$wrapper.length) {
+            return;
+        }
+
+        $wrapper.find('.buttons-excel').html('<i class="fa fa-file-excel-o"></i> ' + getLabel('meeting.datatable.button.excel'));
+        $wrapper.find('.buttons-csv').html('<i class="fa fa-file-text-o"></i> ' + getLabel('meeting.datatable.button.csv'));
+        $wrapper.find('.buttons-pdf').html('<i class="fa fa-file-pdf-o"></i> ' + getLabel('meeting.datatable.button.pdf'));
+        $wrapper.find('.buttons-copy').html('<i class="fa fa-copy"></i> ' + getLabel('meeting.datatable.button.copy'));
+        $wrapper.find('.buttons-colvis').html('<i class="fa fa-columns"></i> ' + getLabel('meeting.datatable.button.columns'));
+
+        var $searchLabel = $wrapper.find('div.dataTables_filter label');
+        if ($searchLabel.length) {
+            $searchLabel.contents().filter(function() {
+                return this.nodeType === 3;
+            }).first().replaceWith(getLabel('meeting.datatable.search'));
+        }
+    }
+
+    function applyLanguage(language) {
+        currentLanguage = language === 'id' ? 'id' : 'en';
+        var dictionary = translations[currentLanguage] || translations.en;
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function(node) {
+            var key = node.getAttribute('data-i18n');
+            if (dictionary[key]) {
+                node.textContent = dictionary[key];
+            }
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-i18n-placeholder]'), function(node) {
+            var key = node.getAttribute('data-i18n-placeholder');
+            if (dictionary[key]) {
+                node.setAttribute('placeholder', dictionary[key]);
+            }
+        });
+
+        if (englishButton && indonesianButton) {
+            englishButton.classList.toggle('active', currentLanguage === 'en');
+            indonesianButton.classList.toggle('active', currentLanguage === 'id');
+        }
+
+        refreshMeetingDataTableUiTranslations();
+    }
+
+    window.getMeetingLabel = getLabel;
+    window.initializeMeetingLanguage = function() {
+        if (englishButton && indonesianButton) {
+            englishButton.addEventListener('click', function() {
+                saveLanguage('en');
+                applyLanguage('en');
+            });
+
+            indonesianButton.addEventListener('click', function() {
+                saveLanguage('id');
+                applyLanguage('id');
+            });
+        }
+
+        applyLanguage(getLanguage());
+    };
+})();
+
 $(document).ready(function() {
+    if (typeof window.initializeMeetingLanguage === 'function') {
+        window.initializeMeetingLanguage();
+    }
+
     var table;
     
     // Phase 1: Quick DOM cleanup (non-blocking)
@@ -516,8 +768,16 @@ $(document).ready(function() {
             pageLength: 25,
             exportFileName: 'Meeting_Room_Bookings',
             countBadgeSelector: '#bookingCount',
-            countBadgeText: ' Bookings',
-            emptyTableText: '<div class="empty-state"><i class="fa fa-inbox fa-3x text-muted"></i><h4>No Bookings Found</h4><p class="text-muted">There are no meeting room bookings yet. Click "New Booking" to create one.</p></div>',
+            countBadgeText: ' ' + (typeof window.getMeetingLabel === 'function' ? window.getMeetingLabel('meeting.table.count_suffix') : 'Bookings'),
+            lengthMenuText: typeof window.getMeetingLabel === 'function' ? window.getMeetingLabel('meeting.datatable.length_menu') : 'Show _MENU_ bookings per page',
+            infoText: typeof window.getMeetingLabel === 'function' ? window.getMeetingLabel('meeting.datatable.info') : 'Showing _START_ to _END_ of _TOTAL_ bookings',
+            infoEmptyText: typeof window.getMeetingLabel === 'function' ? window.getMeetingLabel('meeting.datatable.info_empty') : 'No bookings to show',
+            infoFilteredText: typeof window.getMeetingLabel === 'function' ? window.getMeetingLabel('meeting.datatable.info_filtered') : '(filtered from _MAX_ total bookings)',
+            emptyTableText: '<div class="empty-state"><i class="fa fa-inbox fa-3x text-muted"></i><h4>'
+                + (typeof window.getMeetingLabel === 'function' ? window.getMeetingLabel('meeting.table.empty_title') : 'No Bookings Found')
+                + '</h4><p class="text-muted">'
+                + (typeof window.getMeetingLabel === 'function' ? window.getMeetingLabel('meeting.table.empty_subtitle') : 'There are no meeting room bookings yet. Click "New Booking" to create one.')
+                + '</p></div>',
             columnDefs: [
                 { orderable: false, targets: [8] }, // Actions column
                 { className: 'text-center', targets: [0, 6, 7, 8] }
@@ -528,7 +788,58 @@ $(document).ready(function() {
             responsive: false,
             autoWidth: false,
             stateSave: false, // Disable state saving for better performance
-            search: { smart: false } // Disable smart search for faster filtering
+            search: { smart: false }, // Disable smart search for faster filtering
+            datatableOptions: {
+                buttons: [
+                    {
+                        extend: 'excel',
+                        text: '<i class="fa fa-file-excel-o"></i> ' + (typeof window.getMeetingLabel === 'function' ? window.getMeetingLabel('meeting.datatable.button.excel') : 'Excel'),
+                        className: 'btn btn-success btn-sm',
+                        title: 'Meeting_Room_Bookings',
+                        exportOptions: {
+                            columns: ':visible:not(.no-export)'
+                        }
+                    },
+                    {
+                        extend: 'csv',
+                        text: '<i class="fa fa-file-text-o"></i> ' + (typeof window.getMeetingLabel === 'function' ? window.getMeetingLabel('meeting.datatable.button.csv') : 'CSV'),
+                        className: 'btn btn-info btn-sm',
+                        title: 'Meeting_Room_Bookings',
+                        exportOptions: {
+                            columns: ':visible:not(.no-export)'
+                        }
+                    },
+                    {
+                        extend: 'pdf',
+                        text: '<i class="fa fa-file-pdf-o"></i> ' + (typeof window.getMeetingLabel === 'function' ? window.getMeetingLabel('meeting.datatable.button.pdf') : 'PDF'),
+                        className: 'btn btn-danger btn-sm',
+                        title: 'Meeting_Room_Bookings',
+                        orientation: 'landscape',
+                        pageSize: 'A4',
+                        exportOptions: {
+                            columns: ':visible:not(.no-export)'
+                        }
+                    },
+                    {
+                        extend: 'copy',
+                        text: '<i class="fa fa-copy"></i> ' + (typeof window.getMeetingLabel === 'function' ? window.getMeetingLabel('meeting.datatable.button.copy') : 'Copy'),
+                        className: 'btn btn-default btn-sm',
+                        exportOptions: {
+                            columns: ':visible:not(.no-export)'
+                        }
+                    },
+                    {
+                        extend: 'colvis',
+                        text: '<i class="fa fa-columns"></i> ' + (typeof window.getMeetingLabel === 'function' ? window.getMeetingLabel('meeting.datatable.button.columns') : 'Columns'),
+                        className: 'btn btn-default btn-sm'
+                    }
+                ],
+                language: {
+                    search: typeof window.getMeetingLabel === 'function' ? window.getMeetingLabel('meeting.datatable.search') : 'Quick Search:',
+                    loadingRecords: '<i class="fa fa-spinner fa-spin"></i> ' + (typeof window.getMeetingLabel === 'function' ? window.getMeetingLabel('meeting.datatable.loading') : 'Loading...'),
+                    processing: '<i class="fa fa-spinner fa-spin"></i> ' + (typeof window.getMeetingLabel === 'function' ? window.getMeetingLabel('meeting.datatable.processing') : 'Processing...')
+                }
+            }
         });
         
         // Set up global functions after table is initialized
@@ -561,7 +872,7 @@ $(document).ready(function() {
         var href = $link.attr('href');
         
         // Show loading overlay
-        $('body').append('<div class="tab-loading-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 9999; display: flex; align-items: center; justify-content: center;"><div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);"><i class="fa fa-spinner fa-spin" style="font-size: 24px; margin-right: 10px;"></i><span style="font-size: 16px;">Loading...</span></div></div>');
+        $('body').append('<div class="tab-loading-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 9999; display: flex; align-items: center; justify-content: center;"><div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);"><i class="fa fa-spinner fa-spin" style="font-size: 24px; margin-right: 10px;"></i><span style="font-size: 16px;">' + (typeof window.getMeetingLabel === 'function' ? window.getMeetingLabel('meeting.ui.loading') : 'Loading...') + '</span></div></div>');
         
         // Navigate to the URL
         window.location.href = href;
@@ -569,7 +880,7 @@ $(document).ready(function() {
     
     // Finish booking function
     window.finishBooking = function(id) {
-        if (confirm('Finish this meeting now?\n\nMeeting will be marked as FINISHED even if it hasn\'t reached the scheduled end time.\n\nApakah Anda yakin?')) {
+        if (confirm(meetingLabel('meeting.runtime.confirm.finish', 'Finish this meeting now?\n\nMeeting will be marked as FINISHED even if it has not reached the scheduled end time.'))) {
             $.ajax({
                 url: '/meeting-room-bookings/' + id + '/finish',
                 method: 'POST',
@@ -578,14 +889,14 @@ $(document).ready(function() {
                 },
                 success: function(response) {
                     if (response.success) {
-                        alert('Meeting finished successfully!');
+                        alert(meetingLabel('meeting.runtime.success.finish', 'Meeting finished successfully!'));
                         location.reload();
                     } else {
-                        alert('Error: ' + (response.message || 'Failed to finish meeting'));
+                        alert(meetingLabel('meeting.runtime.error_prefix', 'Error:') + ' ' + (response.message || meetingLabel('meeting.runtime.error.finish_failed', 'Failed to finish meeting')));
                     }
                 },
                 error: function(xhr) {
-                    alert('Error: ' + (xhr.responseJSON?.message || 'Failed to finish meeting'));
+                    alert(meetingLabel('meeting.runtime.error_prefix', 'Error:') + ' ' + (xhr.responseJSON?.message || meetingLabel('meeting.runtime.error.finish_failed', 'Failed to finish meeting')));
                 }
             });
         }
@@ -594,8 +905,8 @@ $(document).ready(function() {
     // Delete booking function
     window.deleteBooking = function(id, type) {
         const message = type === 'cancel' 
-            ? 'Are you sure you want to cancel this booking?' 
-            : 'Are you sure you want to delete this booking? This action cannot be undone.';
+            ? meetingLabel('meeting.runtime.confirm.cancel_booking', 'Are you sure you want to cancel this booking?')
+            : meetingLabel('meeting.runtime.confirm.delete_booking', 'Are you sure you want to delete this booking? This action cannot be undone.');
         
         if (confirm(message)) {
             document.getElementById('delete-form-' + id).submit();
@@ -608,7 +919,7 @@ $(document).ready(function() {
         const year = $('#report_year').val();
         
         if (!month || !year) {
-            alert('Pilih bulan dan tahun terlebih dahulu!');
+            alert(meetingLabel('meeting.runtime.validation.month_year', 'Please select month and year first!'));
             return;
         }
         

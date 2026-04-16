@@ -26,6 +26,14 @@
     '
 ])
 
+<div class="pull-right" style="margin-top: -52px; margin-bottom: 16px; margin-right: 15px;">
+  <div class="btn-group btn-group-xs" role="group" aria-label="Asset Index Language Toggle">
+    <button type="button" class="btn btn-default" id="assetLanguageEnglish" data-lang="en">EN</button>
+    <button type="button" class="btn btn-default" id="assetLanguageIndonesian" data-lang="id">ID</button>
+  </div>
+</div>
+<div class="clearfix"></div>
+
   {{-- Flash Messages --}}
   @if(session('success'))
     <div class="alert alert-success alert-dismissible">
@@ -46,13 +54,13 @@
       <div class="small-box bg-purple clickable-badge" onclick="filterByStatus('all')">
         <div class="inner">
           <h3>{{$totalAssets}}</h3>
-          <p>Total Assets</p>
+          <p data-i18n="assets.summary.total_assets">Total Assets</p>
         </div>
         <div class="icon">
           <i class="fa fa-tags"></i>
         </div>
         <a href="#" class="small-box-footer" onclick="event.preventDefault(); filterByStatus('all')">
-          View All <i class="fa fa-arrow-circle-right"></i>
+          <span data-i18n="assets.summary.view_all">View All</span> <i class="fa fa-arrow-circle-right"></i>
         </a>
       </div>
     </div>
@@ -60,13 +68,13 @@
       <div class="small-box bg-aqua clickable-badge" onclick="filterByStatus('deployed')">
         <div class="inner">
           <h3>{{$deployed}}</h3>
-          <p>Deployed</p>
+          <p data-i18n="assets.summary.deployed">Deployed</p>
         </div>
         <div class="icon">
           <i class="fa fa-check-circle"></i>
         </div>
         <a href="#" class="small-box-footer" onclick="event.preventDefault(); filterByStatus('deployed')">
-          Filter <i class="fa fa-arrow-circle-right"></i>
+          <span data-i18n="assets.summary.filter">Filter</span> <i class="fa fa-arrow-circle-right"></i>
         </a>
       </div>
     </div>
@@ -74,13 +82,13 @@
       <div class="small-box bg-green clickable-badge" onclick="filterByStatus('ready')">
         <div class="inner">
           <h3>{{$readyToDeploy}}</h3>
-          <p>Ready to Deploy</p>
+          <p data-i18n="assets.summary.ready">Ready to Deploy</p>
         </div>
         <div class="icon">
           <i class="fa fa-plus-circle"></i>
         </div>
         <a href="#" class="small-box-footer" onclick="event.preventDefault(); filterByStatus('ready')">
-          Filter <i class="fa fa-arrow-circle-right"></i>
+          <span data-i18n="assets.summary.filter">Filter</span> <i class="fa fa-arrow-circle-right"></i>
         </a>
       </div>
     </div>
@@ -88,13 +96,13 @@
       <div class="small-box bg-yellow clickable-badge" onclick="filterByStatus('repairs')">
         <div class="inner">
           <h3>{{$repairs}}</h3>
-          <p>In Repairs</p>
+          <p data-i18n="assets.summary.in_repairs">In Repairs</p>
         </div>
         <div class="icon">
           <i class="fa fa-wrench"></i>
         </div>
         <a href="#" class="small-box-footer" onclick="event.preventDefault(); filterByStatus('repairs')">
-          Filter <i class="fa fa-arrow-circle-right"></i>
+          <span data-i18n="assets.summary.filter">Filter</span> <i class="fa fa-arrow-circle-right"></i>
         </a>
       </div>
     </div>
@@ -102,13 +110,13 @@
       <div class="small-box bg-red clickable-badge" onclick="filterByStatus('written-off')">
         <div class="inner">
           <h3>{{$writtenOff}}</h3>
-          <p>Written Off</p>
+          <p data-i18n="assets.summary.written_off">Written Off</p>
         </div>
         <div class="icon">
           <i class="fa fa-times-circle"></i>
         </div>
         <a href="#" class="small-box-footer" onclick="event.preventDefault(); filterByStatus('written-off')">
-          Filter <i class="fa fa-arrow-circle-right"></i>
+          <span data-i18n="assets.summary.filter">Filter</span> <i class="fa fa-arrow-circle-right"></i>
         </a>
       </div>
     </div>
@@ -117,7 +125,7 @@
     <div class="col-md-4">
       <div class="box box-info">
         <div class="box-header with-border">
-          <h3 class="box-title">Assets by Status</h3>
+          <h3 class="box-title" data-i18n="assets.section.by_status">Assets by Status</h3>
         </div>
         <div class="box-body">
           @if(!empty($assetsByStatus) && count($assetsByStatus) > 0)
@@ -143,7 +151,7 @@
     <div class="col-md-8">
       <div class="box box-warning">
         <div class="box-header with-border">
-          <h3 class="box-title">New Assets (Last 6 months)</h3>
+          <h3 class="box-title" data-i18n="assets.section.new_assets">New Assets (Last 6 months)</h3>
         </div>
         <div class="box-body">
           @if(!empty($monthlyNewAssets) && count($monthlyNewAssets) > 0)
@@ -174,10 +182,10 @@
     <div class="col-md-12">
       <div class="box box-default collapsed-box">
         <div class="box-header with-border">
-          <h3 class="box-title"><i class="fa fa-filter"></i> Advanced Filters</h3>
+          <h3 class="box-title"><i class="fa fa-filter"></i> <span data-i18n="assets.filters.title">Advanced Filters</span></h3>
           <div class="box-tools pull-right">
             <button type="button" class="btn btn-box-tool" data-widget="collapse">
-              <i class="fa fa-plus"></i> Expand Filters
+              <i class="fa fa-plus"></i> <span class="asset-filter-toggle-text" data-i18n="assets.filters.expand">Expand Filters</span>
             </button>
           </div>
         </div>
@@ -251,13 +259,13 @@
             <div class="row">
               <div class="col-md-12">
                 <button type="submit" class="btn btn-primary">
-                  <i class="fa fa-filter"></i> Apply Filters
+                  <i class="fa fa-filter"></i> <span data-i18n="assets.filters.apply">Apply Filters</span>
                 </button>
                 <a href="{{ route('assets.index') }}" class="btn btn-default">
-                  <i class="fa fa-refresh"></i> Reset Filters
+                  <i class="fa fa-refresh"></i> <span data-i18n="assets.filters.reset">Reset Filters</span>
                 </a>
                 <button type="button" id="exportFiltered" class="btn btn-success pull-right">
-                  <i class="fa fa-file-excel-o"></i> Export Filtered Results
+                  <i class="fa fa-file-excel-o"></i> <span data-i18n="assets.filters.export_filtered">Export Filtered Results</span>
                 </button>
               </div>
             </div>
@@ -271,9 +279,9 @@
     <div class="col-md-12 col-xs-12 col-lg-12">
       <div class="box box-primary">
         <div class="box-header with-border">
-          <h3 class="box-title"><i class="fa fa-table"></i> Assets List</h3>
+          <h3 class="box-title"><i class="fa fa-table"></i> <span data-i18n="assets.table.title">Assets List</span></h3>
           <div class="box-tools">
-            <span class="label label-primary" id="assetCount">{{ method_exists($assets, 'total') ? $assets->total() : count($assets) }} Assets</span>
+            <span class="label label-primary" id="assetCount">{{ method_exists($assets, 'total') ? $assets->total() : count($assets) }} <span data-i18n="assets.table.count_suffix">Assets</span></span>
           </div>
         </div>
         <div class="box-body">
@@ -395,16 +403,179 @@
     </div>
   </div>
   <script>
+  (function() {
+    var translations = {
+      en: {
+        'assets.summary.total_assets': 'Total Assets',
+        'assets.summary.view_all': 'View All',
+        'assets.summary.filter': 'Filter',
+        'assets.summary.deployed': 'Deployed',
+        'assets.summary.ready': 'Ready to Deploy',
+        'assets.summary.in_repairs': 'In Repairs',
+        'assets.summary.written_off': 'Written Off',
+        'assets.section.by_status': 'Assets by Status',
+        'assets.section.new_assets': 'New Assets (Last 6 months)',
+        'assets.filters.title': 'Advanced Filters',
+        'assets.filters.expand': 'Expand Filters',
+        'assets.filters.collapse': 'Collapse Filters',
+        'assets.filters.apply': 'Apply Filters',
+        'assets.filters.reset': 'Reset Filters',
+        'assets.filters.export_filtered': 'Export Filtered Results',
+        'assets.table.title': 'Assets List',
+        'assets.table.count_suffix': 'Assets',
+        'assets.datatable.all': 'All',
+        'assets.datatable.length_menu': 'Show _MENU_ assets per page',
+        'assets.datatable.info': 'Showing _START_ to _END_ of _TOTAL_ assets',
+        'assets.datatable.info_empty': 'No assets to show',
+        'assets.datatable.info_filtered': '(filtered from _MAX_ total assets)',
+        'assets.datatable.search': 'Quick Search:',
+        'assets.datatable.export_excel': 'Excel',
+        'assets.datatable.export_csv': 'CSV',
+        'assets.datatable.export_pdf': 'PDF',
+        'assets.datatable.export_copy': 'Copy',
+        'assets.runtime.confirm.delete': 'Are you sure you want to delete this asset?'
+      },
+      id: {
+        'assets.summary.total_assets': 'Total Aset',
+        'assets.summary.view_all': 'Lihat Semua',
+        'assets.summary.filter': 'Saring',
+        'assets.summary.deployed': 'Sudah Digunakan',
+        'assets.summary.ready': 'Siap Digunakan',
+        'assets.summary.in_repairs': 'Dalam Perbaikan',
+        'assets.summary.written_off': 'Dihapus Buku',
+        'assets.section.by_status': 'Aset per Status',
+        'assets.section.new_assets': 'Aset Baru (6 bulan terakhir)',
+        'assets.filters.title': 'Filter Lanjutan',
+        'assets.filters.expand': 'Tampilkan Filter',
+        'assets.filters.collapse': 'Sembunyikan Filter',
+        'assets.filters.apply': 'Terapkan Filter',
+        'assets.filters.reset': 'Reset Filter',
+        'assets.filters.export_filtered': 'Ekspor Hasil Filter',
+        'assets.table.title': 'Daftar Aset',
+        'assets.table.count_suffix': 'Aset',
+        'assets.datatable.all': 'Semua',
+        'assets.datatable.length_menu': 'Tampilkan _MENU_ aset per halaman',
+        'assets.datatable.info': 'Menampilkan _START_ sampai _END_ dari _TOTAL_ aset',
+        'assets.datatable.info_empty': 'Tidak ada aset untuk ditampilkan',
+        'assets.datatable.info_filtered': '(disaring dari total _MAX_ aset)',
+        'assets.datatable.search': 'Pencarian Cepat:',
+        'assets.datatable.export_excel': 'Excel',
+        'assets.datatable.export_csv': 'CSV',
+        'assets.datatable.export_pdf': 'PDF',
+        'assets.datatable.export_copy': 'Salin',
+        'assets.runtime.confirm.delete': 'Apakah Anda yakin ingin menghapus aset ini?'
+      }
+    };
+
+    var currentLanguage = 'en';
+    var userId = '{{ (int) auth()->id() }}';
+    var languageStorageKey = 'itapp.portal.preferences.v1.user.' + userId;
+    var englishButton = document.getElementById('assetLanguageEnglish');
+    var indonesianButton = document.getElementById('assetLanguageIndonesian');
+
+    function getLanguage() {
+      try {
+        var raw = window.localStorage.getItem(languageStorageKey);
+        if (!raw) {
+          return 'en';
+        }
+
+        var parsed = JSON.parse(raw);
+        return parsed && parsed.language === 'id' ? 'id' : 'en';
+      } catch (error) {
+        return 'en';
+      }
+    }
+
+    function saveLanguage(language) {
+      try {
+        var raw = window.localStorage.getItem(languageStorageKey);
+        var parsed = raw ? JSON.parse(raw) : {};
+        parsed.language = language === 'id' ? 'id' : 'en';
+        window.localStorage.setItem(languageStorageKey, JSON.stringify(parsed));
+      } catch (error) {
+        // Keep silent if localStorage is unavailable.
+      }
+    }
+
+    function getLabel(key, fallback) {
+      var dictionary = translations[currentLanguage] || translations.en;
+      return dictionary[key] || fallback || key;
+    }
+
+    function applyLanguage(language) {
+      currentLanguage = language === 'id' ? 'id' : 'en';
+      var dictionary = translations[currentLanguage] || translations.en;
+
+      Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function(node) {
+        var key = node.getAttribute('data-i18n');
+        if (dictionary[key]) {
+          node.textContent = dictionary[key];
+        }
+      });
+
+      if (englishButton && indonesianButton) {
+        englishButton.classList.toggle('active', currentLanguage === 'en');
+        indonesianButton.classList.toggle('active', currentLanguage === 'id');
+      }
+
+      if (typeof window.assetRefreshRuntimeText === 'function') {
+        window.assetRefreshRuntimeText();
+      }
+    }
+
+    window.assetLabel = getLabel;
+    window.assetLanguageCurrent = function() {
+      return currentLanguage;
+    };
+
+    window.assetDataTableLanguage = function() {
+      return {
+        lengthMenu: getLabel('assets.datatable.length_menu', 'Show _MENU_ assets per page'),
+        info: getLabel('assets.datatable.info', 'Showing _START_ to _END_ of _TOTAL_ assets'),
+        infoEmpty: getLabel('assets.datatable.info_empty', 'No assets to show'),
+        infoFiltered: getLabel('assets.datatable.info_filtered', '(filtered from _MAX_ total assets)'),
+        search: getLabel('assets.datatable.search', 'Quick Search:'),
+        paginate: {
+          first: '<i class="fa fa-angle-double-left"></i>',
+          previous: '<i class="fa fa-angle-left"></i>',
+          next: '<i class="fa fa-angle-right"></i>',
+          last: '<i class="fa fa-angle-double-right"></i>'
+        }
+      };
+    };
+
+    window.assetDeleteConfirm = function() {
+      return window.confirm(getLabel('assets.runtime.confirm.delete', 'Are you sure you want to delete this asset?'));
+    };
+
+    if (englishButton && indonesianButton) {
+      englishButton.addEventListener('click', function() {
+        saveLanguage('en');
+        applyLanguage('en');
+      });
+
+      indonesianButton.addEventListener('click', function() {
+        saveLanguage('id');
+        applyLanguage('id');
+      });
+    }
+
+    applyLanguage(getLanguage());
+  })();
+
+  var assetsTable = null;
+
   $(document).ready(function() {
-  var table = $('#table').DataTable( {
+  assetsTable = $('#table').DataTable( {
     responsive: true,
     dom: 'l<"clear">Bfrtip',
     pageLength: 25,
-    lengthMenu: [[10,25,50,100,-1],[10,25,50,100,'All']],
+    lengthMenu: [[10,25,50,100,-1],[10,25,50,100,window.assetLabel('assets.datatable.all', 'All')]],
     buttons: [
       {
         extend: 'excel',
-        text: '<i class="fa fa-file-excel-o"></i> Excel',
+        text: '<i class="fa fa-file-excel-o"></i> ' + window.assetLabel('assets.datatable.export_excel', 'Excel'),
         className: 'btn btn-success btn-sm',
         exportOptions: {
           columns: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12]
@@ -412,7 +583,7 @@
       },
       {
         extend: 'csv',
-        text: '<i class="fa fa-file-text-o"></i> CSV',
+        text: '<i class="fa fa-file-text-o"></i> ' + window.assetLabel('assets.datatable.export_csv', 'CSV'),
         className: 'btn btn-info btn-sm',
         exportOptions: {
           columns: [0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13]
@@ -420,7 +591,7 @@
       },
       {
         extend: 'pdf',
-        text: '<i class="fa fa-file-pdf-o"></i> PDF',
+        text: '<i class="fa fa-file-pdf-o"></i> ' + window.assetLabel('assets.datatable.export_pdf', 'PDF'),
         className: 'btn btn-danger btn-sm',
         orientation: 'landscape',
         pageSize: 'A4',
@@ -430,7 +601,7 @@
       },
       {
         extend: 'copy',
-        text: '<i class="fa fa-copy"></i> Copy',
+        text: '<i class="fa fa-copy"></i> ' + window.assetLabel('assets.datatable.export_copy', 'Copy'),
         className: 'btn btn-default btn-sm',
         exportOptions: {
           columns: [0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13]
@@ -456,25 +627,13 @@
     columnDefs: [{
       orderable: false, targets: 9
     }],
-    language: {
-      lengthMenu: "Show _MENU_ assets per page",
-      info: "Showing _START_ to _END_ of _TOTAL_ assets",
-      infoEmpty: "No assets to show",
-      infoFiltered: "(filtered from _MAX_ total assets)",
-      search: "Quick Search:",
-      paginate: {
-        first: '<i class="fa fa-angle-double-left"></i>',
-        previous: '<i class="fa fa-angle-left"></i>',
-        next: '<i class="fa fa-angle-right"></i>',
-        last: '<i class="fa fa-angle-double-right"></i>'
-      }
-    },
+    language: window.assetDataTableLanguage(),
     drawCallback: function() {
       // Update asset count badge
       // Use this.api() instead of table variable (which isn't assigned yet during initialization)
       var api = this.api();
       var info = api.page.info();
-      $('#assetCount').text(info.recordsDisplay + ' Assets');
+      $('#assetCount').html(info.recordsDisplay + ' <span data-i18n="assets.table.count_suffix">' + window.assetLabel('assets.table.count_suffix', 'Assets') + '</span>');
     }
   } );
     // Export filtered results button
@@ -492,11 +651,11 @@
       });
       $(model()).click(function () {
         @if($asset->model && $asset->model->manufacturer)
-        table.search( "{{$asset->model->manufacturer->name}} - {{$asset->model->asset_model}}" ).draw();
+        assetsTable.search( "{{$asset->model->manufacturer->name}} - {{$asset->model->asset_model}}" ).draw();
         @elseif($asset->model)
-        table.search( "{{$asset->model->asset_model}}" ).draw();
+        assetsTable.search( "{{$asset->model->asset_model}}" ).draw();
         @else
-        table.search( "N/A" ).draw();
+        assetsTable.search( "N/A" ).draw();
         @endif
       });
 
@@ -507,9 +666,9 @@
       });
       $(location()).click(function () {
         @if($asset->movement && $asset->movement->location)
-        table.search( "{{$asset->movement->location->location_name}}" ).draw();
+        assetsTable.search( "{{$asset->movement->location->location_name}}" ).draw();
         @else
-        table.search( "N/A" ).draw();
+        assetsTable.search( "N/A" ).draw();
         @endif
       });
 
@@ -520,9 +679,9 @@
       });
       $(division()).click(function () {
         @if($asset->division)
-        table.search( "{{$asset->division->name}}" ).draw();
+        assetsTable.search( "{{$asset->division->name}}" ).draw();
         @else
-        table.search( "N/A" ).draw();
+        assetsTable.search( "N/A" ).draw();
         @endif
       });
 
@@ -533,13 +692,29 @@
       });
       $(status()).click(function () {
         @if($asset->movement && $asset->movement->status)
-        table.search( "{{$asset->movement->status->name}}" ).draw();
+        assetsTable.search( "{{$asset->movement->status->name}}" ).draw();
         @else
-        table.search( "N/A" ).draw();
+        assetsTable.search( "N/A" ).draw();
         @endif
       });
     @endforeach
   } );
+
+  window.assetRefreshRuntimeText = function() {
+    var isCollapsed = $('.box-default').first().hasClass('collapsed-box');
+    $('.asset-filter-toggle-text').text(window.assetLabel(isCollapsed ? 'assets.filters.expand' : 'assets.filters.collapse', isCollapsed ? 'Expand Filters' : 'Collapse Filters'));
+
+    if (assetsTable) {
+      assetsTable.settings()[0].oLanguage = window.assetDataTableLanguage();
+      assetsTable.button(0).text('<i class="fa fa-file-excel-o"></i> ' + window.assetLabel('assets.datatable.export_excel', 'Excel'));
+      assetsTable.button(1).text('<i class="fa fa-file-text-o"></i> ' + window.assetLabel('assets.datatable.export_csv', 'CSV'));
+      assetsTable.button(2).text('<i class="fa fa-file-pdf-o"></i> ' + window.assetLabel('assets.datatable.export_pdf', 'PDF'));
+      assetsTable.button(3).text('<i class="fa fa-copy"></i> ' + window.assetLabel('assets.datatable.export_copy', 'Copy'));
+      assetsTable.draw(false);
+    }
+  };
+
+  window.assetRefreshRuntimeText();
 
   // Filter by status when clicking stat cards
   window.filterByStatus = function(status) {
@@ -551,22 +726,24 @@
       case 'written-off': searchTerm = 'Written Off'; break;
       case 'all': searchTerm = ''; break;
     }
-    table.search(searchTerm).draw();
+    if (assetsTable) {
+      assetsTable.search(searchTerm).draw();
+    }
   };
 
   // Enhanced box collapse button text toggle
   $('.box').on('expanded.boxwidget', function() {
     $(this).find('.btn-box-tool i').removeClass('fa-plus').addClass('fa-minus');
-    $(this).find('.btn-box-tool').contents().last()[0].textContent = ' Collapse Filters';
+    $(this).find('.asset-filter-toggle-text').text(window.assetLabel('assets.filters.collapse', 'Collapse Filters'));
   });
   $('.box').on('collapsed.boxwidget', function() {
     $(this).find('.btn-box-tool i').removeClass('fa-minus').addClass('fa-plus');
-    $(this).find('.btn-box-tool').contents().last()[0].textContent = ' Expand Filters';
+    $(this).find('.asset-filter-toggle-text').text(window.assetLabel('assets.filters.expand', 'Expand Filters'));
   });
 
   // Delete asset confirmation
   window.deleteAsset = function(id) {
-    if(confirm('Are you sure you want to delete this asset?')) {
+    if(window.assetDeleteConfirm()) {
       document.getElementById('delete-asset-' + id).submit();
     }
   };

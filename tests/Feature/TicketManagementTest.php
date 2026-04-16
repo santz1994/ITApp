@@ -73,6 +73,107 @@ class TicketManagementTest extends TestCase
     }
 
     /** @test */
+    public function ticket_index_page_shows_bilingual_toggle_controls()
+    {
+        $response = $this->actingAs($this->user)
+            ->get(route('tickets.index'));
+
+        $response->assertStatus(200);
+        $response->assertSee('EN');
+        $response->assertSee('ID');
+    }
+
+    /** @test */
+    public function ticket_index_page_includes_runtime_bilingual_interaction_markers()
+    {
+        $response = $this->actingAs($this->user)
+            ->get(route('tickets.index'));
+
+        $response->assertStatus(200);
+        $response->assertSee("'tickets.runtime.confirm.bulk_delete'", false);
+        $response->assertSee("'tickets.runtime.validation.assign_user'", false);
+        $response->assertSee("'tickets.datatable.search'", false);
+        $response->assertSee("'tickets.runtime.error_prefix': 'Error:'", false);
+        $response->assertSee("'tickets.runtime.error_prefix': 'Kesalahan:'", false);
+        $response->assertSee("confirm(ticketLabelWithCount('tickets.runtime.confirm.bulk_delete'", false);
+        $response->assertSee('window.getTicketLabel = getLabel;', false);
+    }
+
+    /** @test */
+    public function ticket_create_page_shows_bilingual_toggle_and_runtime_markers()
+    {
+        $response = $this->actingAs($this->user)
+            ->get(route('tickets.create'));
+
+        $response->assertStatus(200);
+        $response->assertSee('EN');
+        $response->assertSee('ID');
+        $response->assertSee('id="ticketCreateLanguageEnglish"', false);
+        $response->assertSee('id="ticketCreateLanguageIndonesian"', false);
+        $response->assertSee('data-i18n="tickets.create.form.title"', false);
+        $response->assertSee('data-i18n="tickets.create.section.basic"', false);
+        $response->assertSee('data-i18n="tickets.create.action.submit"', false);
+        $response->assertSee("'tickets.create.runtime.template_applied'", false);
+        $response->assertSee("'tickets.create.runtime.loading_create'", false);
+    }
+
+    /** @test */
+    public function ticket_edit_page_shows_bilingual_toggle_and_runtime_markers()
+    {
+        $ticket = Ticket::create([
+            'subject' => 'Edit page bilingual test ' . time(),
+            'description' => 'Ticket description for edit bilingual marker assertions.',
+            'ticket_priority_id' => $this->priority->id,
+            'ticket_type_id' => $this->ticketType->id,
+            'ticket_status_id' => $this->openStatus->id,
+            'location_id' => $this->location->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->get(route('tickets.edit', $ticket->id));
+
+        $response->assertStatus(200);
+        $response->assertSee('EN');
+        $response->assertSee('ID');
+        $response->assertSee('id="ticketEditLanguageEnglish"', false);
+        $response->assertSee('id="ticketEditLanguageIndonesian"', false);
+        $response->assertSee('data-i18n="tickets.edit.form.title_prefix"', false);
+        $response->assertSee('data-i18n="tickets.edit.section.basic"', false);
+        $response->assertSee('data-i18n="tickets.edit.action.submit"', false);
+        $response->assertSee("'tickets.edit.runtime.status_complete'", false);
+        $response->assertSee("'tickets.edit.runtime.loading_update'", false);
+    }
+
+    /** @test */
+    public function ticket_show_page_shows_bilingual_toggle_and_runtime_markers()
+    {
+        $ticket = Ticket::create([
+            'subject' => 'Show page bilingual test ' . time(),
+            'description' => 'Ticket description for show bilingual marker assertions.',
+            'ticket_priority_id' => $this->priority->id,
+            'ticket_type_id' => $this->ticketType->id,
+            'ticket_status_id' => $this->openStatus->id,
+            'location_id' => $this->location->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->get(route('tickets.show', $ticket->id));
+
+        $response->assertStatus(200);
+        $response->assertSee('EN');
+        $response->assertSee('ID');
+        $response->assertSee('id="ticketShowLanguageEnglish"', false);
+        $response->assertSee('id="ticketShowLanguageIndonesian"', false);
+        $response->assertSee('data-i18n="tickets.show.tab.info"', false);
+        $response->assertSee('data-i18n="tickets.show.quick_actions.title"', false);
+        $response->assertSee("'tickets.show.runtime.confirm.resolve'", false);
+        $response->assertSee("'tickets.show.runtime.confirm.reopen'", false);
+        $response->assertSee('window.ticketShowLabel = getLabel;', false);
+    }
+
+    /** @test */
     public function user_can_create_ticket_with_description()
     {
         $ticketData = [

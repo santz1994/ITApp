@@ -15,20 +15,28 @@
     'actions' => '
         <div class="btn-group" role="group">
             <a href="'.route('tickets.show', $ticket).'" class="btn btn-info">
-                <i class="fa fa-eye"></i> <span class="hidden-xs">View</span>
+                <i class="fa fa-eye"></i> <span class="hidden-xs" data-i18n="tickets.edit.action.view">View</span>
             </a>
             <a href="'.route('tickets.index').'" class="btn btn-default">
-                <i class="fa fa-arrow-left"></i> <span class="hidden-xs">Back</span>
+                <i class="fa fa-arrow-left"></i> <span class="hidden-xs" data-i18n="tickets.edit.action.back">Back</span>
             </a>
         </div>
     '
 ])
 
+<div class="pull-right" style="margin-top: -52px; margin-bottom: 16px; margin-right: 15px;">
+    <div class="btn-group btn-group-xs" role="group" aria-label="Ticket Edit Language Toggle">
+        <button type="button" class="btn btn-default" id="ticketEditLanguageEnglish" data-lang="en">EN</button>
+        <button type="button" class="btn btn-default" id="ticketEditLanguageIndonesian" data-lang="id">ID</button>
+    </div>
+</div>
+<div class="clearfix"></div>
+
 <div class="row">
     <div class="col-xs-12 col-sm-8 col-md-8">
         <div class="box box-primary">
             <div class="box-header with-border">
-                <h3 class="box-title">Edit Ticket #{{ $ticket->ticket_code }}</h3>
+                <h3 class="box-title"><span data-i18n="tickets.edit.form.title_prefix">Edit Ticket</span> #{{ $ticket->ticket_code }}</h3>
             </div>
             <div class="box-body">
                 {{-- Flash Messages --}}
@@ -62,7 +70,7 @@
                     
                     {{-- SECTION 1: Basic Information --}}
                     <fieldset>
-                        <legend><i class="fa fa-info-circle"></i> Basic Information</legend>
+                        <legend><i class="fa fa-info-circle"></i> <span data-i18n="tickets.edit.section.basic">Basic Information</span></legend>
 
                         <div class="form-group">
                             <label for="subject">Subject <span class="text-red">*</span></label>
@@ -214,7 +222,7 @@
 
                     {{-- SECTION 2: Assignment & Location --}}
                     <fieldset>
-                        <legend><i class="fa fa-user"></i> Assignment & Location</legend>
+                        <legend><i class="fa fa-user"></i> <span data-i18n="tickets.edit.section.assignment">Assignment & Location</span></legend>
 
                         <div class="form-group">
                             <label for="assigned_to">Assigned To (Agent)</label>
@@ -257,7 +265,7 @@
 
                     {{-- SECTION 3: Asset Association --}}
                     <fieldset>
-                        <legend><i class="fa fa-laptop"></i> Asset Association</legend>
+                        <legend><i class="fa fa-laptop"></i> <span data-i18n="tickets.edit.section.asset">Asset Association</span></legend>
 
                         <div class="form-group">
                             <label for="asset_id">Related Assets (Optional)</label>
@@ -297,7 +305,7 @@
                     {{-- Submit Buttons --}}
                     <div class="form-group" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e3e3e3;">
                         <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fa fa-save"></i> <b>Update Ticket</b>
+                            <i class="fa fa-save"></i> <b data-i18n="tickets.edit.action.submit">Update Ticket</b>
                         </button>
                     </div>
                 </form>
@@ -404,14 +412,14 @@
         {{-- Quick Actions --}}
         <div class="box box-default">
             <div class="box-header with-border">
-                <h3 class="box-title"><i class="fa fa-bolt"></i> Quick Actions</h3>
+                <h3 class="box-title"><i class="fa fa-bolt"></i> <span data-i18n="tickets.edit.quick_actions.title">Quick Actions</span></h3>
             </div>
             <div class="box-body">
                 <a href="{{ route('tickets.show', $ticket) }}" class="btn btn-info btn-block btn-sm">
-                    <i class="fa fa-eye"></i> View Full Ticket
+                    <i class="fa fa-eye"></i> <span data-i18n="tickets.edit.quick_actions.view">View Full Ticket</span>
                 </a>
                 <a href="{{ route('tickets.index') }}" class="btn btn-default btn-block btn-sm">
-                    <i class="fa fa-list"></i> Back to All Tickets
+                    <i class="fa fa-list"></i> <span data-i18n="tickets.edit.quick_actions.back">Back to All Tickets</span>
                 </a>
             </div>
         </div>
@@ -422,6 +430,147 @@
 
 @push('scripts')
 <script>
+(function() {
+    var translations = {
+        en: {
+            'tickets.edit.action.view': 'View',
+            'tickets.edit.action.back': 'Back',
+            'tickets.edit.form.title_prefix': 'Edit Ticket',
+            'tickets.edit.section.basic': 'Basic Information',
+            'tickets.edit.section.assignment': 'Assignment & Location',
+            'tickets.edit.section.asset': 'Asset Association',
+            'tickets.edit.action.submit': 'Update Ticket',
+            'tickets.edit.quick_actions.title': 'Quick Actions',
+            'tickets.edit.quick_actions.view': 'View Full Ticket',
+            'tickets.edit.quick_actions.back': 'Back to All Tickets',
+            'tickets.edit.select2.ticket_type': 'Select ticket type',
+            'tickets.edit.select2.priority': 'Select priority',
+            'tickets.edit.select2.status': 'Select status',
+            'tickets.edit.select2.assigned_to': 'Select technician (optional)',
+            'tickets.edit.select2.location': 'Select location',
+            'tickets.edit.select2.assets': 'Search and select asset(s)',
+            'tickets.edit.runtime.char_counter': '{count} / {min} characters (minimum {min})',
+            'tickets.edit.runtime.status_complete': 'Changing status to "{status}" will mark this ticket as complete. Make sure all work is finished.',
+            'tickets.edit.runtime.status_on_hold': 'Changing status to "{status}" will pause this ticket. Add comments explaining why.',
+            'tickets.edit.runtime.status_in_progress': 'Changing status to "{status}" indicates active work on this ticket.',
+            'tickets.edit.runtime.status_changed': 'Status changed to "{status}".',
+            'tickets.edit.runtime.loading_update': 'Updating ticket...'
+        },
+        id: {
+            'tickets.edit.action.view': 'Lihat',
+            'tickets.edit.action.back': 'Kembali',
+            'tickets.edit.form.title_prefix': 'Ubah Tiket',
+            'tickets.edit.section.basic': 'Informasi Dasar',
+            'tickets.edit.section.assignment': 'Penugasan & Lokasi',
+            'tickets.edit.section.asset': 'Asosiasi Aset',
+            'tickets.edit.action.submit': 'Perbarui Tiket',
+            'tickets.edit.quick_actions.title': 'Aksi Cepat',
+            'tickets.edit.quick_actions.view': 'Lihat Tiket Lengkap',
+            'tickets.edit.quick_actions.back': 'Kembali ke Semua Tiket',
+            'tickets.edit.select2.ticket_type': 'Pilih jenis tiket',
+            'tickets.edit.select2.priority': 'Pilih prioritas',
+            'tickets.edit.select2.status': 'Pilih status',
+            'tickets.edit.select2.assigned_to': 'Pilih teknisi (opsional)',
+            'tickets.edit.select2.location': 'Pilih lokasi',
+            'tickets.edit.select2.assets': 'Cari dan pilih aset',
+            'tickets.edit.runtime.char_counter': '{count} / {min} karakter (minimal {min})',
+            'tickets.edit.runtime.status_complete': 'Mengubah status menjadi "{status}" akan menandai tiket ini selesai. Pastikan semua pekerjaan sudah beres.',
+            'tickets.edit.runtime.status_on_hold': 'Mengubah status menjadi "{status}" akan menunda tiket ini. Tambahkan komentar penjelasan.',
+            'tickets.edit.runtime.status_in_progress': 'Mengubah status menjadi "{status}" menandakan tiket sedang dikerjakan.',
+            'tickets.edit.runtime.status_changed': 'Status berubah menjadi "{status}".',
+            'tickets.edit.runtime.loading_update': 'Memperbarui tiket...'
+        }
+    };
+
+    var currentLanguage = 'en';
+    var userId = '{{ (int) auth()->id() }}';
+    var languageStorageKey = 'itapp.portal.preferences.v1.user.' + userId;
+    var englishButton = document.getElementById('ticketEditLanguageEnglish');
+    var indonesianButton = document.getElementById('ticketEditLanguageIndonesian');
+
+    function getLanguage() {
+        try {
+            var raw = window.localStorage.getItem(languageStorageKey);
+            if (!raw) {
+                return 'en';
+            }
+
+            var parsed = JSON.parse(raw);
+            return parsed && parsed.language === 'id' ? 'id' : 'en';
+        } catch (error) {
+            return 'en';
+        }
+    }
+
+    function saveLanguage(language) {
+        try {
+            var raw = window.localStorage.getItem(languageStorageKey);
+            var parsed = raw ? JSON.parse(raw) : {};
+            parsed.language = language === 'id' ? 'id' : 'en';
+            window.localStorage.setItem(languageStorageKey, JSON.stringify(parsed));
+        } catch (error) {
+            // Keep silent if localStorage is unavailable.
+        }
+    }
+
+    function getLabel(key, fallback) {
+        var dictionary = translations[currentLanguage] || translations.en;
+        return dictionary[key] || fallback || key;
+    }
+
+    function formatLabel(key, fallback, vars) {
+        var label = getLabel(key, fallback);
+        Object.keys(vars || {}).forEach(function(varKey) {
+            label = label.replace(new RegExp('\\{' + varKey + '\\}', 'g'), String(vars[varKey]));
+        });
+        return label;
+    }
+
+    function applyLanguage(language) {
+        currentLanguage = language === 'id' ? 'id' : 'en';
+        var dictionary = translations[currentLanguage] || translations.en;
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function(node) {
+            var key = node.getAttribute('data-i18n');
+            if (dictionary[key]) {
+                node.textContent = dictionary[key];
+            }
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-i18n-placeholder]'), function(node) {
+            var key = node.getAttribute('data-i18n-placeholder');
+            if (dictionary[key]) {
+                node.setAttribute('placeholder', dictionary[key]);
+            }
+        });
+
+        if (englishButton && indonesianButton) {
+            englishButton.classList.toggle('active', currentLanguage === 'en');
+            indonesianButton.classList.toggle('active', currentLanguage === 'id');
+        }
+    }
+
+    window.ticketEditLabel = getLabel;
+    window.ticketEditLabelFormat = formatLabel;
+    window.ticketEditLocale = function() {
+        return currentLanguage === 'id' ? 'id-ID' : 'en-US';
+    };
+
+    if (englishButton && indonesianButton) {
+        englishButton.addEventListener('click', function() {
+            saveLanguage('en');
+            applyLanguage('en');
+        });
+
+        indonesianButton.addEventListener('click', function() {
+            saveLanguage('id');
+            applyLanguage('id');
+        });
+    }
+
+    applyLanguage(getLanguage());
+})();
+
 $(document).ready(function() {
     // Store original values for change detection
     var originalPriorityId = '{{ $ticket->ticket_priority_id }}';
@@ -429,15 +578,15 @@ $(document).ready(function() {
     var originalStatusId = '{{ $ticket->ticket_status_id }}';
 
     // Initialize Select2 for all dropdowns
-    $('#ticket_type_id').select2({ placeholder: 'Select ticket type', allowClear: false });
-    $('#ticket_priority_id').select2({ placeholder: 'Select priority', allowClear: false });
-    $('#ticket_status_id').select2({ placeholder: 'Select status', allowClear: false });
-    $('#assigned_to').select2({ placeholder: 'Select technician (optional)', allowClear: true });
-    $('#location_id').select2({ placeholder: 'Select location', allowClear: false });
+    $('#ticket_type_id').select2({ placeholder: window.ticketEditLabel('tickets.edit.select2.ticket_type', 'Select ticket type'), allowClear: false });
+    $('#ticket_priority_id').select2({ placeholder: window.ticketEditLabel('tickets.edit.select2.priority', 'Select priority'), allowClear: false });
+    $('#ticket_status_id').select2({ placeholder: window.ticketEditLabel('tickets.edit.select2.status', 'Select status'), allowClear: false });
+    $('#assigned_to').select2({ placeholder: window.ticketEditLabel('tickets.edit.select2.assigned_to', 'Select technician (optional)'), allowClear: true });
+    $('#location_id').select2({ placeholder: window.ticketEditLabel('tickets.edit.select2.location', 'Select location'), allowClear: false });
     
     // Init multi-select for assets with better styling
     $('#asset_id').select2({ 
-        placeholder: 'Search and select asset(s)', 
+        placeholder: window.ticketEditLabel('tickets.edit.select2.assets', 'Search and select asset(s)'), 
         allowClear: true,
         width: '100%'
     });
@@ -448,7 +597,10 @@ $(document).ready(function() {
         var minLength = 10;
         var counter = $('#char-counter');
         
-        counter.text(length + ' / ' + minLength + ' characters (minimum ' + minLength + ')');
+        counter.text(window.ticketEditLabelFormat('tickets.edit.runtime.char_counter', '{count} / {min} characters (minimum {min})', {
+            count: length,
+            min: minLength
+        }));
         
         if (length >= minLength) {
             counter.removeClass('invalid').addClass('valid');
@@ -472,7 +624,7 @@ $(document).ready(function() {
             if (slaHours) {
                 var now = new Date();
                 var newDueDate = new Date(now.getTime() + (slaHours * 60 * 60 * 1000));
-                var formattedDate = newDueDate.toLocaleString('en-US', {
+                var formattedDate = newDueDate.toLocaleString(window.ticketEditLocale(), {
                     weekday: 'short',
                     month: 'short',
                     day: 'numeric',
@@ -501,13 +653,21 @@ $(document).ready(function() {
             var warningText = '';
             
             if (statusName === 'resolved' || statusName === 'closed') {
-                warningText = 'Changing status to "' + selectedStatus.text() + '" will mark this ticket as complete. Make sure all work is finished.';
+                warningText = window.ticketEditLabelFormat('tickets.edit.runtime.status_complete', 'Changing status to "{status}" will mark this ticket as complete. Make sure all work is finished.', {
+                    status: selectedStatus.text()
+                });
             } else if (statusName === 'on hold') {
-                warningText = 'Changing status to "On Hold" will pause this ticket. Add comments explaining why.';
+                warningText = window.ticketEditLabelFormat('tickets.edit.runtime.status_on_hold', 'Changing status to "{status}" will pause this ticket. Add comments explaining why.', {
+                    status: selectedStatus.text()
+                });
             } else if (statusName === 'in progress') {
-                warningText = 'Changing status to "In Progress" indicates active work on this ticket.';
+                warningText = window.ticketEditLabelFormat('tickets.edit.runtime.status_in_progress', 'Changing status to "{status}" indicates active work on this ticket.', {
+                    status: selectedStatus.text()
+                });
             } else {
-                warningText = 'Status changed to "' + selectedStatus.text() + '".';
+                warningText = window.ticketEditLabelFormat('tickets.edit.runtime.status_changed', 'Status changed to "{status}".', {
+                    status: selectedStatus.text()
+                });
             }
             
             $('#status-warning-text').text(warningText);
@@ -561,7 +721,7 @@ $(document).ready(function() {
 
     // Form submit with loading overlay
     $('#ticket-edit-form').on('submit', function() {
-        showLoading('Updating ticket...');
+        showLoading(window.ticketEditLabel('tickets.edit.runtime.loading_update', 'Updating ticket...'));
     });
 
     // Prevent enter key from submitting form

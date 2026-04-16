@@ -14,6 +14,14 @@
     ]
 ])
 
+  <div class="pull-right" style="margin-top: -52px; margin-bottom: 16px; margin-right: 15px;">
+    <div class="btn-group btn-group-xs" role="group" aria-label="Ticket Show Language Toggle">
+      <button type="button" class="btn btn-default" id="ticketShowLanguageEnglish" data-lang="en">EN</button>
+      <button type="button" class="btn btn-default" id="ticketShowLanguageIndonesian" data-lang="id">ID</button>
+    </div>
+  </div>
+  <div class="clearfix"></div>
+
 <div class="container-fluid">
     {{-- Flash Messages --}}
     @if(session('success'))
@@ -56,17 +64,17 @@
           <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active">
               <a href="#ticket-info" aria-controls="ticket-info" role="tab" data-toggle="tab">
-                <i class="fa fa-info-circle"></i> Ticket Info
+                <i class="fa fa-info-circle"></i> <span data-i18n="tickets.show.tab.info">Ticket Info</span>
               </a>
             </li>
             <li role="presentation">
               <a href="#description" aria-controls="description" role="tab" data-toggle="tab">
-                <i class="fa fa-file-text-o"></i> Description
+                <i class="fa fa-file-text-o"></i> <span data-i18n="tickets.show.tab.description">Description</span>
               </a>
             </li>
             <li role="presentation">
               <a href="#related-assets" aria-controls="related-assets" role="tab" data-toggle="tab">
-                <i class="fa fa-laptop"></i> Related Assets
+                <i class="fa fa-laptop"></i> <span data-i18n="tickets.show.tab.assets">Related Assets</span>
                 @if($ticket->assets && $ticket->assets->count() > 0)
                   <span class="badge bg-green">{{ $ticket->assets->count() }}</span>
                 @endif
@@ -74,7 +82,7 @@
             </li>
             <li role="presentation">
               <a href="#notes" aria-controls="notes" role="tab" data-toggle="tab">
-                <i class="fa fa-comments"></i> Notes
+                <i class="fa fa-comments"></i> <span data-i18n="tickets.show.tab.notes">Notes</span>
                 @if($ticketEntries && $ticketEntries->count() > 0)
                   <span class="badge bg-blue">{{ $ticketEntries->count() }}</span>
                 @endif
@@ -83,14 +91,14 @@
             @if($ticket->history && $ticket->history->count() > 0)
             <li role="presentation">
               <a href="#history" aria-controls="history" role="tab" data-toggle="tab">
-                <i class="fa fa-history"></i> History
+                <i class="fa fa-history"></i> <span data-i18n="tickets.show.tab.history">History</span>
                 <span class="badge bg-blue">{{ $ticket->history->count() }}</span>
               </a>
             </li>
             @endif
             <li role="presentation">
               <a href="#attachments" aria-controls="attachments" role="tab" data-toggle="tab">
-                <i class="fa fa-paperclip"></i> Attachments
+                <i class="fa fa-paperclip"></i> <span data-i18n="tickets.show.tab.attachments">Attachments</span>
                 <span class="badge bg-green">{{ $ticket->getMedia('attachments')->count() ?? 0 }}</span>
               </a>
             </li>
@@ -102,7 +110,7 @@
             <div role="tabpanel" class="tab-pane active" id="ticket-info">
               <div class="row">
                 <div class="col-md-6">
-                  <h4><i class="fa fa-info-circle text-primary"></i> Basic Information</h4>
+                  <h4><i class="fa fa-info-circle text-primary"></i> <span data-i18n="tickets.show.section.basic">Basic Information</span></h4>
                   <div class="table-responsive">
                     <table class="table table-striped">
                       <tr>
@@ -161,7 +169,7 @@
                 </div>
 
                 <div class="col-md-6">
-                  <h4><i class="fa fa-calendar text-info"></i> Timeline & Assignment</h4>
+                  <h4><i class="fa fa-calendar text-info"></i> <span data-i18n="tickets.show.section.timeline">Timeline & Assignment</span></h4>
                   <div class="table-responsive">
                     <table class="table table-striped">
                       <tr>
@@ -201,7 +209,7 @@
               {{-- SLA Information --}}
               <div class="row">
                 <div class="col-md-12">
-                  <h4><i class="fa fa-clock-o text-warning"></i> SLA Information</h4>
+                  <h4><i class="fa fa-clock-o text-warning"></i> <span data-i18n="tickets.show.section.sla">SLA Information</span></h4>
                   <div class="table-responsive">
                     <table class="table table-striped">
                       <tr>
@@ -388,16 +396,16 @@
               @endif
               
               <hr>
-              <h4><i class="fa fa-plus text-success"></i> Add New Note</h4>
+              <h4><i class="fa fa-plus text-success"></i> <span data-i18n="tickets.show.section.add_note">Add New Note</span></h4>
               <form method="POST" action="/tickets/{{$ticket->id}}">
                 {{csrf_field()}}
                 <div class="form-group">
-                  <label for="note"><i class="fa fa-comment"></i> Note</label>
-                  <textarea name="note" class="form-control" rows="5" placeholder="Enter your note here..." required>{{old('note')}}</textarea>
+                  <label for="note"><i class="fa fa-comment"></i> <span data-i18n="tickets.show.field.note">Note</span></label>
+                  <textarea name="note" class="form-control" rows="5" data-i18n-placeholder="tickets.show.placeholder.note" placeholder="Enter your note here..." required>{{old('note')}}</textarea>
                 </div>
                 <div class="form-group">
                   <button type="submit" class="btn btn-primary">
-                    <i class="fa fa-save"></i> Save Note
+                    <i class="fa fa-save"></i> <span data-i18n="tickets.show.action.save_note">Save Note</span>
                   </button>
                 </div>
               </form>
@@ -455,12 +463,12 @@
       {{-- Quick Actions --}}
       <div class="box box-warning">
         <div class="box-header with-border">
-          <h3 class="box-title"><i class="fa fa-bolt"></i> Quick Actions</h3>
+          <h3 class="box-title"><i class="fa fa-bolt"></i> <span data-i18n="tickets.show.quick_actions.title">Quick Actions</span></h3>
         </div>
         <div class="box-body">
           @can('update', $ticket)
             <a href="{{ route('tickets.edit', $ticket) }}" class="btn btn-primary btn-block margin-bottom">
-              <i class="fa fa-edit"></i> Edit Ticket
+              <i class="fa fa-edit"></i> <span data-i18n="tickets.show.action.edit">Edit Ticket</span>
             </a>
           @endcan
           
@@ -480,25 +488,25 @@
             <form action="{{ route('tickets.resolve', $ticket) }}" method="POST" style="margin-bottom: 10px;">
               @csrf
               @method('PATCH')
-              <button type="submit" class="btn btn-success btn-block" onclick="return confirm('Mark this ticket as resolved?')">
-                <i class="fa fa-check-circle"></i> Mark as Resolved
+              <button type="submit" class="btn btn-success btn-block" onclick="return window.ticketShowConfirm('tickets.show.runtime.confirm.resolve', 'Mark this ticket as resolved?')">
+                <i class="fa fa-check-circle"></i> <span data-i18n="tickets.show.action.resolve">Mark as Resolved</span>
               </button>
             </form>
           @elseif($canResolve && $ticket->resolved_at && auth()->user()->hasRole('super-admin'))
             <form action="{{ route('tickets.unresolve', $ticket) }}" method="POST" style="margin-bottom: 10px;">
               @csrf
               @method('PATCH')
-              <button type="submit" class="btn btn-warning btn-block" onclick="return confirm('Reopen this ticket?')">
-                <i class="fa fa-undo"></i> Reopen Ticket
+              <button type="submit" class="btn btn-warning btn-block" onclick="return window.ticketShowConfirm('tickets.show.runtime.confirm.reopen', 'Reopen this ticket?')">
+                <i class="fa fa-undo"></i> <span data-i18n="tickets.show.action.reopen">Reopen Ticket</span>
               </button>
             </form>
           @endif
           
           <a href="{{ route('tickets.print', $ticket) }}" class="btn btn-info btn-block margin-bottom" target="_blank">
-            <i class="fa fa-print"></i> Print Ticket
+            <i class="fa fa-print"></i> <span data-i18n="tickets.show.action.print">Print Ticket</span>
           </a>
           <a href="{{ route('tickets.index') }}" class="btn btn-default btn-block">
-            <i class="fa fa-arrow-left"></i> Back to Tickets
+            <i class="fa fa-arrow-left"></i> <span data-i18n="tickets.show.action.back">Back to Tickets</span>
           </a>
         </div>
       </div>
@@ -619,6 +627,142 @@
       });
     </script>
   @endif
+
+    @push('scripts')
+    <script>
+    (function() {
+      var translations = {
+        en: {
+          'tickets.show.tab.info': 'Ticket Info',
+          'tickets.show.tab.description': 'Description',
+          'tickets.show.tab.assets': 'Related Assets',
+          'tickets.show.tab.notes': 'Notes',
+          'tickets.show.tab.history': 'History',
+          'tickets.show.tab.attachments': 'Attachments',
+          'tickets.show.section.basic': 'Basic Information',
+          'tickets.show.section.timeline': 'Timeline & Assignment',
+          'tickets.show.section.sla': 'SLA Information',
+          'tickets.show.section.add_note': 'Add New Note',
+          'tickets.show.field.note': 'Note',
+          'tickets.show.placeholder.note': 'Enter your note here...',
+          'tickets.show.action.save_note': 'Save Note',
+          'tickets.show.quick_actions.title': 'Quick Actions',
+          'tickets.show.action.edit': 'Edit Ticket',
+          'tickets.show.action.resolve': 'Mark as Resolved',
+          'tickets.show.action.reopen': 'Reopen Ticket',
+          'tickets.show.action.print': 'Print Ticket',
+          'tickets.show.action.back': 'Back to Tickets',
+          'tickets.show.runtime.confirm.resolve': 'Mark this ticket as resolved?',
+          'tickets.show.runtime.confirm.reopen': 'Reopen this ticket?'
+        },
+        id: {
+          'tickets.show.tab.info': 'Info Tiket',
+          'tickets.show.tab.description': 'Deskripsi',
+          'tickets.show.tab.assets': 'Aset Terkait',
+          'tickets.show.tab.notes': 'Catatan',
+          'tickets.show.tab.history': 'Riwayat',
+          'tickets.show.tab.attachments': 'Lampiran',
+          'tickets.show.section.basic': 'Informasi Dasar',
+          'tickets.show.section.timeline': 'Linimasa & Penugasan',
+          'tickets.show.section.sla': 'Informasi SLA',
+          'tickets.show.section.add_note': 'Tambah Catatan Baru',
+          'tickets.show.field.note': 'Catatan',
+          'tickets.show.placeholder.note': 'Masukkan catatan Anda di sini...',
+          'tickets.show.action.save_note': 'Simpan Catatan',
+          'tickets.show.quick_actions.title': 'Aksi Cepat',
+          'tickets.show.action.edit': 'Ubah Tiket',
+          'tickets.show.action.resolve': 'Tandai Selesai',
+          'tickets.show.action.reopen': 'Buka Kembali Tiket',
+          'tickets.show.action.print': 'Cetak Tiket',
+          'tickets.show.action.back': 'Kembali ke Daftar Tiket',
+          'tickets.show.runtime.confirm.resolve': 'Tandai tiket ini sebagai selesai?',
+          'tickets.show.runtime.confirm.reopen': 'Buka kembali tiket ini?'
+        }
+      };
+
+      var currentLanguage = 'en';
+      var userId = '{{ (int) auth()->id() }}';
+      var languageStorageKey = 'itapp.portal.preferences.v1.user.' + userId;
+      var englishButton = document.getElementById('ticketShowLanguageEnglish');
+      var indonesianButton = document.getElementById('ticketShowLanguageIndonesian');
+
+      function getLanguage() {
+        try {
+          var raw = window.localStorage.getItem(languageStorageKey);
+          if (!raw) {
+            return 'en';
+          }
+
+          var parsed = JSON.parse(raw);
+          return parsed && parsed.language === 'id' ? 'id' : 'en';
+        } catch (error) {
+          return 'en';
+        }
+      }
+
+      function saveLanguage(language) {
+        try {
+          var raw = window.localStorage.getItem(languageStorageKey);
+          var parsed = raw ? JSON.parse(raw) : {};
+          parsed.language = language === 'id' ? 'id' : 'en';
+          window.localStorage.setItem(languageStorageKey, JSON.stringify(parsed));
+        } catch (error) {
+          // Keep silent if localStorage is unavailable.
+        }
+      }
+
+      function getLabel(key, fallback) {
+        var dictionary = translations[currentLanguage] || translations.en;
+        return dictionary[key] || fallback || key;
+      }
+
+      function applyLanguage(language) {
+        currentLanguage = language === 'id' ? 'id' : 'en';
+        var dictionary = translations[currentLanguage] || translations.en;
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function(node) {
+          var key = node.getAttribute('data-i18n');
+          if (dictionary[key]) {
+            node.textContent = dictionary[key];
+          }
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-i18n-placeholder]'), function(node) {
+          var key = node.getAttribute('data-i18n-placeholder');
+          if (dictionary[key]) {
+            node.setAttribute('placeholder', dictionary[key]);
+          }
+        });
+
+        if (englishButton && indonesianButton) {
+          englishButton.classList.toggle('active', currentLanguage === 'en');
+          indonesianButton.classList.toggle('active', currentLanguage === 'id');
+        }
+      }
+
+      function ticketShowConfirm(key, fallback) {
+        return window.confirm(getLabel(key, fallback));
+      }
+
+      window.ticketShowLabel = getLabel;
+      window.ticketShowConfirm = ticketShowConfirm;
+
+      if (englishButton && indonesianButton) {
+        englishButton.addEventListener('click', function() {
+          saveLanguage('en');
+          applyLanguage('en');
+        });
+
+        indonesianButton.addEventListener('click', function() {
+          saveLanguage('id');
+          applyLanguage('id');
+        });
+      }
+
+      applyLanguage(getLanguage());
+    })();
+    </script>
+    @endpush
 @endsection
 
 

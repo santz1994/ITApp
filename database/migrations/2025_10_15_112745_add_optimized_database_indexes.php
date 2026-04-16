@@ -400,7 +400,7 @@ return new class extends Migration
         try {
             // Check if table exists
             if (!Schema::hasTable($table)) {
-                echo "⚠️  Table '{$table}' does not exist. Skipping index '{$indexName}'.\n";
+                $this->writeOutput("⚠️  Table '{$table}' does not exist. Skipping index '{$indexName}'.");
                 return;
             }
             
@@ -421,12 +421,12 @@ return new class extends Migration
                 Schema::table($table, function (Blueprint $table) use ($indexName, $columns) {
                     $table->index($columns, $indexName);
                 });
-                echo "✅ Added index: {$indexName}\n";
+                $this->writeOutput("✅ Added index: {$indexName}");
             } else {
-                echo "⏭️  Index '{$indexName}' already exists. Skipping.\n";
+                $this->writeOutput("⏭️  Index '{$indexName}' already exists. Skipping.");
             }
         } catch (\Exception $e) {
-            echo "❌ Could not add index '{$indexName}' on table '{$table}': " . $e->getMessage() . "\n";
+            $this->writeOutput("❌ Could not add index '{$indexName}' on table '{$table}': " . $e->getMessage());
         }
     }
     
@@ -459,10 +459,19 @@ return new class extends Migration
                 Schema::table($table, function (Blueprint $table) use ($indexName) {
                     $table->dropIndex($indexName);
                 });
-                echo "✅ Dropped index: {$indexName}\n";
+                $this->writeOutput("✅ Dropped index: {$indexName}");
             }
         } catch (\Exception $e) {
             // Silently ignore errors during rollback
         }
+    }
+
+    private function writeOutput(string $message): void
+    {
+        if (app()->runningUnitTests()) {
+            return;
+        }
+
+        echo $message . "\n";
     }
 };

@@ -15,6 +15,14 @@
     ]
 ])
 
+<div class="pull-right" style="margin-top: -52px; margin-bottom: 16px; margin-right: 15px;">
+    <div class="btn-group btn-group-xs" role="group" aria-label="Asset Request Edit Language Toggle">
+        <button type="button" class="btn btn-default" id="assetRequestEditLanguageEnglish" data-lang="en">EN</button>
+        <button type="button" class="btn btn-default" id="assetRequestEditLanguageIndonesian" data-lang="id">ID</button>
+    </div>
+</div>
+<div class="clearfix"></div>
+
 <div class="container-fluid">
 
     {{-- Request Metadata Alert --}}
@@ -35,7 +43,7 @@
         <div class="col-md-8">
             <div class="box box-primary">
                 <div class="box-header with-border">
-                    <h3 class="box-title"><i class="fa fa-edit"></i> Edit Request Details</h3>
+                    <h3 class="box-title"><i class="fa fa-edit"></i> <span data-i18n="asset_request.edit.form.title">Edit Request Details</span></h3>
                 </div>
                 <div class="box-body">
 
@@ -50,7 +58,7 @@
                     @if($errors->any())
                         <div class="alert alert-warning alert-dismissible">
                             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                            <i class="fa fa-exclamation-circle"></i> <strong>Validation errors:</strong>
+                            <i class="fa fa-exclamation-circle"></i> <strong data-i18n="asset_request.edit.validation.title">Validation errors:</strong>
                             <ul style="margin-bottom: 0; margin-top: 5px;">
                                 @foreach($errors->all() as $error)
                                     <li>{{ $error }}</li>
@@ -71,7 +79,7 @@
 
                         {{-- Section 1: Asset Details --}}
                         <fieldset>
-                            <legend><span class="form-section-icon"><i class="fa fa-box"></i></span> Asset Details</legend>
+                            <legend><span class="form-section-icon"><i class="fa fa-box"></i></span> <span data-i18n="asset_request.edit.section.asset">Asset Details</span></legend>
                             
                             <div class="row">
                                 <div class="col-md-8">
@@ -145,11 +153,12 @@
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <label for="priority">Priority</label>
+                                        @php($priorityOptions = $priorities ?? ['low', 'medium', 'high', 'urgent'])
                                         <select class="form-control @error('priority') is-invalid @enderror" 
                                                 id="priority" name="priority"
                                                 {{ $assetRequest->status !== 'pending' ? 'disabled' : '' }}>
                                             <option value="">Select Priority</option>
-                                            @foreach($priorities as $priority)
+                                            @foreach($priorityOptions as $priority)
                                                 <option value="{{ $priority }}" {{ old('priority', $assetRequest->priority) == $priority ? 'selected' : '' }}>
                                                     {{ ucfirst($priority) }}
                                                 </option>
@@ -181,7 +190,7 @@
 
                         {{-- Section 2: Justification --}}
                         <fieldset>
-                            <legend><span class="form-section-icon"><i class="fa fa-file-alt"></i></span> Justification</legend>
+                            <legend><span class="form-section-icon"><i class="fa fa-file-alt"></i></span> <span data-i18n="asset_request.edit.section.justification">Justification</span></legend>
                             
                             <div class="form-group">
                                 <label for="justification">Business Justification <span class="text-danger">*</span></label>
@@ -206,10 +215,10 @@
                         @if($assetRequest->status === 'pending')
                             <div class="form-group" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e3e3e3;">
                                 <button type="submit" class="btn btn-primary btn-lg">
-                                    <i class="fa fa-save"></i> <b>Update Request</b>
+                                    <i class="fa fa-save"></i> <b data-i18n="asset_request.edit.action.submit">Update Request</b>
                                 </button>
                                 <a href="{{ route('asset-requests.index') }}" class="btn btn-default btn-lg">
-                                    <i class="fa fa-times"></i> Cancel
+                                    <i class="fa fa-times"></i> <span data-i18n="asset_request.edit.action.cancel">Cancel</span>
                                 </a>
                             </div>
                         @else
@@ -303,24 +312,120 @@
 
 @push('scripts')
 <script>
+(function() {
+    var translations = {
+        en: {
+            'asset_request.edit.form.title': 'Edit Request Details',
+            'asset_request.edit.validation.title': 'Validation errors:',
+            'asset_request.edit.section.asset': 'Asset Details',
+            'asset_request.edit.section.justification': 'Justification',
+            'asset_request.edit.action.submit': 'Update Request',
+            'asset_request.edit.action.cancel': 'Cancel',
+            'asset_request.edit.runtime.asset_name_required': 'Please enter the asset name/title',
+            'asset_request.edit.runtime.asset_type_required': 'Please select an asset type',
+            'asset_request.edit.runtime.justification_required': 'Please provide a detailed justification (minimum 20 characters)'
+        },
+        id: {
+            'asset_request.edit.form.title': 'Ubah Detail Permintaan',
+            'asset_request.edit.validation.title': 'Kesalahan validasi:',
+            'asset_request.edit.section.asset': 'Detail Aset',
+            'asset_request.edit.section.justification': 'Justifikasi',
+            'asset_request.edit.action.submit': 'Perbarui Permintaan',
+            'asset_request.edit.action.cancel': 'Batal',
+            'asset_request.edit.runtime.asset_name_required': 'Silakan masukkan nama/judul aset',
+            'asset_request.edit.runtime.asset_type_required': 'Silakan pilih jenis aset',
+            'asset_request.edit.runtime.justification_required': 'Silakan isi justifikasi detail (minimal 20 karakter)'
+        }
+    };
+
+    var currentLanguage = 'en';
+    var userId = '{{ (int) auth()->id() }}';
+    var languageStorageKey = 'itapp.portal.preferences.v1.user.' + userId;
+    var englishButton = document.getElementById('assetRequestEditLanguageEnglish');
+    var indonesianButton = document.getElementById('assetRequestEditLanguageIndonesian');
+
+    function getLanguage() {
+        try {
+            var raw = window.localStorage.getItem(languageStorageKey);
+            if (!raw) {
+                return 'en';
+            }
+
+            var parsed = JSON.parse(raw);
+            return parsed && parsed.language === 'id' ? 'id' : 'en';
+        } catch (error) {
+            return 'en';
+        }
+    }
+
+    function saveLanguage(language) {
+        try {
+            var raw = window.localStorage.getItem(languageStorageKey);
+            var parsed = raw ? JSON.parse(raw) : {};
+            parsed.language = language === 'id' ? 'id' : 'en';
+            window.localStorage.setItem(languageStorageKey, JSON.stringify(parsed));
+        } catch (error) {
+            // Keep silent if localStorage is unavailable.
+        }
+    }
+
+    function getLabel(key, fallback) {
+        var dictionary = translations[currentLanguage] || translations.en;
+        return dictionary[key] || fallback || key;
+    }
+
+    function applyLanguage(language) {
+        currentLanguage = language === 'id' ? 'id' : 'en';
+        var dictionary = translations[currentLanguage] || translations.en;
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function(node) {
+            var key = node.getAttribute('data-i18n');
+            if (dictionary[key]) {
+                node.textContent = dictionary[key];
+            }
+        });
+
+        if (englishButton && indonesianButton) {
+            englishButton.classList.toggle('active', currentLanguage === 'en');
+            indonesianButton.classList.toggle('active', currentLanguage === 'id');
+        }
+    }
+
+    window.assetRequestEditLabel = getLabel;
+
+    if (englishButton && indonesianButton) {
+        englishButton.addEventListener('click', function() {
+            saveLanguage('en');
+            applyLanguage('en');
+        });
+
+        indonesianButton.addEventListener('click', function() {
+            saveLanguage('id');
+            applyLanguage('id');
+        });
+    }
+
+    applyLanguage(getLanguage());
+})();
+
 $(document).ready(function() {
     // Form validation (only if editable)
     @if($assetRequest->status === 'pending')
     $('#asset-request-form').on('submit', function(e) {
         if ($('#title').val().trim() === '') {
-            alert('Please enter the asset name/title');
+            alert(window.assetRequestEditLabel('asset_request.edit.runtime.asset_name_required', 'Please enter the asset name/title'));
             $('#title').focus();
             return false;
         }
         
         if ($('#asset_type_id').val() === '') {
-            alert('Please select an asset type');
+            alert(window.assetRequestEditLabel('asset_request.edit.runtime.asset_type_required', 'Please select an asset type'));
             $('#asset_type_id').focus();
             return false;
         }
         
         if ($('#justification').val().trim().length < 20) {
-            alert('Please provide a detailed justification (minimum 20 characters)');
+            alert(window.assetRequestEditLabel('asset_request.edit.runtime.justification_required', 'Please provide a detailed justification (minimum 20 characters)'));
             $('#justification').focus();
             return false;
         }
@@ -336,24 +441,3 @@ $(document).ready(function() {
 });
 </script>
 @endpush
-                                    <label for="updated_at">Terakhir Diperbarui</label>
-                                    <input type="text" class="form-control" value="{{ optional($assetRequest->updated_at)->format('d M Y H:i') }}" disabled>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group mt-3">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-save"></i> Update Request
-                            </button>
-                            <a href="{{ route('asset-requests.show', $assetRequest->id) }}" class="btn btn-secondary">
-                                <i class="fa fa-times"></i> Cancel
-                            </a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-@endsection

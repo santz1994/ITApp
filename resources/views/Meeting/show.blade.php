@@ -13,6 +13,14 @@
     ]
 ])
 
+<div class="pull-right" style="margin-top: -52px; margin-bottom: 16px; margin-right: 15px;">
+    <div class="btn-group btn-group-xs" role="group" aria-label="Meeting Show Language Toggle">
+        <button type="button" class="btn btn-default" id="meetingShowLanguageEnglish" data-lang="en">EN</button>
+        <button type="button" class="btn btn-default" id="meetingShowLanguageIndonesian" data-lang="id">ID</button>
+    </div>
+</div>
+<div class="clearfix"></div>
+
 <div class="container-fluid">
     
     {{-- Flash Messages --}}
@@ -38,7 +46,7 @@
             <div class="box box-primary">
                 <div class="box-header with-border">
                     <h3 class="box-title">
-                        <i class="fa fa-info-circle"></i> Informasi Pemesanan / Booking Information
+                        <i class="fa fa-info-circle"></i> <span data-i18n="meeting.show.section.booking">Booking Information</span>
                     </h3>
                     <div class="box-tools pull-right">
                         <span class="label {{ $booking->statusBadge }}" style="font-size: 14px;">
@@ -74,7 +82,7 @@
             <div class="box box-success">
                 <div class="box-header with-border">
                     <h3 class="box-title">
-                        <i class="fa fa-user"></i> Informasi Pemohon / Requester Information
+                        <i class="fa fa-user"></i> <span data-i18n="meeting.show.section.requester">Requester Information</span>
                     </h3>
                 </div>
                 <div class="box-body">
@@ -100,7 +108,7 @@
             <div class="box box-info">
                 <div class="box-header with-border">
                     <h3 class="box-title">
-                        <i class="fa fa-file-text"></i> Detail Rapat / Meeting Details
+                        <i class="fa fa-file-text"></i> <span data-i18n="meeting.show.section.details">Meeting Details</span>
                     </h3>
                 </div>
                 <div class="box-body">
@@ -200,7 +208,7 @@
 
                             {{-- Back Button --}}
                             <a href="{{ route('meeting-room-bookings.index') }}" class="btn btn-default btn-lg">
-                                <i class="fa fa-arrow-left"></i> Kembali / Back
+                                <i class="fa fa-arrow-left"></i> <span data-i18n="meeting.show.action.back">Back</span>
                             </a>
 
                             {{-- Edit Button (Owner if Pending & Future, OR Receptionist if not started, OR Superadmin anytime) --}}
@@ -227,10 +235,10 @@
                             @if((user_has_role(Auth::user(), 'receptionist') || user_has_role(Auth::user(), 'admin')) && $booking->canBeCancelled())
                             <form action="{{ route('meeting-room-bookings.cancel', $booking->id) }}" 
                                   method="POST" style="display: inline;"
-                                  onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pemesanan ini?\nAre you sure you want to CANCEL this booking?');">
+                                                                    onsubmit="return window.meetingShowConfirm('meeting.show.runtime.confirm.cancel', 'Are you sure you want to cancel this booking?');">
                                 @csrf
                                 <button type="submit" class="btn btn-warning btn-lg">
-                                    <i class="fa fa-ban"></i> Batalkan / Cancel
+                                                                        <i class="fa fa-ban"></i> <span data-i18n="meeting.show.action.cancel">Cancel</span>
                                 </button>
                             </form>
                             @endif
@@ -239,10 +247,10 @@
                             @if((user_has_any_role(Auth::user(), ['receptionist', 'super-admin', 'director', 'management'])) && $booking->canBeFinished())
                             <form action="{{ route('meeting-room-bookings.finish', $booking->id) }}" 
                                   method="POST" style="display: inline;"
-                                  onsubmit="return confirm('Tandai meeting ini sebagai selesai?\nMark this meeting as FINISHED?');">
+                                                                    onsubmit="return window.meetingShowConfirm('meeting.show.runtime.confirm.finish', 'Mark this meeting as finished?');">
                                 @csrf
                                 <button type="submit" class="btn btn-success btn-lg">
-                                    <i class="fa fa-check"></i> Selesai / Finish
+                                                                        <i class="fa fa-check"></i> <span data-i18n="meeting.show.action.finish">Finish</span>
                                 </button>
                             </form>
                             @endif
@@ -254,7 +262,7 @@
                                 && $booking->end_datetime >= now())
                             <button type="button" class="btn btn-info btn-lg" 
                                     data-toggle="modal" data-target="#extendTimeModal">
-                                <i class="fa fa-clock-o"></i> Perpanjang Waktu / Extend Time
+                                <i class="fa fa-clock-o"></i> <span data-i18n="meeting.show.action.extend">Extend Time</span>
                             </button>
                             @endif
 
@@ -263,7 +271,7 @@
                                 && in_array($booking->status, ['pending', 'approved']))
                             <button type="button" class="btn btn-primary btn-lg" 
                                     data-toggle="modal" data-target="#quickEditSubjectModal">
-                                <i class="fa fa-pencil"></i> Edit Subjek / Edit Subject
+                                <i class="fa fa-pencil"></i> <span data-i18n="meeting.show.action.quick_edit_subject">Edit Subject</span>
                             </button>
                             @endif
 
@@ -273,7 +281,7 @@
                                 && $booking->start_datetime->isFuture())
                             <button type="button" class="btn btn-warning btn-lg" 
                                     data-toggle="modal" data-target="#quickEditTimeModal">
-                                <i class="fa fa-clock-o"></i> Edit Waktu / Edit Time
+                                <i class="fa fa-clock-o"></i> <span data-i18n="meeting.show.action.quick_edit_time">Edit Time</span>
                             </button>
                             @endif
 
@@ -281,11 +289,11 @@
                             @if(($booking->user_id == Auth::id() && $booking->canBeEdited()) || user_has_role(Auth::user(), 'super-admin'))
                             <form action="{{ route('meeting-room-bookings.destroy', $booking->id) }}" 
                                   method="POST" style="display: inline;"
-                                  onsubmit="return confirm('Apakah Anda yakin ingin menghapus pemesanan ini?\nAre you sure you want to DELETE this booking?');">
+                                                                    onsubmit="return window.meetingShowConfirm('meeting.show.runtime.confirm.delete', 'Are you sure you want to delete this booking?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger btn-lg">
-                                    <i class="fa fa-trash"></i> Hapus / Delete
+                                                                        <i class="fa fa-trash"></i> <span data-i18n="meeting.show.action.delete">Delete</span>
                                 </button>
                             </form>
                             @endif
@@ -368,7 +376,7 @@
                     <div class="box-body">
                         {{-- Approve Form --}}
                         <form action="{{ route('meeting-room-bookings.approve', $booking->id) }}" method="POST" 
-                              onsubmit="return confirm('Setujui pemesanan ini?\nApprove this booking?');">
+                            onsubmit="return window.meetingShowConfirm('meeting.show.runtime.confirm.approve', 'Approve this booking?');">
                             @csrf
                             <div class="form-group">
                                 <label for="approve_notes">Catatan (Opsional) / Notes (Optional)</label>
@@ -619,7 +627,7 @@
                         <i class="fa fa-times"></i> Batal / Cancel
                     </button>
                     <button type="submit" class="btn btn-info" id="extendSubmitBtn">
-                        <i class="fa fa-clock-o"></i> Perpanjang / Extend
+                        <i class="fa fa-clock-o"></i> <span data-i18n="meeting.show.action.extend">Extend Time</span>
                     </button>
                 </div>
             </form>
@@ -629,6 +637,142 @@
 
 @push('scripts')
 <script>
+;(function() {
+    var translations = {
+        en: {
+            'meeting.show.section.booking': 'Booking Information',
+            'meeting.show.section.requester': 'Requester Information',
+            'meeting.show.section.details': 'Meeting Details',
+            'meeting.show.action.back': 'Back',
+            'meeting.show.action.cancel': 'Cancel',
+            'meeting.show.action.finish': 'Finish',
+            'meeting.show.action.extend': 'Extend Time',
+            'meeting.show.action.quick_edit_subject': 'Edit Subject',
+            'meeting.show.action.quick_edit_time': 'Edit Time',
+            'meeting.show.action.quick_save': 'Save',
+            'meeting.show.action.delete': 'Delete',
+            'meeting.show.runtime.confirm.cancel': 'Are you sure you want to cancel this booking?',
+            'meeting.show.runtime.confirm.finish': 'Mark this meeting as finished?',
+            'meeting.show.runtime.confirm.delete': 'Are you sure you want to delete this booking?',
+            'meeting.show.runtime.confirm.approve': 'Approve this booking?',
+            'meeting.show.runtime.processing': 'Processing...',
+            'meeting.show.runtime.saving': 'Saving...',
+            'meeting.show.runtime.extend_success': 'Meeting time extended successfully!',
+            'meeting.show.runtime.extend_failed': 'Failed to extend time',
+            'meeting.show.runtime.error_prefix': 'Error:',
+            'meeting.show.runtime.update_failed': 'Failed to update',
+            'meeting.show.runtime.update_subject_failed': 'Failed to update subject',
+            'meeting.show.runtime.update_time_failed': 'Failed to update time',
+            'meeting.show.runtime.end_time_after_start': 'End time must be later than start time!'
+        },
+        id: {
+            'meeting.show.section.booking': 'Informasi Pemesanan',
+            'meeting.show.section.requester': 'Informasi Pemohon',
+            'meeting.show.section.details': 'Detail Rapat',
+            'meeting.show.action.back': 'Kembali',
+            'meeting.show.action.cancel': 'Batalkan',
+            'meeting.show.action.finish': 'Selesai',
+            'meeting.show.action.extend': 'Perpanjang Waktu',
+            'meeting.show.action.quick_edit_subject': 'Edit Subjek',
+            'meeting.show.action.quick_edit_time': 'Edit Waktu',
+            'meeting.show.action.quick_save': 'Simpan',
+            'meeting.show.action.delete': 'Hapus',
+            'meeting.show.runtime.confirm.cancel': 'Apakah Anda yakin ingin membatalkan pemesanan ini?',
+            'meeting.show.runtime.confirm.finish': 'Tandai meeting ini sebagai selesai?',
+            'meeting.show.runtime.confirm.delete': 'Apakah Anda yakin ingin menghapus pemesanan ini?',
+            'meeting.show.runtime.confirm.approve': 'Setujui pemesanan ini?',
+            'meeting.show.runtime.processing': 'Memproses...',
+            'meeting.show.runtime.saving': 'Menyimpan...',
+            'meeting.show.runtime.extend_success': 'Waktu meeting berhasil diperpanjang!',
+            'meeting.show.runtime.extend_failed': 'Gagal memperpanjang waktu meeting',
+            'meeting.show.runtime.error_prefix': 'Kesalahan:',
+            'meeting.show.runtime.update_failed': 'Gagal memperbarui data',
+            'meeting.show.runtime.update_subject_failed': 'Gagal memperbarui subjek',
+            'meeting.show.runtime.update_time_failed': 'Gagal memperbarui waktu',
+            'meeting.show.runtime.end_time_after_start': 'Waktu selesai harus lebih besar dari waktu mulai!'
+        }
+    };
+
+    var currentLanguage = 'en';
+    var userId = '{{ (int) auth()->id() }}';
+    var languageStorageKey = 'itapp.portal.preferences.v1.user.' + userId;
+    var englishButton = document.getElementById('meetingShowLanguageEnglish');
+    var indonesianButton = document.getElementById('meetingShowLanguageIndonesian');
+
+    function getLanguage() {
+        try {
+            var raw = window.localStorage.getItem(languageStorageKey);
+            if (!raw) {
+                return 'en';
+            }
+
+            var parsed = JSON.parse(raw);
+            return parsed && parsed.language === 'id' ? 'id' : 'en';
+        } catch (error) {
+            return 'en';
+        }
+    }
+
+    function saveLanguage(language) {
+        try {
+            var raw = window.localStorage.getItem(languageStorageKey);
+            var parsed = raw ? JSON.parse(raw) : {};
+            parsed.language = language === 'id' ? 'id' : 'en';
+            window.localStorage.setItem(languageStorageKey, JSON.stringify(parsed));
+        } catch (error) {
+            // Keep silent if localStorage is unavailable.
+        }
+    }
+
+    function getLabel(key, fallback) {
+        var dictionary = translations[currentLanguage] || translations.en;
+        return dictionary[key] || fallback || key;
+    }
+
+    function applyLanguage(language) {
+        currentLanguage = language === 'id' ? 'id' : 'en';
+        var dictionary = translations[currentLanguage] || translations.en;
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function(node) {
+            var key = node.getAttribute('data-i18n');
+            if (dictionary[key]) {
+                node.textContent = dictionary[key];
+            }
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-i18n-placeholder]'), function(node) {
+            var key = node.getAttribute('data-i18n-placeholder');
+            if (dictionary[key]) {
+                node.setAttribute('placeholder', dictionary[key]);
+            }
+        });
+
+        if (englishButton && indonesianButton) {
+            englishButton.classList.toggle('active', currentLanguage === 'en');
+            indonesianButton.classList.toggle('active', currentLanguage === 'id');
+        }
+    }
+
+    window.meetingShowLabel = getLabel;
+    window.meetingShowConfirm = function(key, fallback) {
+        return window.confirm(getLabel(key, fallback));
+    };
+
+    if (englishButton && indonesianButton) {
+        englishButton.addEventListener('click', function() {
+            saveLanguage('en');
+            applyLanguage('en');
+        });
+
+        indonesianButton.addEventListener('click', function() {
+            saveLanguage('id');
+            applyLanguage('id');
+        });
+    }
+
+    applyLanguage(getLanguage());
+})();
+
 $(document).ready(function() {
     // Check for conflict when time is selected
     $('#new_end_time').on('change', function() {
@@ -665,7 +809,7 @@ $(document).ready(function() {
         const form = $(this);
         const submitBtn = $('#extendSubmitBtn');
         
-        submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+        submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> ' + window.meetingShowLabel('meeting.show.runtime.processing', 'Processing...'));
         
         $.ajax({
             url: form.attr('action'),
@@ -673,16 +817,16 @@ $(document).ready(function() {
             data: form.serialize(),
             success: function(response) {
                 if (response.success) {
-                    alert('Waktu meeting berhasil diperpanjang!\nMeeting time extended successfully!');
+                    alert(window.meetingShowLabel('meeting.show.runtime.extend_success', 'Meeting time extended successfully!'));
                     location.reload();
                 } else {
-                    alert('Error: ' + (response.message || 'Failed to extend time'));
-                    submitBtn.prop('disabled', false).html('<i class="fa fa-clock-o"></i> Perpanjang / Extend');
+                    alert(window.meetingShowLabel('meeting.show.runtime.error_prefix', 'Error:') + ' ' + (response.message || window.meetingShowLabel('meeting.show.runtime.extend_failed', 'Failed to extend time')));
+                    submitBtn.prop('disabled', false).html('<i class="fa fa-clock-o"></i> ' + window.meetingShowLabel('meeting.show.action.extend', 'Extend Time'));
                 }
             },
             error: function(xhr) {
-                alert('Error: ' + (xhr.responseJSON?.message || 'Failed to extend time'));
-                submitBtn.prop('disabled', false).html('<i class="fa fa-clock-o"></i> Perpanjang / Extend');
+                alert(window.meetingShowLabel('meeting.show.runtime.error_prefix', 'Error:') + ' ' + (xhr.responseJSON?.message || window.meetingShowLabel('meeting.show.runtime.extend_failed', 'Failed to extend time')));
+                submitBtn.prop('disabled', false).html('<i class="fa fa-clock-o"></i> ' + window.meetingShowLabel('meeting.show.action.extend', 'Extend Time'));
             }
         });
     });
@@ -743,10 +887,10 @@ $(document).ready(function() {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">
-                        <i class="fa fa-times"></i> Batal / Cancel
+                        <i class="fa fa-times"></i> <span data-i18n="meeting.show.action.cancel">Cancel</span>
                     </button>
                     <button type="submit" class="btn btn-primary" id="subjectEditSubmitBtn">
-                        <i class="fa fa-save"></i> Simpan / Save
+                        <i class="fa fa-save"></i> <span data-i18n="meeting.show.action.quick_save">Save</span>
                     </button>
                 </div>
             </form>
@@ -820,10 +964,10 @@ $(document).ready(function() {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">
-                        <i class="fa fa-times"></i> Batal / Cancel
+                        <i class="fa fa-times"></i> <span data-i18n="meeting.show.action.cancel">Cancel</span>
                     </button>
                     <button type="submit" class="btn btn-warning" id="timeEditSubmitBtn">
-                        <i class="fa fa-save"></i> Simpan / Save
+                        <i class="fa fa-save"></i> <span data-i18n="meeting.show.action.quick_save">Save</span>
                     </button>
                 </div>
             </form>
@@ -844,7 +988,7 @@ $(document).ready(function() {
         const submitBtn = $('#subjectEditSubmitBtn');
         const alertBox = $('#subjectEditAlert');
         
-        submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Menyimpan...');
+        submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> ' + window.meetingShowLabel('meeting.show.runtime.saving', 'Saving...'));
         alertBox.hide();
         
         $.ajax({
@@ -863,13 +1007,13 @@ $(document).ready(function() {
                     }, 1500);
                 } else {
                     alertBox.removeClass('alert-success').addClass('alert-danger')
-                            .html('<i class="fa fa-exclamation-triangle"></i> ' + (response.message || 'Failed to update'))
+                            .html('<i class="fa fa-exclamation-triangle"></i> ' + (response.message || window.meetingShowLabel('meeting.show.runtime.update_failed', 'Failed to update')))
                             .fadeIn();
-                    submitBtn.prop('disabled', false).html('<i class="fa fa-save"></i> Simpan / Save');
+                    submitBtn.prop('disabled', false).html('<i class="fa fa-save"></i> ' + window.meetingShowLabel('meeting.show.action.quick_save', 'Save'));
                 }
             },
             error: function(xhr) {
-                let errorMsg = 'Failed to update subject';
+                let errorMsg = window.meetingShowLabel('meeting.show.runtime.update_subject_failed', 'Failed to update subject');
                 if (xhr.responseJSON) {
                     if (xhr.responseJSON.message) {
                         errorMsg = xhr.responseJSON.message;
@@ -881,7 +1025,7 @@ $(document).ready(function() {
                 alertBox.removeClass('alert-success').addClass('alert-danger')
                         .html('<i class="fa fa-exclamation-triangle"></i> ' + errorMsg)
                         .fadeIn();
-                submitBtn.prop('disabled', false).html('<i class="fa fa-save"></i> Simpan / Save');
+                submitBtn.prop('disabled', false).html('<i class="fa fa-save"></i> ' + window.meetingShowLabel('meeting.show.action.quick_save', 'Save'));
             }
         });
     });
@@ -902,12 +1046,12 @@ $(document).ready(function() {
         
         if (endTime <= startTime) {
             alertBox.removeClass('alert-success').addClass('alert-danger')
-                    .html('<i class="fa fa-exclamation-triangle"></i> Waktu selesai harus lebih besar dari waktu mulai!')
+                    .html('<i class="fa fa-exclamation-triangle"></i> ' + window.meetingShowLabel('meeting.show.runtime.end_time_after_start', 'End time must be later than start time!'))
                     .fadeIn();
             return false;
         }
         
-        submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Menyimpan...');
+        submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> ' + window.meetingShowLabel('meeting.show.runtime.saving', 'Saving...'));
         alertBox.hide();
         
         $.ajax({
@@ -926,13 +1070,13 @@ $(document).ready(function() {
                     }, 1500);
                 } else {
                     alertBox.removeClass('alert-success').addClass('alert-danger')
-                            .html('<i class="fa fa-exclamation-triangle"></i> ' + (response.message || 'Failed to update'))
+                            .html('<i class="fa fa-exclamation-triangle"></i> ' + (response.message || window.meetingShowLabel('meeting.show.runtime.update_failed', 'Failed to update')))
                             .fadeIn();
-                    submitBtn.prop('disabled', false).html('<i class="fa fa-save"></i> Simpan / Save');
+                    submitBtn.prop('disabled', false).html('<i class="fa fa-save"></i> ' + window.meetingShowLabel('meeting.show.action.quick_save', 'Save'));
                 }
             },
             error: function(xhr) {
-                let errorMsg = 'Failed to update time';
+                let errorMsg = window.meetingShowLabel('meeting.show.runtime.update_time_failed', 'Failed to update time');
                 if (xhr.responseJSON) {
                     if (xhr.responseJSON.message) {
                         errorMsg = xhr.responseJSON.message;
@@ -944,7 +1088,7 @@ $(document).ready(function() {
                 alertBox.removeClass('alert-success').addClass('alert-danger')
                         .html('<i class="fa fa-exclamation-triangle"></i> ' + errorMsg)
                         .fadeIn();
-                submitBtn.prop('disabled', false).html('<i class="fa fa-save"></i> Simpan / Save');
+                submitBtn.prop('disabled', false).html('<i class="fa fa-save"></i> ' + window.meetingShowLabel('meeting.show.action.quick_save', 'Save'));
             }
         });
     });

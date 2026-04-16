@@ -76,7 +76,9 @@ return new class extends Migration
         }
         
         // Step 5: Log success
-        Log::info('ticket_assets table recreated with correct data types and FK constraints');
+        if (!app()->runningUnitTests()) {
+            Log::info('ticket_assets table recreated with correct data types and FK constraints');
+        }
     }
 
     /**

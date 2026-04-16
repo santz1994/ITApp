@@ -13,6 +13,14 @@
     ]
 ])
 
+<div class="pull-right" style="margin-top: -52px; margin-bottom: 16px; margin-right: 15px;">
+    <div class="btn-group btn-group-xs" role="group" aria-label="Meeting Edit Language Toggle">
+        <button type="button" class="btn btn-default" id="meetingEditLanguageEnglish" data-lang="en">EN</button>
+        <button type="button" class="btn btn-default" id="meetingEditLanguageIndonesian" data-lang="id">ID</button>
+    </div>
+</div>
+<div class="clearfix"></div>
+
 <div class="container-fluid">
     
     {{-- Warning if not editable --}}
@@ -35,15 +43,14 @@
     @if(!$allowEdit)
         <div class="alert alert-warning">
             <i class="fa fa-exclamation-triangle"></i>
-            <strong>Perhatian!</strong> Pemesanan ini tidak dapat diedit karena sudah disetujui/ditolak atau waktu rapat sudah lewat.
-            <br><strong>Warning!</strong> This booking cannot be edited because it's already approved/rejected or the meeting time has passed.
+            <strong data-i18n="meeting.edit.locked.alert_title">Warning!</strong> <span data-i18n="meeting.edit.locked.alert_message">This booking cannot be edited because it is already approved/rejected or the meeting time has passed.</span>
             @if($isOwner && $booking->status === 'approved')
                 <br><br>
                 <em>Note: Only Receptionist, Super Admin, or daniel@quty.co.id can edit approved bookings.</em>
             @endif
         </div>
         <a href="{{ route('meeting-room-bookings.show', $booking->id) }}" class="btn btn-default">
-            <i class="fa fa-arrow-left"></i> Kembali / Back
+            <i class="fa fa-arrow-left"></i> <span data-i18n="meeting.edit.locked.back">Back</span>
         </a>
     @else
     
@@ -53,7 +60,7 @@
             <div class="box box-warning">
                 <div class="box-header with-border">
                     <h3 class="box-title">
-                        <i class="fa fa-edit"></i> Edit Booking Details / Detail Pemesanan
+                        <i class="fa fa-edit"></i> <span data-i18n="meeting.edit.form.title">Edit Booking Details</span>
                     </h3>
                 </div>
                 <div class="box-body">
@@ -62,7 +69,7 @@
                     @if($errors->any())
                         <div class="alert alert-warning alert-dismissible">
                             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                            <i class="fa fa-exclamation-circle"></i> <strong>Validation errors:</strong>
+                            <i class="fa fa-exclamation-circle"></i> <strong data-i18n="meeting.edit.validation.title">Validation errors:</strong>
                             <ul style="margin-bottom: 0; margin-top: 5px;">
                                 @foreach($errors->all() as $error)
                                     <li>{{ $error }}</li>
@@ -79,7 +86,7 @@
                         <fieldset>
                             <legend>
                                 <span class="form-section-icon"><i class="fa fa-user"></i></span> 
-                                Informasi Pemohon / Requester Information
+                                <span data-i18n="meeting.edit.section.requester">Requester Information</span>
                             </legend>
                             
                             <div class="row">
@@ -150,7 +157,7 @@
                         <fieldset>
                             <legend>
                                 <span class="form-section-icon"><i class="fa fa-calendar-check-o"></i></span> 
-                                Detail Rapat / Meeting Details
+                                <span data-i18n="meeting.edit.section.details">Meeting Details</span>
                             </legend>
                             
                             <div class="row">
@@ -312,7 +319,7 @@
                             {{-- Duration Display --}}
                             <div class="alert alert-info" id="duration-display">
                                 <i class="fa fa-info-circle"></i>
-                                <strong>Durasi Rapat / Duration:</strong> 
+                                <strong data-i18n="meeting.edit.duration.label">Meeting Duration:</strong> 
                                 <span id="duration-text">{{ $booking->duration }}</span>
                             </div>
                         </fieldset>
@@ -324,10 +331,10 @@
                         {{-- Submit Buttons --}}
                         <div class="form-group">
                             <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
-                                <i class="fa fa-save"></i> Simpan Perubahan / Save Changes
+                                <i class="fa fa-save"></i> <span data-i18n="meeting.edit.action.submit">Save Changes</span>
                             </button>
                             <a href="{{ route('meeting-room-bookings.show', $booking->id) }}" class="btn btn-default btn-lg">
-                                <i class="fa fa-times"></i> Batal / Cancel
+                                <i class="fa fa-times"></i> <span data-i18n="meeting.edit.action.cancel">Cancel</span>
                             </a>
                         </div>
 
@@ -484,6 +491,116 @@ fieldset legend {
 
 @push('scripts')
 <script>
+(function() {
+    var translations = {
+        en: {
+            'meeting.edit.locked.alert_title': 'Warning!',
+            'meeting.edit.locked.alert_message': 'This booking cannot be edited because it is already approved/rejected or the meeting time has passed.',
+            'meeting.edit.locked.back': 'Back',
+            'meeting.edit.form.title': 'Edit Booking Details',
+            'meeting.edit.validation.title': 'Validation errors:',
+            'meeting.edit.section.requester': 'Requester Information',
+            'meeting.edit.section.details': 'Meeting Details',
+            'meeting.edit.duration.label': 'Meeting Duration:',
+            'meeting.edit.action.submit': 'Save Changes',
+            'meeting.edit.action.cancel': 'Cancel',
+            'meeting.edit.runtime.invalid_time_range': 'Invalid time format! Use 00:00 - 23:59.',
+            'meeting.edit.runtime.invalid_time_format': 'Format must be HH:MM (example: 09:00, 14:30).',
+            'meeting.edit.runtime.hour': 'hour',
+            'meeting.edit.runtime.minute': 'minute',
+            'meeting.edit.runtime.end_after_start': 'End time must be greater than start time!',
+            'meeting.edit.runtime.processing': 'Processing...'
+        },
+        id: {
+            'meeting.edit.locked.alert_title': 'Perhatian!',
+            'meeting.edit.locked.alert_message': 'Pemesanan ini tidak dapat diedit karena sudah disetujui/ditolak atau waktu rapat telah lewat.',
+            'meeting.edit.locked.back': 'Kembali',
+            'meeting.edit.form.title': 'Ubah Detail Pemesanan',
+            'meeting.edit.validation.title': 'Kesalahan validasi:',
+            'meeting.edit.section.requester': 'Informasi Pemohon',
+            'meeting.edit.section.details': 'Detail Rapat',
+            'meeting.edit.duration.label': 'Durasi Rapat:',
+            'meeting.edit.action.submit': 'Simpan Perubahan',
+            'meeting.edit.action.cancel': 'Batal',
+            'meeting.edit.runtime.invalid_time_range': 'Format waktu tidak valid! Gunakan 00:00 - 23:59.',
+            'meeting.edit.runtime.invalid_time_format': 'Format harus HH:MM (contoh: 09:00, 14:30).',
+            'meeting.edit.runtime.hour': 'jam',
+            'meeting.edit.runtime.minute': 'menit',
+            'meeting.edit.runtime.end_after_start': 'Waktu selesai harus lebih besar dari waktu mulai!',
+            'meeting.edit.runtime.processing': 'Memproses...'
+        }
+    };
+
+    var currentLanguage = 'en';
+    var userId = '{{ (int) auth()->id() }}';
+    var languageStorageKey = 'itapp.portal.preferences.v1.user.' + userId;
+    var englishButton = document.getElementById('meetingEditLanguageEnglish');
+    var indonesianButton = document.getElementById('meetingEditLanguageIndonesian');
+
+    function getLanguage() {
+        try {
+            var raw = window.localStorage.getItem(languageStorageKey);
+            if (!raw) {
+                return 'en';
+            }
+
+            var parsed = JSON.parse(raw);
+            return parsed && parsed.language === 'id' ? 'id' : 'en';
+        } catch (error) {
+            return 'en';
+        }
+    }
+
+    function saveLanguage(language) {
+        try {
+            var raw = window.localStorage.getItem(languageStorageKey);
+            var parsed = raw ? JSON.parse(raw) : {};
+            parsed.language = language === 'id' ? 'id' : 'en';
+            window.localStorage.setItem(languageStorageKey, JSON.stringify(parsed));
+        } catch (error) {
+            // Keep silent if localStorage is unavailable.
+        }
+    }
+
+    function getLabel(key, fallback) {
+        var dictionary = translations[currentLanguage] || translations.en;
+        return dictionary[key] || fallback || key;
+    }
+
+    function applyLanguage(language) {
+        currentLanguage = language === 'id' ? 'id' : 'en';
+        var dictionary = translations[currentLanguage] || translations.en;
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function(node) {
+            var key = node.getAttribute('data-i18n');
+            if (dictionary[key]) {
+                node.textContent = dictionary[key];
+            }
+        });
+
+        if (englishButton && indonesianButton) {
+            englishButton.classList.toggle('active', currentLanguage === 'en');
+            indonesianButton.classList.toggle('active', currentLanguage === 'id');
+        }
+    }
+
+    window.meetingEditLabel = getLabel;
+
+    if (englishButton && indonesianButton) {
+        englishButton.addEventListener('click', function() {
+            saveLanguage('en');
+            applyLanguage('en');
+        });
+
+        indonesianButton.addEventListener('click', function() {
+            saveLanguage('id');
+            applyLanguage('id');
+        });
+    }
+
+    applyLanguage(getLanguage());
+})();
+
 $(document).ready(function() {
     // ============================================
     // 24-HOUR TIME INPUT WITH AUTO-MASKING
@@ -559,12 +676,12 @@ $(document).ready(function() {
                     $(this).removeClass('is-invalid');
                 } else {
                     $(this).addClass('is-invalid');
-                    alert('Format waktu tidak valid! Gunakan 00:00 - 23:59');
+                    alert(window.meetingEditLabel('meeting.edit.runtime.invalid_time_range', 'Invalid time format! Use 00:00 - 23:59.'));
                     $(this).focus();
                 }
             } else {
                 $(this).addClass('is-invalid');
-                alert('Format harus HH:MM (contoh: 09:00, 14:30)');
+                alert(window.meetingEditLabel('meeting.edit.runtime.invalid_time_format', 'Format must be HH:MM (example: 09:00, 14:30).'));
                 $(this).focus();
             }
         }
@@ -602,12 +719,12 @@ $(document).ready(function() {
                 if (totalMinutes >= 60) {
                     var hours = Math.floor(totalMinutes / 60);
                     var minutes = totalMinutes % 60;
-                    durationText = hours + ' jam';
+                    durationText = hours + ' ' + window.meetingEditLabel('meeting.edit.runtime.hour', 'hour');
                     if (minutes > 0) {
-                        durationText += ' ' + minutes + ' menit';
+                        durationText += ' ' + minutes + ' ' + window.meetingEditLabel('meeting.edit.runtime.minute', 'minute');
                     }
                 } else {
-                    durationText = totalMinutes + ' menit';
+                    durationText = totalMinutes + ' ' + window.meetingEditLabel('meeting.edit.runtime.minute', 'minute');
                 }
                 
                 $('#duration-text').text(durationText);
@@ -628,12 +745,12 @@ $(document).ready(function() {
         
         if (startTime >= endTime) {
             e.preventDefault();
-            alert('Waktu selesai harus lebih besar dari waktu mulai!\nEnd time must be after start time!');
+            alert(window.meetingEditLabel('meeting.edit.runtime.end_after_start', 'End time must be greater than start time!'));
             return false;
         }
         
         // Disable submit button to prevent double submission
-        $('#submit-btn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+        $('#submit-btn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> ' + window.meetingEditLabel('meeting.edit.runtime.processing', 'Processing...'));
     });
 });
 </script>

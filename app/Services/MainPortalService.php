@@ -23,11 +23,15 @@ class MainPortalService
     {
         $metrics = $this->portalRepository->getMetricsForUser($user);
         $isStandardUser = $this->isStandardUser($user);
+        $modules = $this->resolveModules($user, $metrics);
+        $quickLinks = $this->buildQuickLinks($user);
 
         return [
             'metrics' => $metrics,
-            'modules' => $this->resolveModules($user, $metrics),
-            'quickLinks' => $this->buildQuickLinks($user),
+            'modules' => $modules,
+            'quickLinks' => $quickLinks,
+            'quickLinkOptions' => $this->buildQuickLinkOptions($quickLinks),
+            'approvalCenter' => $this->buildApprovalCenter($user, $metrics),
             'recentTickets' => $this->portalRepository->getRecentTicketsForUser($user),
             'ticketStatusBreakdown' => $this->portalRepository->getTicketStatusBreakdownForUser($user),
             'meetingStatusBreakdown' => $this->portalRepository->getMeetingStatusBreakdownForUser($user),
@@ -49,6 +53,7 @@ class MainPortalService
 
         $modules = [
             [
+                'key' => 'it_support',
                 'title' => 'IT Support Module',
                 'subtitle' => 'Tiket dan Dukungan Pengguna',
                 'description' => 'Create, monitor, and resolve IT support tickets with clear SLA visibility.',
@@ -63,6 +68,7 @@ class MainPortalService
                 'roles' => [],
             ],
             [
+                'key' => 'meeting_room',
                 'title' => 'Meeting Room',
                 'subtitle' => 'Booking dan Jadwal',
                 'description' => 'Book rooms, check calendar availability, and manage approvals.',
@@ -74,6 +80,7 @@ class MainPortalService
                 'roles' => [],
             ],
             [
+                'key' => 'assets_management',
                 'title' => 'Assets Management',
                 'subtitle' => 'Inventaris dan Maintenance',
                 'description' => 'Track company assets, ownership, lifecycle, and maintenance workload.',
@@ -88,6 +95,7 @@ class MainPortalService
                 'roles' => [],
             ],
             [
+                'key' => 'purchase_request',
                 'title' => 'Purchase Request',
                 'subtitle' => 'Permintaan Pengadaan',
                 'description' => 'Submit and monitor procurement requests linked to asset operations.',
@@ -99,6 +107,7 @@ class MainPortalService
                 'roles' => [],
             ],
             [
+                'key' => 'profile',
                 'title' => 'Profile',
                 'subtitle' => 'Akun dan Preferensi',
                 'description' => 'Manage personal profile, password, and notification preferences.',
@@ -110,6 +119,7 @@ class MainPortalService
                 'roles' => [],
             ],
             [
+                'key' => 'user_management',
                 'title' => 'User Management',
                 'subtitle' => 'Role dan Permission',
                 'description' => 'Create users, manage access levels, and maintain role permissions.',
@@ -121,6 +131,7 @@ class MainPortalService
                 'roles' => ['admin', 'super-admin', 'developer'],
             ],
             [
+                'key' => 'settings',
                 'title' => 'Settings',
                 'subtitle' => 'Konfigurasi Sistem',
                 'description' => 'Configure ticket, asset, and system-level settings securely.',
@@ -132,6 +143,7 @@ class MainPortalService
                 'roles' => ['admin', 'super-admin', 'developer'],
             ],
             [
+                'key' => 'kpi_dashboard',
                 'title' => 'KPI Dashboard',
                 'subtitle' => 'Monitoring Kinerja',
                 'description' => 'View KPI metrics for operational and management decision making.',
@@ -143,6 +155,7 @@ class MainPortalService
                 'roles' => ['director', 'management', 'admin', 'super-admin'],
             ],
             [
+                'key' => 'lcd_screen',
                 'title' => 'LCD Screen',
                 'subtitle' => 'Live Meeting Display',
                 'description' => 'Open public meeting room display for reception and hallway screens.',
@@ -180,12 +193,127 @@ class MainPortalService
                 $isStandardUser ? 'tickets.user-index' : 'tickets.index',
                 'tickets.index',
             ]),
+            'tickets_unassigned' => $this->resolveTicketQueueUrl($user),
             'meeting_rooms' => $this->routeOrFallback('meeting-room-bookings.index'),
             'purchase_requests' => $this->routeFirstAvailable(['purchase-requests.index', 'asset-requests.index']),
             'assets' => $this->routeFirstAvailable([
                 $isStandardUser ? 'assets.user-index' : 'assets.index',
                 'assets.index',
             ]),
+        ];
+    }
+
+    private function buildQuickLinkOptions(array $quickLinks): array
+    {
+        $definitions = [
+            [
+                'key' => 'tickets',
+                'label' => 'Open Tickets',
+                'label_id' => 'Tiket Terbuka',
+                'icon' => 'fa-life-ring',
+            ],
+            [
+                'key' => 'tickets_unassigned',
+                'label' => 'Unassigned Tickets',
+                'label_id' => 'Tiket Belum Ditugaskan',
+                'icon' => 'fa-bolt',
+            ],
+            [
+                'key' => 'meeting_rooms',
+                'label' => 'Meeting Rooms',
+                'label_id' => 'Ruang Rapat',
+                'icon' => 'fa-calendar-check-o',
+            ],
+            [
+                'key' => 'purchase_requests',
+                'label' => 'Purchase Requests',
+                'label_id' => 'Permintaan Pengadaan',
+                'icon' => 'fa-shopping-cart',
+            ],
+            [
+                'key' => 'assets',
+                'label' => 'Assets',
+                'label_id' => 'Aset',
+                'icon' => 'fa-cubes',
+            ],
+        ];
+
+        $options = [];
+
+        foreach ($definitions as $definition) {
+            $url = (string) ($quickLinks[$definition['key']] ?? '#');
+
+            if ($url === '#') {
+                continue;
+            }
+
+            $options[] = [
+                'key' => $definition['key'],
+                'label' => $definition['label'],
+                'label_id' => $definition['label_id'],
+                'icon' => $definition['icon'],
+                'url' => $url,
+            ];
+        }
+
+        return $options;
+    }
+
+    private function buildApprovalCenter(User $user, array $metrics): array
+    {
+        if (!user_has_any_role($user, ['admin', 'super-admin', 'developer', 'director', 'management'])) {
+            return [
+                'enabled' => false,
+                'total_pending' => 0,
+                'items' => [],
+            ];
+        }
+
+        $items = [
+            [
+                'key' => 'tickets',
+                'label' => 'Ticket Action Queue',
+                'pending_count' => (int) ($metrics['approval_center_ticket_queue'] ?? $metrics['unassigned_open_tickets'] ?? 0),
+                'description' => 'Unassigned open tickets waiting for technician pickup.',
+                'url' => $this->resolveTicketQueueUrl($user),
+                'action_label' => 'Review Tickets',
+                'theme' => 'aqua',
+                'icon' => 'fa-life-ring',
+            ],
+            [
+                'key' => 'meeting',
+                'label' => 'Meeting Approval Queue',
+                'pending_count' => (int) ($metrics['approval_center_meeting_queue'] ?? $metrics['pending_meeting_approvals'] ?? 0),
+                'description' => 'Meeting room bookings waiting for approval decisions.',
+                'url' => $this->routeWithQueryOrFallback(['meeting-room-bookings.index'], ['status' => 'pending']),
+                'action_label' => 'Review Bookings',
+                'theme' => 'orange',
+                'icon' => 'fa-calendar-check-o',
+            ],
+            [
+                'key' => 'purchase',
+                'label' => 'Purchase Approval Queue',
+                'pending_count' => (int) ($metrics['approval_center_purchase_queue'] ?? $metrics['pending_requests'] ?? 0),
+                'description' => 'Purchase requests pending validation and approval workflow.',
+                'url' => $this->routeWithQueryOrFallback(['purchase-requests.index', 'asset-requests.index'], ['status' => 'pending']),
+                'action_label' => 'Review Requests',
+                'theme' => 'blue',
+                'icon' => 'fa-shopping-cart',
+            ],
+        ];
+
+        $items = array_values(array_filter($items, static function (array $item): bool {
+            return ($item['url'] ?? '#') !== '#';
+        }));
+
+        $totalPending = (int) array_sum(array_map(static function (array $item): int {
+            return (int) ($item['pending_count'] ?? 0);
+        }, $items));
+
+        return [
+            'enabled' => !empty($items),
+            'total_pending' => $totalPending,
+            'items' => $items,
         ];
     }
 
@@ -257,6 +385,36 @@ class MainPortalService
         }
 
         return '#';
+    }
+
+    /**
+     * Resolve the first existing route and append query parameters.
+     */
+    private function routeWithQueryOrFallback(array $routeNames, array $query): string
+    {
+        foreach ($routeNames as $routeName) {
+            if (empty($routeName) || !Route::has($routeName)) {
+                continue;
+            }
+
+            $url = route($routeName);
+
+            return empty($query) ? $url : $url . '?' . http_build_query($query);
+        }
+
+        return '#';
+    }
+
+    private function resolveTicketQueueUrl(User $user): string
+    {
+        if (user_has_any_role($user, ['admin', 'super-admin'])) {
+            return $this->routeFirstAvailable(['tickets.unassigned', 'tickets.index']);
+        }
+
+        return $this->routeFirstAvailable([
+            user_has_role($user, 'user') ? 'tickets.user-index' : 'tickets.index',
+            'tickets.index',
+        ]);
     }
 
     private function isStandardUser(User $user): bool

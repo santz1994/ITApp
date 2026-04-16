@@ -17,14 +17,133 @@
     - Authenticated portal rendering
     - Role-based visibility (`Review Pending Approvals` shown for admin only)
     - Data scoping verification (standard user sees own requests only, admin sees all)
+    - Added bilingual toggle visibility assertions (`EN` / `ID`) in module feature test.
+- Added dedicated Form Request classes for Purchase Request approval actions:
+    - `ApprovePurchaseRequestRequest`
+    - `RejectPurchaseRequestRequest`
+    - `FulfillPurchaseRequestRequest`
+    - `AssetRequestController` approve/reject/fulfill actions now use validated payloads from dedicated request classes.
+- Added feature tests for approval transition guard edge cases:
+    - New test suite: `PurchaseRequestApprovalWorkflowTest`
+    - Guard coverage added for invalid transitions (`fulfilled -> approve`, `fulfilled -> reject`, `rejected -> fulfill`)
+    - Validation coverage added for mandatory rejection reason (`admin_notes` required)
+- Added positive-path workflow tests for Purchase Request approvals:
+    - Success coverage added for approve, reject, and fulfill transitions (including payload and persistence assertions).
+    - Sequential feature run confirmed green for:
+        - `MainPortalTest` (2 tests, 10 assertions)
+        - `PurchaseRequestPortalTest` (4 tests, 13 assertions)
+        - `PurchaseRequestApprovalWorkflowTest` (7 tests, 25 assertions)
+        - `MainPortalApprovalCenterScopeTest` (2 tests, 10 assertions)
+- Added compact Portal Personalization setting on Main Portal:
+    - Per-user preferences persist in browser local storage (scoped by user id).
+    - Users can reorder module cards and toggle module visibility from a compact modal.
+    - Quick Access shortcuts can be pinned/unpinned based on daily workflow.
+- Added bilingual toggle indicator (EN/ID) directly in portal header:
+    - Language preference is persisted in the same personalization profile.
+    - Main portal labels, key headings, quick links, and module title/subtitle text now switch dynamically.
+- Expanded bilingual coverage into Purchase Request module page:
+    - Added EN/ID toggle controls on `/purchase-requests` header area.
+    - Summary cards, status breakdown, quick actions, and table labels now switch dynamically.
+    - Module language preference reuses per-user portal preference storage key for consistency.
+- Expanded bilingual coverage into IT Support and Meeting Room module summary pages:
+    - Added EN/ID toggle controls on `/tickets` page.
+    - IT Support summary cards, tabs, advanced filters, table labels, and bulk action toolbar labels now switch dynamically.
+    - Added EN/ID toggle controls on `/meeting-room-bookings` page.
+    - Meeting Room summary cards, tabs, table labels, and empty-state labels now switch dynamically.
+    - Both module pages reuse the same per-user portal language preference storage key for consistency.
+- Added focused bilingual visibility assertions for newly expanded pages:
+    - `TicketManagementTest::ticket_index_page_shows_bilingual_toggle_controls`
+    - `MeetingRoomBookingTest::meeting_booking_index_shows_bilingual_toggle_controls`
+    - Focused execution for both tests is green (2 tests, 6 assertions).
+- Expanded bilingual coverage deeper into interaction flows (IT Support + Meeting Room):
+    - Tickets page now localizes bulk-operation modal titles, labels, CTA buttons, validation alerts, delete confirmation prompts, loading text, and generic error prefixes.
+    - Tickets DataTable runtime UI now localizes export button labels and search/info/length runtime labels based on active EN/ID preference.
+    - Meeting Room page now localizes approval/rejection modal copy, monthly report modal labels/CTA text, finish/cancel/delete confirmation prompts, and runtime validation/error alerts.
+    - Meeting Room enhanced DataTable runtime labels (length/info/search/loading/processing) and export button captions now follow the active EN/ID preference.
+- Added bilingual content-marker assertions for Purchase Request module:
+    - `PurchaseRequestPortalTest` now asserts key `data-i18n` markers and language toggle control IDs are rendered in module HTML.
+    - This closes the pending test item for bilingual content keys in Purchase Request module.
+- Added focused runtime bilingual interaction coverage for Tickets and Meeting Room module index pages:
+    - `TicketManagementTest::ticket_index_page_includes_runtime_bilingual_interaction_markers`
+    - `MeetingRoomBookingTest::meeting_booking_index_includes_runtime_bilingual_interaction_markers`
+    - Focused sequential execution confirmed green for toggle + runtime marker coverage:
+        - Tickets: `2 tests, 11 assertions`
+        - Meeting Room: `2 tests, 12 assertions`
+- Expanded bilingual coverage to module-level create form/action pages:
+    - `/tickets/create` now includes EN/ID toggle, localized section labels/help text/placeholders, and localized runtime feedback for template apply + submit loading state.
+    - `/meeting-room-bookings/create` now includes EN/ID toggle, localized requester/detail fields, duration/conflict notice text, and localized runtime validation/schedule-loading messages.
+    - `/asset-requests/create` (Purchase Request creation flow) now includes EN/ID toggle, localized key form labels/placeholders/actions, and localized runtime validation alerts.
+    - All three forms reuse the same per-user portal language preference storage key for consistency.
+- Added focused bilingual feature coverage for create form surfaces:
+    - `TicketManagementTest::ticket_create_page_shows_bilingual_toggle_and_runtime_markers`
+    - `MeetingRoomBookingTest::meeting_booking_create_page_shows_bilingual_toggle_and_runtime_markers`
+    - `PurchaseRequestPortalTest::test_asset_request_create_page_shows_bilingual_toggle_and_runtime_markers`
+    - Focused execution confirmed green: `3 tests, 30 assertions`.
+- Expanded bilingual coverage to module-level edit form/action pages:
+    - `/tickets/{ticket}/edit` now includes EN/ID toggle, localized key section/action labels, and localized runtime messages for status-change warnings, char counter, Select2 placeholders, and submit loading state.
+    - `/meeting-room-bookings/{id}/edit` now includes EN/ID toggle, localized key section/action labels, and localized runtime messages for time-format validation, duration labels, and submit processing state.
+    - `/asset-requests/{id}/edit` now includes EN/ID toggle, localized key section/action labels, localized runtime validation alerts, and a safe fallback for priority options when view data is incomplete.
+    - Edit pages reuse the same per-user portal language preference storage key for consistency.
+- Added focused bilingual feature coverage for edit form surfaces:
+    - `TicketManagementTest::ticket_edit_page_shows_bilingual_toggle_and_runtime_markers`
+    - `MeetingRoomBookingTest::meeting_booking_edit_page_shows_bilingual_toggle_and_runtime_markers`
+    - `PurchaseRequestPortalTest::test_asset_request_edit_page_shows_bilingual_toggle_and_runtime_markers`
+    - Focused execution confirmed green: `3 tests, 30 assertions`.
+- Expanded bilingual coverage to module-level show/approval detail pages:
+    - `/tickets/{ticket}` now includes EN/ID toggle, localized tab/section/action labels, and localized resolve/reopen confirmation prompts.
+    - `/meeting-room-bookings/{id}` now includes EN/ID toggle, localized key section/action labels, and localized runtime confirmation + async processing/error messages for cancel/finish/delete/approve/extend/quick-edit flows.
+    - `/asset-requests/{id}` now includes EN/ID toggle, localized detail/admin-action/modal labels, and localized approve/reject/fulfill confirmation prompts.
+    - Show/approval pages reuse the same per-user portal language preference storage key for consistency.
+- Added focused bilingual feature coverage for show/approval surfaces:
+    - `TicketManagementTest::ticket_show_page_shows_bilingual_toggle_and_runtime_markers`
+    - `MeetingRoomBookingTest::meeting_booking_show_page_shows_bilingual_toggle_and_runtime_markers`
+    - `PurchaseRequestPortalTest::test_asset_request_show_page_shows_bilingual_toggle_and_runtime_markers`
+    - Focused execution confirmed green: `3 tests, 30 assertions`.
+- Expanded bilingual coverage to Assets Management module index page (outside ticket/meeting/purchase core flows):
+    - `/assets` now includes EN/ID toggle, localized summary/filter/table labels, localized DataTable runtime strings, and localized delete confirmation prompt.
+    - Runtime language switching now refreshes DataTable button captions and language metadata after toggle, not only static text markers.
+    - Assets index now exposes explicit language behavior hooks (`assetDataTableLanguage`, `assetRefreshRuntimeText`, `assetDeleteConfirm`) to keep runtime transitions predictable and testable.
+- Added focused bilingual feature + behavioral coverage for Assets module:
+    - `AssetManagementTest::asset_index_page_shows_bilingual_toggle_and_runtime_markers`
+    - `AssetManagementTest::asset_index_page_includes_language_switch_behavior_hooks`
+    - Focused execution confirmed green: `2 tests, 17 assertions`.
+- Expanded bilingual coverage to Assets Management create/edit/show surfaces:
+    - `/assets/create` now includes EN/ID toggle, localized section/action labels, and localized runtime submit-loading + serial-number feedback messages.
+    - `/assets/{asset}/edit` now includes EN/ID toggle, localized section/action labels, and localized runtime update-loading + serial-number feedback messages.
+    - `/assets/{asset}` now includes EN/ID toggle, localized tab/section/quick-action labels, and reusable show-page language runtime helper.
+    - Create/edit/show pages reuse the same per-user portal language preference storage key for consistency.
+- Added focused bilingual feature + behavioral coverage for Assets create/edit/show surfaces:
+    - `AssetManagementTest::asset_create_page_shows_bilingual_toggle_and_runtime_markers`
+    - `AssetManagementTest::asset_edit_page_shows_bilingual_toggle_and_runtime_markers`
+    - `AssetManagementTest::asset_show_page_shows_bilingual_toggle_and_runtime_markers`
+    - `AssetManagementTest::asset_create_and_edit_pages_include_language_switch_behavior_hooks`
+    - Focused execution confirmed green: `4 tests, 39 assertions`.
+- Main Portal now includes Approval Center widget (tickets/meeting/purchase):
+    - Ticket Action Queue (unassigned open tickets)
+    - Meeting Approval Queue (pending meeting approvals)
+    - Purchase Approval Queue (pending purchase requests)
+    - One-click queue actions to jump directly into each module workflow
+- Approval Center scope and routing are now role-aware:
+    - Director/management users now receive division-scoped queue counts for supervised users.
+    - Admin/super-admin/developer users retain global approval-center visibility.
+    - Ticket queue links now resolve to role-safe routes to prevent restricted dead-end navigation.
+- Reduced repetitive feature-test bootstrap noise:
+    - Suppressed migration echo output during unit tests for index/DDL helper migrations.
+    - Suppressed non-critical migration info logs during unit tests.
+    - Focused PHPUnit output is now cleaner while preserving test assertions.
+- Migrated PHPUnit configuration schema:
+    - `phpunit.xml` now uses current schema mapping (no deprecation warning shown in focused test runs).
 - Codebase cleanup completed for clearly unused artifacts:
     - Removed `resources/views/debug-view-test.blade.php`
     - Removed `public/test_dynamic_form.html`
+    - Removed `resources/views/Meeting/lcd-dashboard.blade.php.old`
+    - Removed temporary cache files `bootstrap/cache/pacDE90.tmp` and `bootstrap/cache/pacDE91.tmp`
+    - Removed stale environment backup artifact `.env.old`
 
 ### In Progress / Next Batch
-- Add dedicated Form Request classes for approval/reject/fulfill actions in Purchase Request domain.
-- Add feature tests for approval transition guards (fulfilled/rejected edge cases).
-- Add approval-center widget (tickets/meeting/purchase) on Main Portal (pending your approval).
+- Decide whether portal personalization should also persist server-side (cross-device consistency) after approval.
+- Expand bilingual coverage to remaining module pages outside current ticket/meeting/purchase core flows.
+- Add focused bilingual behavioral tests (language switch + runtime text transitions), not only HTML marker/runtime key assertions.
 
 ## Progress Update (2026-04-15)
 
@@ -90,34 +209,36 @@
 
 ## Phase Ideas:
 1. Refactor the codebase to improve readability and maintainability.
- - After login use main portal to navigate to different sections of the application.
- - Implement a dashboard to display key metrics and user information.
- - The Structure is change to a modular application with clear separation of concerns.
-   a. IT Support Module: Handle all IT support related functionalities, including ticket management and user support.
-   b. Meeting Room: Manage meeting room bookings, availability, and scheduling.
-   c. Assets Management: Track and manage company assets, including inventory and maintenance schedules.
-   d. User Management: Handle user accounts, roles, and permissions within the application. (Use by Administrator and authorized roles only)
-   e. Purchase Request: Manage purchase requests, approvals, and tracking.
-   f. Settings: All application settings and configurations will be managed in this module. (Use by Administrator and authorized roles only)
-   g. Profile: Allow users to view and update their profile information, including changing passwords and managing personal settings.
- - Each module will have its own set of features and functionalities, allowing for better organization and scalability
- - Assets Management will have new structure to track and manage company assets, including inventory and maintenance schedules.
- - IT Support Module and Assets Management will have connection to each other to track the assets that are being used for IT support tickets and their maintenance schedules.
- - Purchase Request module will have a new structure to manage purchase requests, approvals, and tracking, allowing for better organization and efficiency in handling procurement processes, and connect with the Assets Management module to track the assets that are being purchased and their maintenance schedules.
- - To display the Meeting room in LCD screen, we will implement a new feature that allows users to view the meeting room schedule and availability on a large display. This will provide a convenient way for employees to check the meeting room status and plan their meetings accordingly. (1 page for LCD screen)
- - Add Chatbox feature to allow users to communicate with support staff in real-time for IT support and meeting room inquiries. This will enhance user experience and provide quick assistance for any issues or questions they may have. (Pending need my approval)
+    - After login use main portal to navigate to different sections of the application.
+    - Implement a dashboard to display key metrics and user information.
+    - The Structure is change to a modular application with clear separation of concerns.
+        a. IT Support Module: Handle all IT support related functionalities, including ticket management and user support.
+        b. Meeting Room: Manage meeting room bookings, availability, and scheduling.
+        c. Assets Management: Track and manage company assets, including inventory and maintenance schedules.
+        d. User Management: Handle user accounts, roles, and permissions within the application. (Use by Administrator and authorized roles only)
+        e. Purchase Request: Manage purchase requests, approvals, and tracking.
+        f. Settings: All application settings and configurations will be managed in this module. (Use by Administrator and authorized roles only)
+        g. Profile: Allow users to view and update their profile information, including changing passwords and managing personal settings.
+    - Each module will have its own set of features and functionalities, allowing for better organization and scalability
+    - Assets Management will have new structure to track and manage company assets, including inventory and maintenance schedules.
+    - IT Support Module and Assets Management will have connection to each other to track the assets that are being used for IT support tickets and their maintenance schedules.
+    - Purchase Request module will have a new structure to manage purchase requests, approvals, and tracking, allowing for better organization and efficiency in handling procurement processes, and connect with the Assets Management module to track the assets that are being purchased and their maintenance schedules.
+    - To display the Meeting room in LCD screen, we will implement a new feature that allows users to view the meeting room schedule and availability on a large display. This will provide a convenient way for employees to check the meeting room status and plan their meetings accordingly. (1 page for LCD screen)
+    - Add Chatbox feature to allow users to communicate with support staff in real-time for IT support and meeting room inquiries. This will enhance user experience and provide quick assistance for any issues or questions they may have. (Pending need my approval)
 2. Implement a responsive design to ensure the application is accessible on various devices.
- - Use CSS frameworks like Bootstrap or Tailwind CSS to create a responsive layout.
-    - Ensure that all features and functionalities are accessible and usable on mobile devices, tablets, and desktops.
+    - Use CSS frameworks like Bootstrap or Tailwind CSS to create a responsive layout.
+        - Ensure that all features and functionalities are accessible and usable on mobile devices, tablets, and desktops.
 3. Integrate a notification system to keep users informed about important updates and events.
     - Implement email notifications for critical events such as ticket updates, meeting room bookings, and asset maintenance reminders. (Pending need my approval)
     - Use in-app notifications to provide real-time updates to users while they are using the application.
+    - Notify users about upcoming meetings, ticket updates, and asset maintenance schedules through in-app notifications. This will provide real-time updates to users while they are using the application and help them stay informed about important events and deadlines.
 4. Enhance security measures to protect user data and prevent unauthorized access.
     - Implement role-based access control to restrict access to sensitive features and data based on user roles and permissions.
     - Use encryption to protect sensitive data, such as user passwords and personal information.
 5. Optimize performance to ensure fast loading times and smooth user experience.
     - Implement caching strategies to reduce server load and improve response times.
     - Optimize database queries to enhance performance and reduce latency.
+    - Implement pagination for data-heavy views to improve load times and user experience when dealing with large datasets (e.g., tickets, assets, purchase requests).
 6. Database setup and restore:
     - Set up a local MySQL database using the credentials specified in the `.env` file.
     - Create the target database (`itapp`) if it does not already exist.
@@ -127,6 +248,13 @@
     - Redesign the user interface to align with the new modular structure of the application, ensuring that it is intuitive and user-friendly.
     - Implement a dashboard on the main portal to display key metrics and user information, providing users with a quick overview of their activities and relevant data.
     - Ensure that the design is responsive and accessible across different devices and screen sizes.
+    - Implement a consistent design language and style guide across all modules to enhance the overall user experience and maintain a cohesive look and feel throughout the application.
+    - Button and link updates to ensure that all navigation paths are functional and lead to the correct pages, especially with the new modular structure in place.
+    - Update the sidebar and navigation menus to reflect the new structure and provide easy access to all modules and features based on user roles and permissions.
+        - Implement a user context panel on the main portal to display relevant information about the logged-in user, such as their role, last login time, and account status.
+        - Add role-focused operational snapshots on the main portal to provide users with quick access to key metrics and actions relevant to their role (e.g., open tickets for IT support staff, upcoming meetings for receptionists, pending approvals for administrators).
+    - Theme and styling updates to enhance the visual appeal of the application, including color schemes, typography, and layout adjustments to improve readability and user engagement.
+    - Dark and light mode toggle to allow users to switch between different themes based on their preferences and improve accessibility for users with different visual needs.
 8. Implement additional features based on user feedback and requirements, such as:
     - A compact "Portal Personalization" setting to allow users to customize their portal experience by rearranging module order and adding quick links to frequently used features.
     - A bilingual toggle indicator (Indonesian/English) in the portal header to allow users to switch between languages easily.
@@ -135,6 +263,7 @@
     - Refactor the backend code to improve readability, maintainability, and scalability, following best practices and design patterns.
     - Implement a service layer to handle business logic and a repository layer for data access, ensuring a clear separation of concerns and easier maintenance.
     - Add comprehensive test coverage for the new features and functionalities to ensure reliability and facilitate future development.
+    - Implement a dedicated workflow service for handling purchase request approvals, separating the business logic from controller actions and ensuring a more modular and maintainable codebase.
 10. Codebase cleanup:
     - Remove any unused or redundant code, files, and assets to improve maintainability and reduce clutter in the codebase.
     - Ensure that all remaining code is well-documented and follows consistent coding standards for better readability and collaboration among developers.
@@ -190,7 +319,7 @@
         Di pojok kanan atas layar, di sebelah foto profil atau nama pengguna, tampilkan badge kecil. Misalnya: [D] Daniel • [Badge: LV 10 Developer]. Ini menjadi pengingat konstan tentang hak akses mereka.
         2. Ticket Management & Chatbox:
         Saat ada balasan di tiket IT Support, badge ini muncul di sebelah nama komentator.
-            "Wah, tiket saya langsung dibalas oleh seseorang dengan badge merah [LV 10 Administrator] atau badge ungu [LV 10 Developer]!"
+            "Wah, tiket saya langsung dibalas oleh seseorang dengan badge merah [LV 9 Administrator] atau badge ungu [LV 10 Developer]!"
             Ini memberikan ketenangan bagi pembuat tiket bahwa masalah mereka ditangani oleh ahlinya.
         3. Approval Logs (Purchase Request / Handover Asset):
         Di dalam riwayat dokumen, berikan stempel badge pada nama yang menyetujui. Misalnya, Approved by Feti [Badge Emas: LV 8 Prime]. Ini membuat rekam jejak audit (audit trail) menjadi sangat jelas secara visual.
@@ -199,10 +328,9 @@
 17. Implementasi AI: (Pending need my approval - Just for Administrator, Director and Developer use only)
     - Tambahkan fitur AI untuk meningkatkan pengalaman pengguna dan efisiensi operasional, seperti chatbot untuk dukungan otomatis, analitik prediktif untuk wawasan kinerja, dan alat otomatisasi untuk menyederhanakan proses.
     - Fitur AI akan diimplementasikan dalam fase proyek yang akan datang, dengan fungsionalitas spesifik yang akan ditentukan berdasarkan kebutuhan dan umpan balik pengguna. (Pending need my approval) (AI features will be implemented in the future phase of the project, and specific functionalities will be determined based on user needs and feedback) (Just for Administrator, Director and Developer use only)
-
+18. Update README.md file to include comprehensive documentation of the project, including setup instructions, feature descriptions, and contribution guidelines to facilitate collaboration and onboarding of new developers. CONTRIBUTING.md file will also be created to provide clear guidelines for contributing to the project, including coding standards, pull request process, and issue reporting. LICENSE.md file will be added to specify the terms under which the project is licensed, ensuring proper usage and distribution of the codebase.
 
 ## Structure of the application:
-
 # LOGIN PAGE
 - User Login (Username/Email and Password) additionally with "Remember Me" option for persistent login sessions.
     - Forgot Password (Allow users to reset their password through email verification)

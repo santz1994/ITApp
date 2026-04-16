@@ -17,6 +17,14 @@
     ]
 ])
 
+<div class="pull-right" style="margin-top: -52px; margin-bottom: 16px; margin-right: 15px;">
+    <div class="btn-group btn-group-xs" role="group" aria-label="Asset Show Language Toggle">
+        <button type="button" class="btn btn-default" id="assetShowLanguageEnglish" data-lang="en">EN</button>
+        <button type="button" class="btn btn-default" id="assetShowLanguageIndonesian" data-lang="id">ID</button>
+    </div>
+</div>
+<div class="clearfix"></div>
+
 <div class="container-fluid">
     {{-- Flash Messages --}}
     @if(session('success'))
@@ -54,13 +62,13 @@
                     </h3>
                     <div class="box-tools pull-right">
                         <a href="{{ route('assets.index') }}" class="btn btn-default btn-sm">
-                            <i class="fa fa-arrow-left"></i> Back
+                            <i class="fa fa-arrow-left"></i> <span data-i18n="assets.show.action.back">Back</span>
                         </a>
                         <a href="{{ url('assets/' . $asset->id . '/print') }}" class="btn btn-info btn-sm" target="_blank">
-                            <i class="fa fa-print"></i> Print
+                            <i class="fa fa-print"></i> <span data-i18n="assets.show.action.print">Print</span>
                         </a>
                         <a href="{{ route('assets.edit', $asset->id) }}" class="btn btn-primary btn-sm">
-                            <i class="fa fa-edit"></i> Edit
+                            <i class="fa fa-edit"></i> <span data-i18n="assets.show.action.edit">Edit</span>
                         </a>
                     </div>
                 </div>
@@ -70,22 +78,22 @@
                     <ul class="nav nav-tabs" role="tablist">
                         <li role="presentation" class="active">
                             <a href="#basic-info" aria-controls="basic-info" role="tab" data-toggle="tab">
-                                <i class="fa fa-info-circle"></i> Basic Info
+                                <i class="fa fa-info-circle"></i> <span data-i18n="assets.show.tab.basic">Basic Info</span>
                             </a>
                         </li>
                         <li role="presentation">
                             <a href="#specifications" aria-controls="specifications" role="tab" data-toggle="tab">
-                                <i class="fa fa-cogs"></i> Specifications
+                                <i class="fa fa-cogs"></i> <span data-i18n="assets.show.tab.specifications">Specifications</span>
                             </a>
                         </li>
                         <li role="presentation">
                             <a href="#network-info" aria-controls="network-info" role="tab" data-toggle="tab">
-                                <i class="fa fa-network-wired"></i> Network
+                                <i class="fa fa-network-wired"></i> <span data-i18n="assets.show.tab.network">Network</span>
                             </a>
                         </li>
                         <li role="presentation">
                             <a href="#tickets" aria-controls="tickets" role="tab" data-toggle="tab">
-                                <i class="fa fa-ticket"></i> Tickets 
+                                <i class="fa fa-ticket"></i> <span data-i18n="assets.show.tab.tickets">Tickets</span>
                                 @if($recentIssues->count() > 0)
                                     <span class="badge bg-red">{{ $recentIssues->count() }}</span>
                                 @endif
@@ -99,7 +107,7 @@
                         <div role="tabpanel" class="tab-pane active" id="basic-info">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <h4><i class="fa fa-info-circle text-primary"></i> Basic Information</h4>
+                                    <h4><i class="fa fa-info-circle text-primary"></i> <span data-i18n="assets.show.section.basic">Basic Information</span></h4>
                                     <div class="table-responsive">
                                         <table class="table table-striped">
                                             <tr>
@@ -162,7 +170,7 @@
                                 </div>
                                 
                                 <div class="col-md-6">
-                                    <h4><i class="fa fa-calendar text-info"></i> Purchase & Warranty</h4>
+                                    <h4><i class="fa fa-calendar text-info"></i> <span data-i18n="assets.show.section.purchase">Purchase & Warranty</span></h4>
                                     <div class="table-responsive">
                                         <table class="table table-striped">
                                             @if($asset->purchase_date)
@@ -388,25 +396,25 @@
         {{-- Quick Actions --}}
         <div class="box box-warning">
             <div class="box-header with-border">
-                <h3 class="box-title"><i class="fa fa-bolt"></i> Quick Actions</h3>
+                <h3 class="box-title"><i class="fa fa-bolt"></i> <span data-i18n="assets.show.quick_actions.title">Quick Actions</span></h3>
             </div>
             <div class="box-body">
                 <a href="{{ route('assets.edit', $asset->id) }}" class="btn btn-primary btn-block margin-bottom">
-                    <i class="fa fa-edit"></i> Edit Asset
+                    <i class="fa fa-edit"></i> <span data-i18n="assets.show.action.edit_asset">Edit Asset</span>
                 </a>
                 <a href="{{ route('tickets.create', ['asset_id' => $asset->id]) }}" class="btn btn-success btn-block margin-bottom">
-                    <i class="fa fa-plus"></i> Create Ticket
+                    <i class="fa fa-plus"></i> <span data-i18n="assets.show.action.create_ticket">Create Ticket</span>
                 </a>
                 <a href="{{ url('assets/' . $asset->id . '/print') }}" class="btn btn-info btn-block margin-bottom" target="_blank">
-                    <i class="fa fa-print"></i> Print Label
+                    <i class="fa fa-print"></i> <span data-i18n="assets.show.action.print_label">Print Label</span>
                 </a>
                 @if($asset->qr_code)
                     <button class="btn btn-default btn-block margin-bottom" onclick="showQRCode()">
-                        <i class="fa fa-qrcode"></i> View QR Code
+                        <i class="fa fa-qrcode"></i> <span data-i18n="assets.show.action.view_qr">View QR Code</span>
                     </button>
                 @endif
                 <a href="{{ route('assets.index') }}" class="btn btn-default btn-block">
-                    <i class="fa fa-arrow-left"></i> Back to Assets
+                    <i class="fa fa-arrow-left"></i> <span data-i18n="assets.show.action.back_to_assets">Back to Assets</span>
                 </a>
             </div>
         </div>
@@ -552,6 +560,116 @@
 @endsection
 
 @section('scripts')
+<script>
+(function() {
+    var translations = {
+        en: {
+            'assets.show.action.back': 'Back',
+            'assets.show.action.print': 'Print',
+            'assets.show.action.edit': 'Edit',
+            'assets.show.tab.basic': 'Basic Info',
+            'assets.show.tab.specifications': 'Specifications',
+            'assets.show.tab.network': 'Network',
+            'assets.show.tab.tickets': 'Tickets',
+            'assets.show.section.basic': 'Basic Information',
+            'assets.show.section.purchase': 'Purchase & Warranty',
+            'assets.show.quick_actions.title': 'Quick Actions',
+            'assets.show.action.edit_asset': 'Edit Asset',
+            'assets.show.action.create_ticket': 'Create Ticket',
+            'assets.show.action.print_label': 'Print Label',
+            'assets.show.action.view_qr': 'View QR Code',
+            'assets.show.action.back_to_assets': 'Back to Assets'
+        },
+        id: {
+            'assets.show.action.back': 'Kembali',
+            'assets.show.action.print': 'Cetak',
+            'assets.show.action.edit': 'Ubah',
+            'assets.show.tab.basic': 'Info Dasar',
+            'assets.show.tab.specifications': 'Spesifikasi',
+            'assets.show.tab.network': 'Jaringan',
+            'assets.show.tab.tickets': 'Tiket',
+            'assets.show.section.basic': 'Informasi Dasar',
+            'assets.show.section.purchase': 'Pembelian & Garansi',
+            'assets.show.quick_actions.title': 'Aksi Cepat',
+            'assets.show.action.edit_asset': 'Ubah Aset',
+            'assets.show.action.create_ticket': 'Buat Tiket',
+            'assets.show.action.print_label': 'Cetak Label',
+            'assets.show.action.view_qr': 'Lihat QR Code',
+            'assets.show.action.back_to_assets': 'Kembali ke Aset'
+        }
+    };
+
+    var currentLanguage = 'en';
+    var userId = '{{ (int) auth()->id() }}';
+    var languageStorageKey = 'itapp.portal.preferences.v1.user.' + userId;
+    var englishButton = document.getElementById('assetShowLanguageEnglish');
+    var indonesianButton = document.getElementById('assetShowLanguageIndonesian');
+
+    function getLanguage() {
+        try {
+            var raw = window.localStorage.getItem(languageStorageKey);
+            if (!raw) {
+                return 'en';
+            }
+
+            var parsed = JSON.parse(raw);
+            return parsed && parsed.language === 'id' ? 'id' : 'en';
+        } catch (error) {
+            return 'en';
+        }
+    }
+
+    function saveLanguage(language) {
+        try {
+            var raw = window.localStorage.getItem(languageStorageKey);
+            var parsed = raw ? JSON.parse(raw) : {};
+            parsed.language = language === 'id' ? 'id' : 'en';
+            window.localStorage.setItem(languageStorageKey, JSON.stringify(parsed));
+        } catch (error) {
+            // Keep silent if localStorage is unavailable.
+        }
+    }
+
+    function getLabel(key, fallback) {
+        var dictionary = translations[currentLanguage] || translations.en;
+        return dictionary[key] || fallback || key;
+    }
+
+    function applyLanguage(language) {
+        currentLanguage = language === 'id' ? 'id' : 'en';
+        var dictionary = translations[currentLanguage] || translations.en;
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function(node) {
+            var key = node.getAttribute('data-i18n');
+            if (dictionary[key]) {
+                node.textContent = dictionary[key];
+            }
+        });
+
+        if (englishButton && indonesianButton) {
+            englishButton.classList.toggle('active', currentLanguage === 'en');
+            indonesianButton.classList.toggle('active', currentLanguage === 'id');
+        }
+    }
+
+    window.assetShowLabel = getLabel;
+
+    if (englishButton && indonesianButton) {
+        englishButton.addEventListener('click', function() {
+            saveLanguage('en');
+            applyLanguage('en');
+        });
+
+        indonesianButton.addEventListener('click', function() {
+            saveLanguage('id');
+            applyLanguage('id');
+        });
+    }
+
+    applyLanguage(getLanguage());
+})();
+</script>
+
 @if($asset->qr_code)
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <script>

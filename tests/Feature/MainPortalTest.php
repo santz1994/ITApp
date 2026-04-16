@@ -37,5 +37,9 @@ class MainPortalTest extends TestCase
         $response->assertSee('Main Portal Dashboard');
         $response->assertSee('IT Support Module');
         $response->assertSee('Profile');
+        $response->assertSee('Quick Access');
+        $response->assertSee('Portal Personalization');
+        $response->assertSee('EN');
+        $response->assertSee('ID');
     }
 }

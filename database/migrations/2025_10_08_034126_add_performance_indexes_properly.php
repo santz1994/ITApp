@@ -67,13 +67,22 @@ return new class extends Migration
                 Schema::table($table, function (Blueprint $table) use ($indexName, $columns) {
                     $table->index($columns, $indexName);
                 });
-                echo "Added index: {$indexName}\n";
+                $this->writeOutput("Added index: {$indexName}");
             } else {
-                echo "Index already exists: {$indexName}\n";
+                $this->writeOutput("Index already exists: {$indexName}");
             }
         } catch (\Exception $e) {
-            echo "Could not add index {$indexName}: " . $e->getMessage() . "\n";
+            $this->writeOutput("Could not add index {$indexName}: " . $e->getMessage());
         }
+    }
+
+    private function writeOutput(string $message): void
+    {
+        if (app()->runningUnitTests()) {
+            return;
+        }
+
+        echo $message . "\n";
     }
 
     private function dropIndexIfExists($table, $indexName)

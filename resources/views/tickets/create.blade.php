@@ -14,11 +14,19 @@
     ]
 ])
 
+  <div class="pull-right" style="margin-top: -52px; margin-bottom: 16px; margin-right: 15px;">
+    <div class="btn-group btn-group-xs" role="group" aria-label="Ticket Create Language Toggle">
+      <button type="button" class="btn btn-default" id="ticketCreateLanguageEnglish" data-lang="en">EN</button>
+      <button type="button" class="btn btn-default" id="ticketCreateLanguageIndonesian" data-lang="id">ID</button>
+    </div>
+  </div>
+  <div class="clearfix"></div>
+
   <div class="row">
     <div class="col-xs-12 col-sm-8 col-md-8">
       <div class="box box-primary">
         <div class="box-header with-border">
-          <h3 class="box-title">Informasi Tiket</h3>
+          <h3 class="box-title" data-i18n="tickets.create.form.title">Ticket Information</h3>
         </div>
         <div class="box-body">
           {{-- Flash Messages --}}
@@ -44,42 +52,42 @@
 
             {{-- SECTION 1: Basic Information --}}
             <fieldset>
-              <legend><i class="fa fa-info-circle"></i> Informasi Dasar</legend>
+              <legend><i class="fa fa-info-circle"></i> <span data-i18n="tickets.create.section.basic">Basic Information</span></legend>
 
               <div class="form-group">
-                <label>Pembuat / Pelapor</label>
+                <label data-i18n="tickets.create.field.reporter">Creator / Reporter</label>
                 <p class="form-control-static"><i class="fa fa-user"></i> <strong>{{ Auth::user()->name }}</strong> ({{ Auth::user()->email }})</p>
-                <small class="text-muted">Anda membuat tiket ini atas nama diri sendiri</small>
+                <small class="text-muted" data-i18n="tickets.create.help.reporter">This ticket is created under your account</small>
               </div>
 
               <div class="form-group">
-                <label for="subject">Subjek <span class="text-red">*</span></label>
-                <input type="text" class="form-control @error('subject') is-invalid @enderror" name="subject" id="subject" value="{{old('subject')}}" required maxlength="255">
-                <small class="text-muted">Ringkasan singkat masalah (maksimal 255 karakter)</small>
+                <label for="subject"><span data-i18n="tickets.create.field.subject">Subject</span> <span class="text-red">*</span></label>
+                <input type="text" class="form-control @error('subject') is-invalid @enderror" name="subject" id="subject" value="{{old('subject')}}" required maxlength="255" data-i18n-placeholder="tickets.create.placeholder.subject">
+                <small class="text-muted" data-i18n="tickets.create.help.subject">Short summary of the issue (maximum 255 characters)</small>
                 @error('subject')
                   <div class="invalid-feedback d-block">{{ $message }}</div>
                 @enderror
               </div>
 
               <div class="form-group">
-                <label for="description">Deskripsi <span class="text-red">*</span></label>
+                <label for="description"><span data-i18n="tickets.create.field.description">Description</span> <span class="text-red">*</span></label>
                 <span id="char-counter">0 / 10 karakter (minimal 10)</span>
-                <textarea class="form-control @error('description') is-invalid @enderror" rows="5" name="description" id="description" required minlength="10">{{old('description')}}</textarea>
-                <small class="text-muted">Deskripsi detail masalah atau permintaan (minimal 10 karakter)</small>
+                <textarea class="form-control @error('description') is-invalid @enderror" rows="5" name="description" id="description" required minlength="10" data-i18n-placeholder="tickets.create.placeholder.description">{{old('description')}}</textarea>
+                <small class="text-muted" data-i18n="tickets.create.help.description">Detailed issue or request description (minimum 10 characters)</small>
                 @error('description')
                   <div class="invalid-feedback d-block">{{ $message }}</div>
                 @enderror
               </div>
 
               <div class="form-group">
-                <label for="ticket_type_id">Jenis Tiket <span class="text-red">*</span></label>
+                <label for="ticket_type_id"><span data-i18n="tickets.create.field.ticket_type">Ticket Type</span> <span class="text-red">*</span></label>
                 <select class="form-control ticket_type_id @error('ticket_type_id') is-invalid @enderror" name="ticket_type_id" id="ticket_type_id" required>
-                  <option value="">-- Pilih Jenis Tiket --</option>
+                  <option value="" data-i18n="tickets.create.option.select_type">-- Select Ticket Type --</option>
                   @foreach($ticketsTypes as $ticketType)
                     <option value="{{$ticketType->id}}" {{ old('ticket_type_id') == $ticketType->id ? 'selected' : '' }}>{{$ticketType->type}}</option>
                   @endforeach
                 </select>
-                <small class="text-muted">Kategori permintaan (contoh: Masalah Hardware, Dukungan Software, Masalah Jaringan)</small>
+                <small class="text-muted" data-i18n="tickets.create.help.ticket_type">Request category (example: hardware issue, software support, network issue)</small>
                 @error('ticket_type_id')
                   <div class="invalid-feedback d-block">{{ $message }}</div>
                 @enderror
@@ -111,25 +119,25 @@
 
             {{-- SECTION 2: Location & Assignment --}}
             <fieldset>
-              <legend><i class="fa fa-map-marker"></i> Lokasi & Penugasan</legend>
+              <legend><i class="fa fa-map-marker"></i> <span data-i18n="tickets.create.section.location">Location & Assignment</span></legend>
 
               <div class="form-group">
-                <label for="location_id">Lokasi</label>
+                <label for="location_id" data-i18n="tickets.create.field.location">Location</label>
                 @php
                   $userLocation = Auth::user()->location;
                 @endphp
                 @if($userLocation)
                   <p class="form-control-static"><i class="fa fa-map-marker"></i> <strong>{{ $userLocation->location_name }} - {{ $userLocation->building }}, {{ $userLocation->office }}</strong></p>
                   <input type="hidden" name="location_id" value="{{ $userLocation->id }}">
-                  <small class="text-muted">Lokasi otomatis diambil dari profil Anda</small>
+                  <small class="text-muted" data-i18n="tickets.create.help.location_auto">Location is auto-filled from your profile</small>
                 @else
                   <select class="form-control location_id @error('location_id') is-invalid @enderror" name="location_id" id="location_id" required>
-                    <option value="">-- Pilih Lokasi --</option>
+                    <option value="" data-i18n="tickets.create.option.select_location">-- Select Location --</option>
                     @foreach($locations as $location)
                       <option value="{{$location->id}}" {{ old('location_id') == $location->id ? 'selected' : '' }}>{{$location->location_name}} - {{$location->building}}, {{$location->office}}</option>
                     @endforeach
                   </select>
-                  <small class="text-muted">Lokasi fisik tempat masalah terjadi</small>
+                  <small class="text-muted" data-i18n="tickets.create.help.location_manual">Physical location where the issue happened</small>
                 @endif
                 @error('location_id')
                   <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -139,10 +147,10 @@
 
             {{-- SECTION 3: Asset Association --}}
             <fieldset>
-              <legend><i class="fa fa-laptop"></i> Aset Terkait</legend>
+              <legend><i class="fa fa-laptop"></i> <span data-i18n="tickets.create.section.asset">Related Assets</span></legend>
 
               <div class="form-group">
-                <label for="asset_ids">Aset Terkait (Opsional)</label>
+                <label for="asset_ids" data-i18n="tickets.create.field.assets">Related Assets (Optional)</label>
                 <select class="form-control asset_ids @error('asset_ids') is-invalid @enderror @error('asset_ids.*') is-invalid @enderror" name="asset_ids[]" id="asset_ids" multiple>
                   @foreach($assets as $asset)
                     <option value="{{$asset->id}}" {{ (old('asset_ids') && in_array($asset->id, old('asset_ids'))) || (isset($preselectedAssetId) && $preselectedAssetId == $asset->id) ? 'selected' : '' }}>
@@ -150,7 +158,7 @@
                     </option>
                   @endforeach
                 </select>
-                <small class="text-muted">Pilih satu atau lebih aset terkait tiket ini (gunakan Ctrl/Cmd + Klik untuk memilih beberapa)</small>
+                <small class="text-muted" data-i18n="tickets.create.help.assets">Choose one or more assets related to this ticket (use Ctrl/Cmd + click for multi-select)</small>
                 @error('asset_ids')
                   <div class="invalid-feedback d-block">{{ $message }}</div>
                 @enderror
@@ -163,10 +171,10 @@
             {{-- Submit Buttons --}}
             <div class="form-group" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e3e3e3;">
               <button type="submit" class="btn btn-primary btn-lg">
-                <i class="fa fa-save"></i> <b>Buat Tiket</b>
+                <i class="fa fa-save"></i> <b data-i18n="tickets.create.action.submit">Create Ticket</b>
               </button>
               <a href="{{ route('tickets.index') }}" class="btn btn-default btn-lg">
-                <i class="fa fa-times"></i> Batal
+                <i class="fa fa-times"></i> <span data-i18n="tickets.create.action.cancel">Cancel</span>
               </a>
             </div>
           </form>
@@ -176,7 +184,7 @@
       {{-- Display validation errors if any --}}
       @if(count($errors))
         <div class="alert alert-danger">
-          <h4><i class="icon fa fa-ban"></i> Kesalahan Validasi!</h4>
+          <h4><i class="icon fa fa-ban"></i> <span data-i18n="tickets.create.validation.title">Validation Errors!</span></h4>
           <ul>
             @foreach($errors->all() as $error)
               <li>{{$error}}</li>
@@ -191,14 +199,14 @@
       {{-- Canned Fields Quick Select --}}
       <div class="box box-info">
         <div class="box-header with-border">
-          <h3 class="box-title"><i class="fa fa-magic"></i> Template Cepat</h3>
+          <h3 class="box-title"><i class="fa fa-magic"></i> <span data-i18n="tickets.create.template.title">Quick Template</span></h3>
         </div>
         <div class="box-body">
-          <p class="text-muted"><small>Gunakan template yang telah ditentukan untuk mempercepat pembuatan tiket</small></p>
+          <p class="text-muted"><small data-i18n="tickets.create.template.help">Use predefined templates to speed up ticket creation</small></p>
           <div class="form-group">
-            <label for="canned_subject">Template</label>
+            <label for="canned_subject" data-i18n="tickets.create.template.field">Template</label>
             <select class="form-control" name="canned_template" id="canned_subject">
-              <option value="">-- Pilih Template --</option>
+              <option value="" data-i18n="tickets.create.template.option">-- Select Template --</option>
               @foreach($ticketsCannedFields as $ticketsCannedField)
                 <option value="{{$ticketsCannedField->id}}" 
                         data-subject="{{$ticketsCannedField->subject}}" 
@@ -211,7 +219,7 @@
 
           <div class="form-group">
             <button type="button" class="btn btn-info btn-block" id="apply-template-btn">
-              <i class="fa fa-magic"></i> Gunakan Template
+              <i class="fa fa-magic"></i> <span data-i18n="tickets.create.template.apply">Apply Template</span>
             </button>
           </div>
           
@@ -225,12 +233,19 @@
                 // Trigger character counter update if exists
                 if ($('#char-counter').length) {
                   var length = $('#description').val().length;
-                  $('#char-counter').text(length + ' / 10 karakter (minimal 10)');
+                  var label = typeof window.ticketCreateLabelFormat === 'function'
+                    ? window.ticketCreateLabelFormat('tickets.create.runtime.char_counter', '{count} / {min} characters (minimum {min})', { count: length, min: 10 })
+                    : (length + ' / 10 characters (minimum 10)');
+                  $('#char-counter').text(label);
                 }
                 // Show success message
-                toastr.success('Template berhasil diterapkan!');
+                toastr.success(typeof window.ticketCreateLabel === 'function'
+                  ? window.ticketCreateLabel('tickets.create.runtime.template_applied', 'Template applied successfully!')
+                  : 'Template applied successfully!');
               } else {
-                toastr.warning('Pilih template terlebih dahulu');
+                toastr.warning(typeof window.ticketCreateLabel === 'function'
+                  ? window.ticketCreateLabel('tickets.create.runtime.select_template', 'Please select a template first')
+                  : 'Please select a template first');
               }
             });
           });
@@ -306,15 +321,187 @@
 
 @section('footer')
   <script type="text/javascript">
+    (function() {
+      var translations = {
+        en: {
+          'tickets.create.form.title': 'Ticket Information',
+          'tickets.create.section.basic': 'Basic Information',
+          'tickets.create.section.location': 'Location & Assignment',
+          'tickets.create.section.asset': 'Related Assets',
+          'tickets.create.field.reporter': 'Creator / Reporter',
+          'tickets.create.help.reporter': 'This ticket is created under your account',
+          'tickets.create.field.subject': 'Subject',
+          'tickets.create.placeholder.subject': 'Brief issue summary',
+          'tickets.create.help.subject': 'Short summary of the issue (maximum 255 characters)',
+          'tickets.create.field.description': 'Description',
+          'tickets.create.placeholder.description': 'Describe the issue details and impact',
+          'tickets.create.help.description': 'Detailed issue or request description (minimum 10 characters)',
+          'tickets.create.field.ticket_type': 'Ticket Type',
+          'tickets.create.option.select_type': '-- Select Ticket Type --',
+          'tickets.create.help.ticket_type': 'Request category (example: hardware issue, software support, network issue)',
+          'tickets.create.field.location': 'Location',
+          'tickets.create.help.location_auto': 'Location is auto-filled from your profile',
+          'tickets.create.option.select_location': '-- Select Location --',
+          'tickets.create.help.location_manual': 'Physical location where the issue happened',
+          'tickets.create.field.assets': 'Related Assets (Optional)',
+          'tickets.create.help.assets': 'Choose one or more assets related to this ticket (use Ctrl/Cmd + click for multi-select)',
+          'tickets.create.action.submit': 'Create Ticket',
+          'tickets.create.action.cancel': 'Cancel',
+          'tickets.create.validation.title': 'Validation Errors!',
+          'tickets.create.template.title': 'Quick Template',
+          'tickets.create.template.help': 'Use predefined templates to speed up ticket creation',
+          'tickets.create.template.field': 'Template',
+          'tickets.create.template.option': '-- Select Template --',
+          'tickets.create.template.apply': 'Apply Template',
+          'tickets.create.runtime.template_applied': 'Template applied successfully!',
+          'tickets.create.runtime.select_template': 'Please select a template first',
+          'tickets.create.runtime.char_counter': '{count} / {min} characters (minimum {min})',
+          'tickets.create.runtime.loading_create': 'Creating ticket...',
+          'tickets.create.select2.location': 'Select location',
+          'tickets.create.select2.status_optional': 'Select status (optional)',
+          'tickets.create.select2.ticket_type': 'Select ticket type',
+          'tickets.create.select2.priority': 'Select priority',
+          'tickets.create.select2.template': 'Select template',
+          'tickets.create.select2.assets': 'Search and select assets'
+        },
+        id: {
+          'tickets.create.form.title': 'Informasi Tiket',
+          'tickets.create.section.basic': 'Informasi Dasar',
+          'tickets.create.section.location': 'Lokasi & Penugasan',
+          'tickets.create.section.asset': 'Aset Terkait',
+          'tickets.create.field.reporter': 'Pembuat / Pelapor',
+          'tickets.create.help.reporter': 'Tiket ini dibuat atas nama akun Anda',
+          'tickets.create.field.subject': 'Subjek',
+          'tickets.create.placeholder.subject': 'Ringkasan singkat masalah',
+          'tickets.create.help.subject': 'Ringkasan singkat masalah (maksimal 255 karakter)',
+          'tickets.create.field.description': 'Deskripsi',
+          'tickets.create.placeholder.description': 'Jelaskan detail masalah dan dampaknya',
+          'tickets.create.help.description': 'Deskripsi detail masalah atau permintaan (minimal 10 karakter)',
+          'tickets.create.field.ticket_type': 'Jenis Tiket',
+          'tickets.create.option.select_type': '-- Pilih Jenis Tiket --',
+          'tickets.create.help.ticket_type': 'Kategori permintaan (contoh: Masalah Hardware, Dukungan Software, Masalah Jaringan)',
+          'tickets.create.field.location': 'Lokasi',
+          'tickets.create.help.location_auto': 'Lokasi otomatis diambil dari profil Anda',
+          'tickets.create.option.select_location': '-- Pilih Lokasi --',
+          'tickets.create.help.location_manual': 'Lokasi fisik tempat masalah terjadi',
+          'tickets.create.field.assets': 'Aset Terkait (Opsional)',
+          'tickets.create.help.assets': 'Pilih satu atau lebih aset terkait tiket ini (gunakan Ctrl/Cmd + klik untuk memilih beberapa)',
+          'tickets.create.action.submit': 'Buat Tiket',
+          'tickets.create.action.cancel': 'Batal',
+          'tickets.create.validation.title': 'Kesalahan Validasi!',
+          'tickets.create.template.title': 'Template Cepat',
+          'tickets.create.template.help': 'Gunakan template yang telah ditentukan untuk mempercepat pembuatan tiket',
+          'tickets.create.template.field': 'Template',
+          'tickets.create.template.option': '-- Pilih Template --',
+          'tickets.create.template.apply': 'Gunakan Template',
+          'tickets.create.runtime.template_applied': 'Template berhasil diterapkan!',
+          'tickets.create.runtime.select_template': 'Pilih template terlebih dahulu',
+          'tickets.create.runtime.char_counter': '{count} / {min} karakter (minimal {min})',
+          'tickets.create.runtime.loading_create': 'Membuat tiket...',
+          'tickets.create.select2.location': 'Pilih lokasi',
+          'tickets.create.select2.status_optional': 'Pilih status (opsional)',
+          'tickets.create.select2.ticket_type': 'Pilih jenis tiket',
+          'tickets.create.select2.priority': 'Pilih prioritas',
+          'tickets.create.select2.template': 'Pilih template',
+          'tickets.create.select2.assets': 'Cari dan pilih aset'
+        }
+      };
+
+      var currentLanguage = 'en';
+      var userId = '{{ (int) auth()->id() }}';
+      var languageStorageKey = 'itapp.portal.preferences.v1.user.' + userId;
+      var englishButton = document.getElementById('ticketCreateLanguageEnglish');
+      var indonesianButton = document.getElementById('ticketCreateLanguageIndonesian');
+
+      function getLanguage() {
+        try {
+          var raw = window.localStorage.getItem(languageStorageKey);
+          if (!raw) {
+            return 'en';
+          }
+
+          var parsed = JSON.parse(raw);
+          return parsed && parsed.language === 'id' ? 'id' : 'en';
+        } catch (error) {
+          return 'en';
+        }
+      }
+
+      function saveLanguage(language) {
+        try {
+          var raw = window.localStorage.getItem(languageStorageKey);
+          var parsed = raw ? JSON.parse(raw) : {};
+          parsed.language = language === 'id' ? 'id' : 'en';
+          window.localStorage.setItem(languageStorageKey, JSON.stringify(parsed));
+        } catch (error) {
+          // Keep silent if localStorage is unavailable.
+        }
+      }
+
+      function getLabel(key, fallback) {
+        var dictionary = translations[currentLanguage] || translations.en;
+        return dictionary[key] || fallback || key;
+      }
+
+      function formatLabel(key, fallback, vars) {
+        var label = getLabel(key, fallback);
+        Object.keys(vars || {}).forEach(function(varKey) {
+          label = label.replace(new RegExp('\\{' + varKey + '\\}', 'g'), String(vars[varKey]));
+        });
+        return label;
+      }
+
+      function applyLanguage(language) {
+        currentLanguage = language === 'id' ? 'id' : 'en';
+        var dictionary = translations[currentLanguage] || translations.en;
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function(node) {
+          var key = node.getAttribute('data-i18n');
+          if (dictionary[key]) {
+            node.textContent = dictionary[key];
+          }
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-i18n-placeholder]'), function(node) {
+          var key = node.getAttribute('data-i18n-placeholder');
+          if (dictionary[key]) {
+            node.setAttribute('placeholder', dictionary[key]);
+          }
+        });
+
+        if (englishButton && indonesianButton) {
+          englishButton.classList.toggle('active', currentLanguage === 'en');
+          indonesianButton.classList.toggle('active', currentLanguage === 'id');
+        }
+      }
+
+      window.ticketCreateLabel = getLabel;
+      window.ticketCreateLabelFormat = formatLabel;
+
+      if (englishButton && indonesianButton) {
+        englishButton.addEventListener('click', function() {
+          saveLanguage('en');
+          applyLanguage('en');
+        });
+
+        indonesianButton.addEventListener('click', function() {
+          saveLanguage('id');
+          applyLanguage('id');
+        });
+      }
+
+      applyLanguage(getLanguage());
+    })();
+
     $(document).ready(function() {
       // Initialize Select2 for all dropdowns
-      $(".location_id").select2({ placeholder: 'Pilih lokasi', allowClear: true });
-      $(".ticket_status_id").select2({ placeholder: 'Pilih status (opsional)', allowClear: true });
-      $(".ticket_type_id").select2({ placeholder: 'Pilih jenis tiket', allowClear: false });
-      $(".ticket_priority_id").select2({ placeholder: 'Pilih prioritas', allowClear: false });
-      $(".subject").select2({ placeholder: 'Pilih template', allowClear: true });
+      $(".location_id").select2({ placeholder: window.ticketCreateLabel('tickets.create.select2.location', 'Select location'), allowClear: true });
+      $(".ticket_status_id").select2({ placeholder: window.ticketCreateLabel('tickets.create.select2.status_optional', 'Select status (optional)'), allowClear: true });
+      $(".ticket_type_id").select2({ placeholder: window.ticketCreateLabel('tickets.create.select2.ticket_type', 'Select ticket type'), allowClear: false });
+      $(".ticket_priority_id").select2({ placeholder: window.ticketCreateLabel('tickets.create.select2.priority', 'Select priority'), allowClear: false });
+      $(".subject").select2({ placeholder: window.ticketCreateLabel('tickets.create.select2.template', 'Select template'), allowClear: true });
       $(".asset_ids").select2({ 
-        placeholder: 'Cari dan pilih aset', 
+        placeholder: window.ticketCreateLabel('tickets.create.select2.assets', 'Search and select assets'), 
         allowClear: true,
         width: '100%'
       });
@@ -324,8 +511,11 @@
         var length = $('#description').val().length;
         var minLength = 10;
         var counter = $('#char-counter');
-        
-        counter.text(length + ' / ' + minLength + ' karakter (minimal ' + minLength + ')');
+
+        counter.text(window.ticketCreateLabelFormat('tickets.create.runtime.char_counter', '{count} / {min} characters (minimum {min})', {
+          count: length,
+          min: minLength
+        }));
         
         if (length >= minLength) {
           counter.removeClass('invalid').addClass('valid');
@@ -377,7 +567,7 @@
 
       // Add loading overlay on form submit
       $('#ticket-create-form').on('submit', function() {
-        showLoading('Membuat tiket...');
+        showLoading(window.ticketCreateLabel('tickets.create.runtime.loading_create', 'Creating ticket...'));
       });
 
       // Prevent enter key from submitting form

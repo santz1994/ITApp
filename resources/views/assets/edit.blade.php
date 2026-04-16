@@ -25,11 +25,19 @@
     '
 ])
 
+<div class="pull-right" style="margin-top: -52px; margin-bottom: 16px; margin-right: 15px;">
+  <div class="btn-group btn-group-xs" role="group" aria-label="Asset Edit Language Toggle">
+    <button type="button" class="btn btn-default" id="assetEditLanguageEnglish" data-lang="en">EN</button>
+    <button type="button" class="btn btn-default" id="assetEditLanguageIndonesian" data-lang="id">ID</button>
+  </div>
+</div>
+<div class="clearfix"></div>
+
   <div class="row">
     <div class="col-md-6 col-md-offset-3">
       <div class="box box-primary">
         <div class="box-header with-border">
-          <h3 class="box-title">Asset Information</h3>
+          <h3 class="box-title" data-i18n="assets.edit.form.title">Asset Information</h3>
         </div>
         <div class="box-body">
           {{-- Flash Messages --}}
@@ -60,7 +68,7 @@
             
             {{-- SECTION 1: Basic Information --}}
             <fieldset>
-              <legend><i class="fa fa-info-circle"></i> Basic Information</legend>
+              <legend><i class="fa fa-info-circle"></i> <span data-i18n="assets.edit.section.basic">Basic Information</span></legend>
 
               <div class="form-group">
                 <label for="asset_tag">Kode Assets <span class="text-red">*</span></label>
@@ -135,7 +143,7 @@
 
             {{-- SECTION 2: Location & Assignment --}}
             <fieldset>
-              <legend><i class="fa fa-map-marker"></i> Location & Assignment</legend>
+              <legend><i class="fa fa-map-marker"></i> <span data-i18n="assets.edit.section.location">Location & Assignment</span></legend>
 
               <div class="form-group">
                 <label for="location_id">Lokasi <span class="text-red">*</span></label>
@@ -169,7 +177,7 @@
 
             {{-- SECTION 3: Purchase & Warranty Information --}}
             <fieldset>
-              <legend><i class="fa fa-shopping-cart"></i> Purchase & Warranty Information</legend>
+              <legend><i class="fa fa-shopping-cart"></i> <span data-i18n="assets.edit.section.purchase">Purchase & Warranty Information</span></legend>
 
               <div class="form-group">
                 <label for="purchase_date">Tanggal Beli <span class="text-red">*</span></label>
@@ -227,7 +235,7 @@
 
             {{-- SECTION 4: Network & Additional Details --}}
             <fieldset>
-              <legend><i class="fa fa-network-wired"></i> Network & Additional Details</legend>
+              <legend><i class="fa fa-network-wired"></i> <span data-i18n="assets.edit.section.network">Network & Additional Details</span></legend>
 
               <div class="form-group">
                 <label for="ip_address">IP Address</label>
@@ -251,13 +259,13 @@
             {{-- Submit Buttons --}}
             <div class="form-group" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e3e3e3;">
               <button type="submit" class="btn btn-primary btn-lg">
-                <i class="fa fa-save"></i> <b>Update Asset</b>
+                <i class="fa fa-save"></i> <b data-i18n="assets.edit.action.submit">Update Asset</b>
               </button>
               <a href="{{ route('assets.show', $asset->id) }}" class="btn btn-info btn-lg">
-                <i class="fa fa-eye"></i> View
+                <i class="fa fa-eye"></i> <span data-i18n="assets.edit.action.view">View</span>
               </a>
               <a href="{{ route('assets.index') }}" class="btn btn-secondary btn-lg">
-                <i class="fa fa-times"></i> Cancel
+                <i class="fa fa-times"></i> <span data-i18n="assets.edit.action.cancel">Cancel</span>
               </a>
             </div>
           </form>
@@ -285,9 +293,109 @@
 
 @section('footer')
   <script type="text/javascript">
+    (function() {
+      var translations = {
+        en: {
+          'assets.edit.form.title': 'Asset Information',
+          'assets.edit.section.basic': 'Basic Information',
+          'assets.edit.section.location': 'Location & Assignment',
+          'assets.edit.section.purchase': 'Purchase & Warranty Information',
+          'assets.edit.section.network': 'Network & Additional Details',
+          'assets.edit.action.submit': 'Update Asset',
+          'assets.edit.action.view': 'View',
+          'assets.edit.action.cancel': 'Cancel',
+          'assets.edit.runtime.loading': 'Updating asset...',
+          'assets.edit.runtime.serial_exists': 'Serial number already exists in the system.',
+          'assets.edit.runtime.serial_available': 'Serial number available.'
+        },
+        id: {
+          'assets.edit.form.title': 'Informasi Aset',
+          'assets.edit.section.basic': 'Informasi Dasar',
+          'assets.edit.section.location': 'Lokasi & Penugasan',
+          'assets.edit.section.purchase': 'Informasi Pembelian & Garansi',
+          'assets.edit.section.network': 'Jaringan & Detail Tambahan',
+          'assets.edit.action.submit': 'Perbarui Aset',
+          'assets.edit.action.view': 'Lihat',
+          'assets.edit.action.cancel': 'Batal',
+          'assets.edit.runtime.loading': 'Memperbarui aset...',
+          'assets.edit.runtime.serial_exists': 'Nomor serial sudah ada di sistem.',
+          'assets.edit.runtime.serial_available': 'Nomor serial tersedia.'
+        }
+      };
+
+      var currentLanguage = 'en';
+      var userId = '{{ (int) auth()->id() }}';
+      var languageStorageKey = 'itapp.portal.preferences.v1.user.' + userId;
+      var englishButton = document.getElementById('assetEditLanguageEnglish');
+      var indonesianButton = document.getElementById('assetEditLanguageIndonesian');
+
+      function getLanguage() {
+        try {
+          var raw = window.localStorage.getItem(languageStorageKey);
+          if (!raw) {
+            return 'en';
+          }
+
+          var parsed = JSON.parse(raw);
+          return parsed && parsed.language === 'id' ? 'id' : 'en';
+        } catch (error) {
+          return 'en';
+        }
+      }
+
+      function saveLanguage(language) {
+        try {
+          var raw = window.localStorage.getItem(languageStorageKey);
+          var parsed = raw ? JSON.parse(raw) : {};
+          parsed.language = language === 'id' ? 'id' : 'en';
+          window.localStorage.setItem(languageStorageKey, JSON.stringify(parsed));
+        } catch (error) {
+          // Keep silent if localStorage is unavailable.
+        }
+      }
+
+      function getLabel(key, fallback) {
+        var dictionary = translations[currentLanguage] || translations.en;
+        return dictionary[key] || fallback || key;
+      }
+
+      function applyLanguage(language) {
+        currentLanguage = language === 'id' ? 'id' : 'en';
+        var dictionary = translations[currentLanguage] || translations.en;
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function(node) {
+          var key = node.getAttribute('data-i18n');
+          if (dictionary[key]) {
+            node.textContent = dictionary[key];
+          }
+        });
+
+        if (englishButton && indonesianButton) {
+          englishButton.classList.toggle('active', currentLanguage === 'en');
+          indonesianButton.classList.toggle('active', currentLanguage === 'id');
+        }
+      }
+
+      window.assetEditLabel = getLabel;
+
+      if (englishButton && indonesianButton) {
+        englishButton.addEventListener('click', function() {
+          saveLanguage('en');
+          applyLanguage('en');
+        });
+
+        indonesianButton.addEventListener('click', function() {
+          saveLanguage('id');
+          applyLanguage('id');
+        });
+      }
+
+      applyLanguage(getLanguage());
+    })();
+
     // Form loading state
     $('#asset-edit-form').on('submit', function() {
-      showLoading('Updating asset...');
+      showLoading(window.assetEditLabel('assets.edit.runtime.loading', 'Updating asset...'));
     });
 
     // Serial number uniqueness check (AJAX) for edit form
@@ -303,9 +411,9 @@
           .done(function(resp){
             if (resp && resp.success) {
               if (resp.exists) {
-                $('#serial-feedback').show().removeClass('text-muted text-success').addClass('text-danger').text('Serial number already exists in the system.');
+                $('#serial-feedback').show().removeClass('text-muted text-success').addClass('text-danger').text(window.assetEditLabel('assets.edit.runtime.serial_exists', 'Serial number already exists in the system.'));
               } else {
-                $('#serial-feedback').show().removeClass('text-danger text-muted').addClass('text-success').text('Serial number available.');
+                $('#serial-feedback').show().removeClass('text-danger text-muted').addClass('text-success').text(window.assetEditLabel('assets.edit.runtime.serial_available', 'Serial number available.'));
               }
             }
           }).fail(function(){

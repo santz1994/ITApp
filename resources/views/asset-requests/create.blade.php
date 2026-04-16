@@ -15,13 +15,21 @@
     ]
 ])
 
+<div class="pull-right" style="margin-top: -52px; margin-bottom: 16px; margin-right: 15px;">
+    <div class="btn-group btn-group-xs" role="group" aria-label="Asset Request Create Language Toggle">
+        <button type="button" class="btn btn-default" id="assetRequestCreateLanguageEnglish" data-lang="en">EN</button>
+        <button type="button" class="btn btn-default" id="assetRequestCreateLanguageIndonesian" data-lang="id">ID</button>
+    </div>
+</div>
+<div class="clearfix"></div>
+
 <div class="container-fluid">
     <div class="row">
         {{-- Main Form (8 columns) --}}
         <div class="col-md-8">
             <div class="box box-primary">
                 <div class="box-header with-border">
-                    <h3 class="box-title"><i class="fa fa-clipboard-list"></i> Request Details</h3>
+                    <h3 class="box-title"><i class="fa fa-clipboard-list"></i> <span data-i18n="asset_request.create.form.title">Request Details</span></h3>
                 </div>
                 <div class="box-body">
 
@@ -29,7 +37,7 @@
                     @if($errors->any())
                         <div class="alert alert-warning alert-dismissible">
                             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                            <i class="fa fa-exclamation-circle"></i> <strong>Validation errors:</strong>
+                            <i class="fa fa-exclamation-circle"></i> <strong data-i18n="asset_request.create.validation.title">Validation errors:</strong>
                             <ul style="margin-bottom: 0; margin-top: 5px;">
                                 @foreach($errors->all() as $error)
                                     <li>{{ $error }}</li>
@@ -43,30 +51,30 @@
 
                         {{-- Section 1: Requester Information --}}
                         <fieldset>
-                            <legend><span class="form-section-icon"><i class="fa fa-user"></i></span> Requester Information</legend>
+                            <legend><span class="form-section-icon"><i class="fa fa-user"></i></span> <span data-i18n="asset_request.create.section.requester">Requester Information</span></legend>
                             
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="requester_name">Requester Name</label>
+                                        <label for="requester_name" data-i18n="asset_request.create.field.requester_name">Requester Name</label>
                                         <div class="input-group">
                                             <span class="input-group-addon"><i class="fa fa-user"></i></span>
                                             <input type="text" id="requester_name" class="form-control" 
                                                    value="{{ auth()->user()->name ?? '' }}" disabled>
                                         </div>
-                                        <small class="help-text">Your name (auto-filled from your account)</small>
+                                        <small class="help-text" data-i18n="asset_request.create.help.requester_name">Your name (auto-filled from your account)</small>
                                     </div>
                                 </div>
 
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="division">Division</label>
+                                        <label for="division" data-i18n="asset_request.create.field.division">Division</label>
                                         <div class="input-group">
                                             <span class="input-group-addon"><i class="fa fa-building"></i></span>
                                             <input type="text" id="division" class="form-control" 
                                                    value="{{ auth()->user()->division ?? '' }}" disabled>
                                         </div>
-                                        <small class="help-text">Your division (auto-filled from your account)</small>
+                                        <small class="help-text" data-i18n="asset_request.create.help.division">Your division (auto-filled from your account)</small>
                                     </div>
                                 </div>
                             </div>
@@ -74,37 +82,37 @@
 
                         {{-- Section 2: Asset Details --}}
                         <fieldset>
-                            <legend><span class="form-section-icon"><i class="fa fa-box"></i></span> Asset Details</legend>
+                            <legend><span class="form-section-icon"><i class="fa fa-box"></i></span> <span data-i18n="asset_request.create.section.asset">Asset Details</span></legend>
                             
                             <div class="row">
                                 <div class="col-md-8">
                                     <div class="form-group">
-                                        <label for="title">Asset Name / Title <span class="text-danger">*</span></label>
+                                        <label for="title"><span data-i18n="asset_request.create.field.title">Asset Name / Title</span> <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <span class="input-group-addon"><i class="fa fa-tag"></i></span>
                                             <input type="text" name="title" id="title" 
                                                    class="form-control @error('title') is-invalid @enderror" 
                                                    value="{{ old('title') }}" 
-                                                   placeholder="e.g., Dell Latitude 7420 Laptop" required>
+                                                   placeholder="e.g., Dell Latitude 7420 Laptop" data-i18n-placeholder="asset_request.create.placeholder.title" required>
                                         </div>
-                                        <small class="help-text">Enter the name or model of the asset you need</small>
+                                        <small class="help-text" data-i18n="asset_request.create.help.title">Enter the asset name or model you need</small>
                                         @error('title')<span class="text-danger">{{ $message }}</span>@enderror
                                     </div>
                                 </div>
 
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <label for="asset_type_id">Asset Type <span class="text-danger">*</span></label>
+                                        <label for="asset_type_id"><span data-i18n="asset_request.create.field.asset_type">Asset Type</span> <span class="text-danger">*</span></label>
                                         <select class="form-control @error('asset_type_id') is-invalid @enderror" 
                                                 id="asset_type_id" name="asset_type_id" required>
-                                            <option value="">Select Type</option>
+                                            <option value="" data-i18n="asset_request.create.option.select_type">Select Type</option>
                                             @foreach($assetTypes as $type)
                                                 <option value="{{ $type->id }}" {{ old('asset_type_id') == $type->id ? 'selected' : '' }}>
                                                     {{ $type->name }}
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <small class="help-text">Category of asset</small>
+                                        <small class="help-text" data-i18n="asset_request.create.help.asset_type">Asset category</small>
                                         @error('asset_type_id')<span class="text-danger">{{ $message }}</span>@enderror
                                     </div>
                                 </div>
@@ -206,10 +214,10 @@
                         {{-- Submit Buttons --}}
                         <div class="form-group" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e3e3e3;">
                             <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fa fa-paper-plane"></i> <b>Submit Request</b>
+                                <i class="fa fa-paper-plane"></i> <b data-i18n="asset_request.create.action.submit">Submit Request</b>
                             </button>
                             <a href="{{ route('asset-requests.index') }}" class="btn btn-default btn-lg">
-                                <i class="fa fa-times"></i> Cancel
+                                <i class="fa fa-times"></i> <span data-i18n="asset_request.create.action.cancel">Cancel</span>
                             </a>
                         </div>
 
@@ -288,6 +296,129 @@
 
 @push('scripts')
 <script>
+(function() {
+    var translations = {
+        en: {
+            'asset_request.create.form.title': 'Request Details',
+            'asset_request.create.validation.title': 'Validation errors:',
+            'asset_request.create.section.requester': 'Requester Information',
+            'asset_request.create.field.requester_name': 'Requester Name',
+            'asset_request.create.help.requester_name': 'Your name (auto-filled from your account)',
+            'asset_request.create.field.division': 'Division',
+            'asset_request.create.help.division': 'Your division (auto-filled from your account)',
+            'asset_request.create.section.asset': 'Asset Details',
+            'asset_request.create.field.title': 'Asset Name / Title',
+            'asset_request.create.placeholder.title': 'e.g., Dell Latitude 7420 Laptop',
+            'asset_request.create.help.title': 'Enter the asset name or model you need',
+            'asset_request.create.field.asset_type': 'Asset Type',
+            'asset_request.create.option.select_type': 'Select Type',
+            'asset_request.create.help.asset_type': 'Asset category',
+            'asset_request.create.action.submit': 'Submit Request',
+            'asset_request.create.action.cancel': 'Cancel',
+            'asset_request.create.runtime.asset_name_required': 'Please enter the asset name/title',
+            'asset_request.create.runtime.asset_type_required': 'Please select an asset type',
+            'asset_request.create.runtime.justification_required': 'Please provide a detailed justification (minimum 20 characters)'
+        },
+        id: {
+            'asset_request.create.form.title': 'Detail Permintaan',
+            'asset_request.create.validation.title': 'Kesalahan validasi:',
+            'asset_request.create.section.requester': 'Informasi Pemohon',
+            'asset_request.create.field.requester_name': 'Nama Pemohon',
+            'asset_request.create.help.requester_name': 'Nama Anda (otomatis terisi dari akun)',
+            'asset_request.create.field.division': 'Divisi',
+            'asset_request.create.help.division': 'Divisi Anda (otomatis terisi dari akun)',
+            'asset_request.create.section.asset': 'Detail Aset',
+            'asset_request.create.field.title': 'Nama Barang / Aset',
+            'asset_request.create.placeholder.title': 'contoh: Dell Latitude 7420 Laptop',
+            'asset_request.create.help.title': 'Masukkan nama atau model aset yang Anda butuhkan',
+            'asset_request.create.field.asset_type': 'Jenis Aset',
+            'asset_request.create.option.select_type': 'Pilih Tipe',
+            'asset_request.create.help.asset_type': 'Kategori aset',
+            'asset_request.create.action.submit': 'Kirim Permintaan',
+            'asset_request.create.action.cancel': 'Batal',
+            'asset_request.create.runtime.asset_name_required': 'Silakan masukkan nama/judul aset',
+            'asset_request.create.runtime.asset_type_required': 'Silakan pilih jenis aset',
+            'asset_request.create.runtime.justification_required': 'Silakan isi justifikasi detail (minimal 20 karakter)'
+        }
+    };
+
+    var currentLanguage = 'en';
+    var userId = '{{ (int) auth()->id() }}';
+    var languageStorageKey = 'itapp.portal.preferences.v1.user.' + userId;
+    var englishButton = document.getElementById('assetRequestCreateLanguageEnglish');
+    var indonesianButton = document.getElementById('assetRequestCreateLanguageIndonesian');
+
+    function getLanguage() {
+        try {
+            var raw = window.localStorage.getItem(languageStorageKey);
+            if (!raw) {
+                return 'en';
+            }
+
+            var parsed = JSON.parse(raw);
+            return parsed && parsed.language === 'id' ? 'id' : 'en';
+        } catch (error) {
+            return 'en';
+        }
+    }
+
+    function saveLanguage(language) {
+        try {
+            var raw = window.localStorage.getItem(languageStorageKey);
+            var parsed = raw ? JSON.parse(raw) : {};
+            parsed.language = language === 'id' ? 'id' : 'en';
+            window.localStorage.setItem(languageStorageKey, JSON.stringify(parsed));
+        } catch (error) {
+            // Keep silent if localStorage is unavailable.
+        }
+    }
+
+    function getLabel(key, fallback) {
+        var dictionary = translations[currentLanguage] || translations.en;
+        return dictionary[key] || fallback || key;
+    }
+
+    function applyLanguage(language) {
+        currentLanguage = language === 'id' ? 'id' : 'en';
+        var dictionary = translations[currentLanguage] || translations.en;
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function(node) {
+            var key = node.getAttribute('data-i18n');
+            if (dictionary[key]) {
+                node.textContent = dictionary[key];
+            }
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-i18n-placeholder]'), function(node) {
+            var key = node.getAttribute('data-i18n-placeholder');
+            if (dictionary[key]) {
+                node.setAttribute('placeholder', dictionary[key]);
+            }
+        });
+
+        if (englishButton && indonesianButton) {
+            englishButton.classList.toggle('active', currentLanguage === 'en');
+            indonesianButton.classList.toggle('active', currentLanguage === 'id');
+        }
+    }
+
+    window.assetRequestCreateLabel = getLabel;
+
+    if (englishButton && indonesianButton) {
+        englishButton.addEventListener('click', function() {
+            saveLanguage('en');
+            applyLanguage('en');
+        });
+
+        indonesianButton.addEventListener('click', function() {
+            saveLanguage('id');
+            applyLanguage('id');
+        });
+    }
+
+    applyLanguage(getLanguage());
+})();
+
 $(document).ready(function() {
     // Form validation
     $('#asset-request-form').on('submit', function(e) {
@@ -295,19 +426,19 @@ $(document).ready(function() {
         
         // Check required fields
         if ($('#title').val().trim() === '') {
-            alert('Please enter the asset name/title');
+            alert(window.assetRequestCreateLabel('asset_request.create.runtime.asset_name_required', 'Please enter the asset name/title'));
             $('#title').focus();
             return false;
         }
         
         if ($('#asset_type_id').val() === '') {
-            alert('Please select an asset type');
+            alert(window.assetRequestCreateLabel('asset_request.create.runtime.asset_type_required', 'Please select an asset type'));
             $('#asset_type_id').focus();
             return false;
         }
         
         if ($('#justification').val().trim().length < 20) {
-            alert('Please provide a detailed justification (minimum 20 characters)');
+            alert(window.assetRequestCreateLabel('asset_request.create.runtime.justification_required', 'Please provide a detailed justification (minimum 20 characters)'));
             $('#justification').focus();
             return false;
         }

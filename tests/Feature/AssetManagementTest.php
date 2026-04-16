@@ -56,6 +56,141 @@ class AssetManagementTest extends TestCase
     }
 
     /** @test */
+    public function asset_index_page_shows_bilingual_toggle_and_runtime_markers()
+    {
+        $response = $this->actingAs($this->user)
+            ->get(route('assets.index'));
+
+        $response->assertStatus(200);
+        $response->assertSee('EN');
+        $response->assertSee('ID');
+        $response->assertSee('id="assetLanguageEnglish"', false);
+        $response->assertSee('id="assetLanguageIndonesian"', false);
+        $response->assertSee('data-i18n="assets.summary.total_assets"', false);
+        $response->assertSee('data-i18n="assets.filters.title"', false);
+        $response->assertSee('data-i18n="assets.table.title"', false);
+        $response->assertSee("'assets.runtime.confirm.delete'", false);
+        $response->assertSee("'assets.datatable.search'", false);
+    }
+
+    /** @test */
+    public function asset_index_page_includes_language_switch_behavior_hooks()
+    {
+        $response = $this->actingAs($this->user)
+            ->get(route('assets.index'));
+
+        $response->assertStatus(200);
+        $response->assertSee("englishButton.addEventListener('click'", false);
+        $response->assertSee("indonesianButton.addEventListener('click'", false);
+        $response->assertSee('window.assetRefreshRuntimeText = function()', false);
+        $response->assertSee('assetsTable.settings()[0].oLanguage = window.assetDataTableLanguage();', false);
+        $response->assertSee('window.assetDeleteConfirm = function()', false);
+        $response->assertSee("applyLanguage(getLanguage());", false);
+    }
+
+    /** @test */
+    public function asset_create_page_shows_bilingual_toggle_and_runtime_markers()
+    {
+        $response = $this->actingAs($this->superAdmin)
+            ->get(route('assets.create'));
+
+        $response->assertStatus(200);
+        $response->assertSee('EN');
+        $response->assertSee('ID');
+        $response->assertSee('id="assetCreateLanguageEnglish"', false);
+        $response->assertSee('id="assetCreateLanguageIndonesian"', false);
+        $response->assertSee('data-i18n="assets.create.form.title"', false);
+        $response->assertSee('data-i18n="assets.create.section.basic"', false);
+        $response->assertSee('data-i18n="assets.create.action.submit"', false);
+        $response->assertSee("'assets.create.runtime.loading'", false);
+        $response->assertSee('window.assetCreateLabel = getLabel;', false);
+    }
+
+    /** @test */
+    public function asset_edit_page_shows_bilingual_toggle_and_runtime_markers()
+    {
+        $asset = $this->createTestAsset([
+            'asset_tag' => 'AST-EDIT-I18N-' . time(),
+            'serial_number' => 'SN-EDIT-I18N-' . uniqid(),
+            'model_id' => $this->assetModel->id,
+            'division_id' => $this->division->id,
+            'location_id' => $this->location->id,
+            'status_id' => $this->status->id,
+        ]);
+
+        $response = $this->actingAs($this->superAdmin)
+            ->get(route('assets.edit', $asset->id));
+
+        $response->assertStatus(200);
+        $response->assertSee('EN');
+        $response->assertSee('ID');
+        $response->assertSee('id="assetEditLanguageEnglish"', false);
+        $response->assertSee('id="assetEditLanguageIndonesian"', false);
+        $response->assertSee('data-i18n="assets.edit.form.title"', false);
+        $response->assertSee('data-i18n="assets.edit.section.basic"', false);
+        $response->assertSee('data-i18n="assets.edit.action.submit"', false);
+        $response->assertSee("'assets.edit.runtime.loading'", false);
+        $response->assertSee('window.assetEditLabel = getLabel;', false);
+    }
+
+    /** @test */
+    public function asset_show_page_shows_bilingual_toggle_and_runtime_markers()
+    {
+        $asset = $this->createTestAsset([
+            'asset_tag' => 'AST-SHOW-I18N-' . time(),
+            'serial_number' => 'SN-SHOW-I18N-' . uniqid(),
+            'model_id' => $this->assetModel->id,
+            'division_id' => $this->division->id,
+            'location_id' => $this->location->id,
+            'status_id' => $this->status->id,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->get(route('assets.show', $asset->id));
+
+        $response->assertStatus(200);
+        $response->assertSee('EN');
+        $response->assertSee('ID');
+        $response->assertSee('id="assetShowLanguageEnglish"', false);
+        $response->assertSee('id="assetShowLanguageIndonesian"', false);
+        $response->assertSee('data-i18n="assets.show.tab.basic"', false);
+        $response->assertSee('data-i18n="assets.show.quick_actions.title"', false);
+        $response->assertSee('data-i18n="assets.show.action.back_to_assets"', false);
+        $response->assertSee('window.assetShowLabel = getLabel;', false);
+    }
+
+    /** @test */
+    public function asset_create_and_edit_pages_include_language_switch_behavior_hooks()
+    {
+        $createResponse = $this->actingAs($this->superAdmin)
+            ->get(route('assets.create'));
+
+        $createResponse->assertStatus(200);
+        $createResponse->assertSee("englishButton.addEventListener('click'", false);
+        $createResponse->assertSee("indonesianButton.addEventListener('click'", false);
+        $createResponse->assertSee('window.assetCreateLabel = getLabel;', false);
+        $createResponse->assertSee("applyLanguage(getLanguage());", false);
+
+        $asset = $this->createTestAsset([
+            'asset_tag' => 'AST-BEH-I18N-' . time(),
+            'serial_number' => 'SN-BEH-I18N-' . uniqid(),
+            'model_id' => $this->assetModel->id,
+            'division_id' => $this->division->id,
+            'location_id' => $this->location->id,
+            'status_id' => $this->status->id,
+        ]);
+
+        $editResponse = $this->actingAs($this->superAdmin)
+            ->get(route('assets.edit', $asset->id));
+
+        $editResponse->assertStatus(200);
+        $editResponse->assertSee("englishButton.addEventListener('click'", false);
+        $editResponse->assertSee("indonesianButton.addEventListener('click'", false);
+        $editResponse->assertSee('window.assetEditLabel = getLabel;', false);
+        $editResponse->assertSee("applyLanguage(getLanguage());", false);
+    }
+
+    /** @test */
     public function super_admin_can_create_asset_with_all_required_fields()
     {
         $assetData = [

@@ -77,6 +77,118 @@ class MeetingRoomBookingTest extends TestCase
      * 
      * @test
      */
+    public function meeting_booking_index_shows_bilingual_toggle_controls()
+    {
+        $response = $this->actingAs($this->regularUser)
+            ->get(route('meeting-room-bookings.index'));
+
+        $response->assertStatus(200);
+        $response->assertSee('EN');
+        $response->assertSee('ID');
+    }
+
+    /** @test */
+    public function meeting_booking_index_includes_runtime_bilingual_interaction_markers()
+    {
+        $response = $this->actingAs($this->regularUser)
+            ->get(route('meeting-room-bookings.index'));
+
+        $response->assertStatus(200);
+        $response->assertSee("'meeting.runtime.confirm.finish'", false);
+        $response->assertSee("'meeting.runtime.confirm.delete_booking'", false);
+        $response->assertSee("'meeting.runtime.validation.month_year'", false);
+        $response->assertSee("'meeting.datatable.search'", false);
+        $response->assertSee("'meeting.runtime.error_prefix': 'Error:'", false);
+        $response->assertSee("'meeting.runtime.error_prefix': 'Kesalahan:'", false);
+        $response->assertSee("confirm(meetingLabel('meeting.runtime.confirm.finish'", false);
+        $response->assertSee('window.initializeMeetingLanguage = function()', false);
+    }
+
+    /** @test */
+    public function meeting_booking_create_page_shows_bilingual_toggle_and_runtime_markers()
+    {
+        $response = $this->actingAs($this->regularUser)
+            ->get(route('meeting-room-bookings.create'));
+
+        $response->assertStatus(200);
+        $response->assertSee('EN');
+        $response->assertSee('ID');
+        $response->assertSee('id="meetingCreateLanguageEnglish"', false);
+        $response->assertSee('id="meetingCreateLanguageIndonesian"', false);
+        $response->assertSee('data-i18n="meeting.create.form.title"', false);
+        $response->assertSee('data-i18n="meeting.create.section.requester"', false);
+        $response->assertSee('data-i18n="meeting.create.action.submit"', false);
+        $response->assertSee("'meeting.create.runtime.invalid_time_format'", false);
+        $response->assertSee("'meeting.create.runtime.minimum_duration'", false);
+    }
+
+    /** @test */
+    public function meeting_booking_edit_page_shows_bilingual_toggle_and_runtime_markers()
+    {
+        $booking = MeetingRoomBooking::create([
+            'user_id' => $this->regularUser->id,
+            'room_name' => 'Meeting Room Edit',
+            'start_datetime' => Carbon::now()->addHours(2),
+            'end_datetime' => Carbon::now()->addHours(3),
+            'purpose' => 'Edit booking bilingual verification',
+            'meeting_description' => 'Edit booking bilingual verification details',
+            'attendees_count' => 6,
+            'department' => 'IT Department',
+            'requester_position' => 'Engineer',
+            'status' => 'pending',
+        ]);
+
+        $response = $this->actingAs($this->regularUser)
+            ->get(route('meeting-room-bookings.edit', $booking->id));
+
+        $response->assertStatus(200);
+        $response->assertSee('EN');
+        $response->assertSee('ID');
+        $response->assertSee('id="meetingEditLanguageEnglish"', false);
+        $response->assertSee('id="meetingEditLanguageIndonesian"', false);
+        $response->assertSee('data-i18n="meeting.edit.form.title"', false);
+        $response->assertSee('data-i18n="meeting.edit.section.requester"', false);
+        $response->assertSee('data-i18n="meeting.edit.action.submit"', false);
+        $response->assertSee("'meeting.edit.runtime.invalid_time_format'", false);
+        $response->assertSee("'meeting.edit.runtime.processing'", false);
+    }
+
+    /** @test */
+    public function meeting_booking_show_page_shows_bilingual_toggle_and_runtime_markers()
+    {
+        $booking = MeetingRoomBooking::create([
+            'user_id' => $this->regularUser->id,
+            'room_name' => 'Meeting Room Show',
+            'start_datetime' => Carbon::now()->addHours(4),
+            'end_datetime' => Carbon::now()->addHours(5),
+            'purpose' => 'Show booking bilingual verification',
+            'meeting_description' => 'Show booking bilingual verification details',
+            'attendees_count' => 4,
+            'department' => 'IT Department',
+            'requester_position' => 'Engineer',
+            'status' => 'pending',
+        ]);
+
+        $response = $this->actingAs($this->regularUser)
+            ->get(route('meeting-room-bookings.show', $booking->id));
+
+        $response->assertStatus(200);
+        $response->assertSee('EN');
+        $response->assertSee('ID');
+        $response->assertSee('id="meetingShowLanguageEnglish"', false);
+        $response->assertSee('id="meetingShowLanguageIndonesian"', false);
+        $response->assertSee('data-i18n="meeting.show.section.booking"', false);
+        $response->assertSee('data-i18n="meeting.show.action.back"', false);
+        $response->assertSee("'meeting.show.runtime.confirm.cancel'", false);
+        $response->assertSee("'meeting.show.runtime.processing'", false);
+        $response->assertSee('window.meetingShowLabel = getLabel;', false);
+    }
+
+    /**
+     * Test 1.1: Regular user can create a normal booking
+     *
+     * @test
+     */
     public function regular_user_can_create_normal_booking()
     {
         $this->actingAs($this->regularUser);
