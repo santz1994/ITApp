@@ -184,10 +184,10 @@ CREATE TABLE `users` (
 -- ============================================================
 CREATE TABLE `roles` (
     `id`            INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `name`          VARCHAR(125) NOT NULL,
-    `guard_name`    VARCHAR(125) NOT NULL DEFAULT 'web',
+    `name`          VARCHAR(125) NOT NULL,              -- VARCHAR(125) matches Spatie Permission's default schema
+    `guard_name`    VARCHAR(125) NOT NULL DEFAULT 'web',  -- VARCHAR(125) matches Spatie Permission's default schema
     `access_level`  TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '1=Guest,2=User,3=Staff,4=Admin,5=Super Admin',
-    `description`   VARCHAR(255) NULL,
+    `description`   VARCHAR(255) NULL,                    -- Free-text, 255 is appropriate here
     `created_at`    TIMESTAMP NULL,
     `updated_at`    TIMESTAMP NULL,
     PRIMARY KEY (`id`),
@@ -540,7 +540,7 @@ CREATE TABLE `purchase_orders` (
 CREATE TABLE `assets` (
     `id`                       INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `asset_tag`                VARCHAR(20) NOT NULL UNIQUE,
-    `qr_code`                  VARCHAR(100) NULL UNIQUE COMMENT 'Auto-generated: AST-XXXX',
+    `qr_code`                  VARCHAR(100) NULL UNIQUE COMMENT 'Auto-generated UUID: AST-<uniqid> (distinct from asset_tag which is a short sequential label)',
     `rfid_tag`                 VARCHAR(100) NULL UNIQUE,
     `serial_number`            VARCHAR(50) NULL,
     `name`                     VARCHAR(255) NULL COMMENT 'Denormalized from model for quick display',
@@ -560,11 +560,14 @@ CREATE TABLE `assets` (
     `ip_address`               VARCHAR(45) NULL,
     `mac_address`              VARCHAR(17) NULL,
     `status_id`                INT UNSIGNED NOT NULL DEFAULT 1,
-    `assigned_to`              INT UNSIGNED NULL COMMENT 'Canonical FK to users',
-    `assigned_user_id`         INT UNSIGNED NULL COMMENT 'Denormalized alias, kept in sync',
+    `assigned_to`              INT UNSIGNED NULL COMMENT 'Canonical FK — use this for queries and FK constraints',
+    `assigned_user_id`         INT UNSIGNED NULL COMMENT 'Legacy alias mirrored from assigned_to by AssetObserver; kept for backward compat only',
     `notes`                    TEXT NULL,
     `image`                    VARCHAR(255) NULL,
     -- Lifecycle JSON audit fields
+    -- NOTE: These JSON columns are legacy denormalized caches carried over from the original schema.
+    -- For new code, prefer the relational tables: ticket_assets, asset_maintenance_logs, movements.
+    -- These columns are maintained for backward compatibility and fast read access in list views.
     `ticket_history`           JSON NULL,
     `maintenance_history`      JSON NULL,
     `disposal_history`         JSON NULL,
@@ -946,7 +949,7 @@ return new class extends Migration
                 $table->string('color', 20)->nullable();
                 $table->timestamps();
             });
-            \DB::table('tickets_statuses')->insert([
+            DB::table('tickets_statuses')->insert([
                 ['status' => 'Open',        'color' => 'danger',   'created_at' => now(), 'updated_at' => now()],
                 ['status' => 'In Progress', 'color' => 'warning',  'created_at' => now(), 'updated_at' => now()],
                 ['status' => 'Pending',     'color' => 'info',     'created_at' => now(), 'updated_at' => now()],
@@ -962,7 +965,7 @@ return new class extends Migration
                 $table->string('type', 50);
                 $table->timestamps();
             });
-            \DB::table('tickets_types')->insert([
+            DB::table('tickets_types')->insert([
                 ['type' => 'Hardware', 'created_at' => now(), 'updated_at' => now()],
                 ['type' => 'Software', 'created_at' => now(), 'updated_at' => now()],
                 ['type' => 'Network',  'created_at' => now(), 'updated_at' => now()],
@@ -979,7 +982,7 @@ return new class extends Migration
                 $table->integer('sla_hours')->default(72);
                 $table->timestamps();
             });
-            \DB::table('tickets_priorities')->insert([
+            DB::table('tickets_priorities')->insert([
                 ['name' => 'Urgent', 'color' => 'danger',  'sla_hours' => 4,   'created_at' => now(), 'updated_at' => now()],
                 ['name' => 'High',   'color' => 'warning', 'sla_hours' => 24,  'created_at' => now(), 'updated_at' => now()],
                 ['name' => 'Medium', 'color' => 'info',    'sla_hours' => 72,  'created_at' => now(), 'updated_at' => now()],
@@ -1285,7 +1288,10 @@ class User extends Authenticatable
         return $query->where('is_active', true);
     }
 
-    /** Filter berdasarkan role name */
+    /** Filter berdasarkan role name.
+     * NOTE: For large datasets add an index on model_has_roles(model_id, model_type)
+     * or consider a join-based alternative for reporting queries.
+     */
     public function scopeByRole($query, string $roleName)
     {
         return $query->whereHas('roles', fn($q) => $q->where('name', $roleName));
@@ -1487,14 +1493,17 @@ class Asset extends Model
 
     // ===== SCOPES =====
 
+    // NOTE: Status IDs match the seed data in statuses table (1=In Use, 2=Available).
+    // For robustness in production, prefer a named constant or a lookup:
+    //   $availableId = Status::where('name', 'Available')->value('id');
     public function scopeAvailable($query)
     {
-        return $query->where('status_id', 2); // 2 = Available
+        return $query->where('status_id', 2); // 2 = Available (seed data default)
     }
 
     public function scopeInUse($query)
     {
-        return $query->where('status_id', 1); // 1 = In Use
+        return $query->where('status_id', 1); // 1 = In Use (seed data default)
     }
 
     public function scopeWarrantyExpiringSoon($query, int $days = 30)
@@ -2101,7 +2110,7 @@ Ticket::with(['user:id,name'])->chunk(200, function ($tickets) use (&$rows) {
 $statuses = Cache::remember('ticket_statuses', 3600, fn() => TicketsStatus::all());
 
 // ❌ HINDARI: SELECT * tanpa LIMIT pada tabel besar
-$all = Ticket::all(); // Loads ALL records into memory!
+$all = Ticket::all(); // loads ALL records into memory!
 
 // ❌ HINDARI: Lazy loading dalam loop
 foreach (Ticket::all() as $t) {
