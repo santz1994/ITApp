@@ -174,6 +174,50 @@ class TicketManagementTest extends TestCase
     }
 
     /** @test */
+    public function ticket_create_edit_and_show_pages_include_language_switch_behavior_hooks()
+    {
+        $createResponse = $this->actingAs($this->user)
+            ->get(route('tickets.create'));
+
+        $createResponse->assertStatus(200);
+        $createResponse->assertSee("englishButton.addEventListener('click'", false);
+        $createResponse->assertSee("indonesianButton.addEventListener('click'", false);
+        $createResponse->assertSee('window.ticketCreateLabel = getLabel;', false);
+        $createResponse->assertSee('window.ticketCreateLabelFormat = formatLabel;', false);
+        $createResponse->assertSee('applyLanguage(getLanguage());', false);
+
+        $ticket = Ticket::create([
+            'subject' => 'Behavior hooks edit/show test ' . time(),
+            'description' => 'Ticket description for behavior hook assertions.',
+            'ticket_priority_id' => $this->priority->id,
+            'ticket_type_id' => $this->ticketType->id,
+            'ticket_status_id' => $this->openStatus->id,
+            'location_id' => $this->location->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        $editResponse = $this->actingAs($this->user)
+            ->get(route('tickets.edit', $ticket->id));
+
+        $editResponse->assertStatus(200);
+        $editResponse->assertSee("englishButton.addEventListener('click'", false);
+        $editResponse->assertSee("indonesianButton.addEventListener('click'", false);
+        $editResponse->assertSee('window.ticketEditLabel = getLabel;', false);
+        $editResponse->assertSee('window.ticketEditLabelFormat = formatLabel;', false);
+        $editResponse->assertSee('applyLanguage(getLanguage());', false);
+
+        $showResponse = $this->actingAs($this->user)
+            ->get(route('tickets.show', $ticket->id));
+
+        $showResponse->assertStatus(200);
+        $showResponse->assertSee("englishButton.addEventListener('click'", false);
+        $showResponse->assertSee("indonesianButton.addEventListener('click'", false);
+        $showResponse->assertSee('window.ticketShowLabel = getLabel;', false);
+        $showResponse->assertSee('window.ticketShowConfirm = ticketShowConfirm;', false);
+        $showResponse->assertSee('applyLanguage(getLanguage());', false);
+    }
+
+    /** @test */
     public function user_can_create_ticket_with_description()
     {
         $ticketData = [

@@ -87,6 +87,7 @@ class User extends Authenticatable
       'email_verified_at' => 'datetime',
       'last_login_at' => 'datetime',
       'is_active' => 'boolean',
+      'portal_preferences' => 'array',
   ];
 
   public function movement()

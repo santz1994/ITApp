@@ -184,6 +184,52 @@ class MeetingRoomBookingTest extends TestCase
         $response->assertSee('window.meetingShowLabel = getLabel;', false);
     }
 
+    /** @test */
+    public function meeting_booking_create_edit_and_show_pages_include_language_switch_behavior_hooks()
+    {
+        $createResponse = $this->actingAs($this->regularUser)
+            ->get(route('meeting-room-bookings.create'));
+
+        $createResponse->assertStatus(200);
+        $createResponse->assertSee("englishButton.addEventListener('click'", false);
+        $createResponse->assertSee("indonesianButton.addEventListener('click'", false);
+        $createResponse->assertSee('window.meetingCreateLabel = getLabel;', false);
+        $createResponse->assertSee('window.meetingCreateLabelFormat = formatLabel;', false);
+        $createResponse->assertSee('applyLanguage(getLanguage());', false);
+
+        $booking = MeetingRoomBooking::create([
+            'user_id' => $this->regularUser->id,
+            'room_name' => 'Meeting Room Behavior Hooks',
+            'start_datetime' => Carbon::now()->addHours(6),
+            'end_datetime' => Carbon::now()->addHours(7),
+            'purpose' => 'Behavior hooks bilingual verification',
+            'meeting_description' => 'Behavior hooks bilingual verification details',
+            'attendees_count' => 5,
+            'department' => 'IT Department',
+            'requester_position' => 'Engineer',
+            'status' => 'pending',
+        ]);
+
+        $editResponse = $this->actingAs($this->regularUser)
+            ->get(route('meeting-room-bookings.edit', $booking->id));
+
+        $editResponse->assertStatus(200);
+        $editResponse->assertSee("englishButton.addEventListener('click'", false);
+        $editResponse->assertSee("indonesianButton.addEventListener('click'", false);
+        $editResponse->assertSee('window.meetingEditLabel = getLabel;', false);
+        $editResponse->assertSee('applyLanguage(getLanguage());', false);
+
+        $showResponse = $this->actingAs($this->regularUser)
+            ->get(route('meeting-room-bookings.show', $booking->id));
+
+        $showResponse->assertStatus(200);
+        $showResponse->assertSee("englishButton.addEventListener('click'", false);
+        $showResponse->assertSee("indonesianButton.addEventListener('click'", false);
+        $showResponse->assertSee('window.meetingShowLabel = getLabel;', false);
+        $showResponse->assertSee('window.meetingShowConfirm = function(key, fallback)', false);
+        $showResponse->assertSee('applyLanguage(getLanguage());', false);
+    }
+
     /**
      * Test 1.1: Regular user can create a normal booking
      *

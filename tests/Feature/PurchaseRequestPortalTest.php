@@ -176,6 +176,45 @@ class PurchaseRequestPortalTest extends TestCase
         $response->assertSee('window.assetRequestShowLabel = getLabel;', false);
     }
 
+    public function test_asset_request_create_edit_and_show_pages_include_language_switch_behavior_hooks(): void
+    {
+        $assetType = AssetType::factory()->create();
+        $user = User::factory()->create();
+        $this->assignRoleSafely($user, 'user');
+
+        $createResponse = $this->actingAs($user)->get(route('asset-requests.create'));
+
+        $createResponse->assertStatus(200);
+        $createResponse->assertSee("englishButton.addEventListener('click'", false);
+        $createResponse->assertSee("indonesianButton.addEventListener('click'", false);
+        $createResponse->assertSee('window.assetRequestCreateLabel = getLabel;', false);
+        $createResponse->assertSee('applyLanguage(getLanguage());', false);
+
+        $assetRequest = AssetRequest::factory()->create([
+            'requested_by' => $user->id,
+            'asset_type_id' => $assetType->id,
+            'status' => 'pending',
+            'request_number' => 'AR-BEH-' . time(),
+        ]);
+
+        $editResponse = $this->actingAs($user)->get(route('asset-requests.edit', $assetRequest->id));
+
+        $editResponse->assertStatus(200);
+        $editResponse->assertSee("englishButton.addEventListener('click'", false);
+        $editResponse->assertSee("indonesianButton.addEventListener('click'", false);
+        $editResponse->assertSee('window.assetRequestEditLabel = getLabel;', false);
+        $editResponse->assertSee('applyLanguage(getLanguage());', false);
+
+        $showResponse = $this->actingAs($user)->get(route('asset-requests.show', $assetRequest->id));
+
+        $showResponse->assertStatus(200);
+        $showResponse->assertSee("englishButton.addEventListener('click'", false);
+        $showResponse->assertSee("indonesianButton.addEventListener('click'", false);
+        $showResponse->assertSee('window.assetRequestShowLabel = getLabel;', false);
+        $showResponse->assertSee('window.assetRequestShowConfirm = assetRequestShowConfirm;', false);
+        $showResponse->assertSee('applyLanguage(getLanguage());', false);
+    }
+
     private function assignRoleSafely(User $user, string $roleName): void
     {
         try {

@@ -10,10 +10,17 @@ use Illuminate\Support\Str;
 class MainPortalService
 {
     protected MainPortalRepository $portalRepository;
+    protected UserRoleBadgeService $roleBadgeService;
+    protected PortalPreferenceService $preferenceService;
 
-    public function __construct(MainPortalRepository $portalRepository)
-    {
+    public function __construct(
+        MainPortalRepository $portalRepository, 
+        UserRoleBadgeService $roleBadgeService,
+        PortalPreferenceService $preferenceService
+    ) {
         $this->portalRepository = $portalRepository;
+        $this->roleBadgeService = $roleBadgeService;
+        $this->preferenceService = $preferenceService;
     }
 
     /**
@@ -25,6 +32,8 @@ class MainPortalService
         $isStandardUser = $this->isStandardUser($user);
         $modules = $this->resolveModules($user, $metrics);
         $quickLinks = $this->buildQuickLinks($user);
+        $primaryRoleBadge = $this->roleBadgeService->resolvePrimaryBadge($user);
+        $roleSetBadges = $this->roleBadgeService->resolveRoleSetBadges($user);
 
         return [
             'metrics' => $metrics,
@@ -39,8 +48,10 @@ class MainPortalService
             'recentAssetRequests' => $this->portalRepository->getRecentAssetRequestsForUser($user),
             'workspaceContext' => $this->portalRepository->getUserWorkspaceContext($user),
             'roleHighlights' => $this->buildRoleHighlights($user, $metrics),
+            'primaryRoleBadge' => $primaryRoleBadge,
+            'roleSetBadges' => $roleSetBadges,
             'userRoleNames' => user_get_role_names($user)->values()->all(),
-            'primaryRoleLabel' => $this->formatPrimaryRole($user),
+            'primaryRoleLabel' => $primaryRoleBadge['label_en'] ?? $this->formatPrimaryRole($user),
             'jakartaNow' => now('Asia/Jakarta'),
             'subtitle' => $this->buildSubtitle($user),
             'assetMetricLabel' => $isStandardUser ? 'My Assets' : 'Total Assets',

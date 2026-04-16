@@ -118,6 +118,11 @@
     - `AssetManagementTest::asset_show_page_shows_bilingual_toggle_and_runtime_markers`
     - `AssetManagementTest::asset_create_and_edit_pages_include_language_switch_behavior_hooks`
     - Focused execution confirmed green: `4 tests, 39 assertions`.
+- Added focused bilingual behavior-hook coverage for core create/edit/show interaction pages (Ticket + Meeting + Purchase Request):
+    - `TicketManagementTest::ticket_create_edit_and_show_pages_include_language_switch_behavior_hooks`
+    - `MeetingRoomBookingTest::meeting_booking_create_edit_and_show_pages_include_language_switch_behavior_hooks`
+    - `PurchaseRequestPortalTest::test_asset_request_create_edit_and_show_pages_include_language_switch_behavior_hooks`
+    - Focused execution confirmed green: `3 tests, 51 assertions`.
 - Main Portal now includes Approval Center widget (tickets/meeting/purchase):
     - Ticket Action Queue (unassigned open tickets)
     - Meeting Approval Queue (pending meeting approvals)
@@ -127,6 +132,14 @@
     - Director/management users now receive division-scoped queue counts for supervised users.
     - Admin/super-admin/developer users retain global approval-center visibility.
     - Ticket queue links now resolve to role-safe routes to prevent restricted dead-end navigation.
+- Main Portal now includes service-driven LV role badges with cyber-industrial visual states:
+    - Added dedicated service `UserRoleBadgeService` to map role names into LV hierarchy metadata (level, icon, EN/ID labels, effect, color tokens).
+    - `MainPortalService` now injects role-badge metadata (`primaryRoleBadge`, `roleSetBadges`) while preserving Controller + Service + Repository separation.
+    - `portal/index` header now renders primary role badge + role set badges using LV color/effect styles (LV0 gray, LV1 steel slate, LV2 neon cyan pulse, LV3 emerald glow, LV8 cyber gold, LV9 crimson warning glow, LV10 violet/green glitch).
+    - Bilingual runtime switch now updates role badge labels dynamically for EN/ID using existing per-user portal preference storage.
+    - Focused portal regression execution confirmed green:
+        - `MainPortalTest` (`3 tests, 20 assertions`)
+        - `MainPortalApprovalCenterScopeTest` (`2 tests, 10 assertions`)
 - Reduced repetitive feature-test bootstrap noise:
     - Suppressed migration echo output during unit tests for index/DDL helper migrations.
     - Suppressed non-critical migration info logs during unit tests.
@@ -139,11 +152,23 @@
     - Removed `resources/views/Meeting/lcd-dashboard.blade.php.old`
     - Removed temporary cache files `bootstrap/cache/pacDE90.tmp` and `bootstrap/cache/pacDE91.tmp`
     - Removed stale environment backup artifact `.env.old`
+- Portal Personalization now persists server-side for cross-device consistency:
+    - Added `portal_preferences` JSON column to `users` table via migration
+    - Created `PortalPreferenceService` for preference management with validation
+    - Updated `MainPortalService` to integrate with portal preferences
+    - Added API endpoints (`PortalPreferenceController`) for CRUD operations
+    - Updated portal JavaScript to use API instead of localStorage
+    - Preferences include language, module order, hidden modules, and quick links
+    - Maintains backward compatibility with local storage fallback
+- Resolved runtime boot failure for local environment (`MissingAppKeyException`):
+    - Root cause identified: `APP_KEY` was empty in `.env`
+    - Generated fresh application key via `php artisan key:generate --force`
+    - Cleared framework caches via `php artisan config:clear` and `php artisan cache:clear`
+    - Verified Laravel bootstrap health via `php artisan --version` (Laravel 10.49.1)
 
 ### In Progress / Next Batch
-- Decide whether portal personalization should also persist server-side (cross-device consistency) after approval.
 - Expand bilingual coverage to remaining module pages outside current ticket/meeting/purchase core flows.
-- Add focused bilingual behavioral tests (language switch + runtime text transitions), not only HTML marker/runtime key assertions.
+- Expand focused bilingual behavioral tests (language switch + runtime text transitions) to remaining non-core modules beyond ticket/meeting/purchase/assets surfaces.
 
 ## Progress Update (2026-04-15)
 

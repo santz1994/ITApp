@@ -7,6 +7,9 @@ vendor/
 .env.backup
 .env.production
 .env.old
+.clinerules
+.cline
+.agents
 
 # Operating System
 .DS_Store

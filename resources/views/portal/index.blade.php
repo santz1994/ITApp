@@ -121,6 +121,121 @@
         color: #fff;
     }
 
+    .portal-role-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .portal-role-set {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-left: 6px;
+        vertical-align: middle;
+    }
+
+    .cyber-role-badge {
+        --badge-color: #64748B;
+        --badge-accent: #A9B3C1;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
+        border: 1px solid var(--badge-color);
+        padding: 4px 10px;
+        background: linear-gradient(135deg, rgba(8, 12, 18, 0.96), rgba(22, 30, 43, 0.96));
+        color: #f4f7ff;
+        font-size: 11px;
+        letter-spacing: .2px;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+
+    .cyber-role-badge .badge-level {
+        color: var(--badge-accent);
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .cyber-role-badge .badge-name {
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .cyber-role-badge.portal-role-badge-mini {
+        padding: 3px 8px;
+        font-size: 10px;
+    }
+
+    .role-badge-lv0 {
+        --badge-color: #9CA3AF;
+        --badge-accent: #D5DCE4;
+    }
+
+    .role-badge-lv1 {
+        --badge-color: #64748B;
+        --badge-accent: #A9B3C1;
+    }
+
+    .role-badge-lv2 {
+        --badge-color: #06B6D4;
+        --badge-accent: #7FE3F1;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 0 14px rgba(6, 182, 212, 0.35);
+        animation: rolePulseCyan 2.4s ease-in-out infinite;
+    }
+
+    .role-badge-lv3 {
+        --badge-color: #10B981;
+        --badge-accent: #7FE0BE;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 0 0 1px rgba(16, 185, 129, 0.28), 0 0 16px rgba(16, 185, 129, 0.28);
+    }
+
+    .role-badge-lv8 {
+        --badge-color: #F59E0B;
+        --badge-accent: #FAD37B;
+        background: linear-gradient(135deg, rgba(46, 34, 11, 0.95), rgba(120, 78, 12, 0.92));
+        box-shadow: inset 0 0 0 1px rgba(255, 233, 188, 0.2), 0 0 14px rgba(245, 158, 11, 0.25);
+    }
+
+    .role-badge-lv9 {
+        --badge-color: #EF4444;
+        --badge-accent: #F9A0A0;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 0 16px rgba(239, 68, 68, 0.42);
+    }
+
+    .role-badge-lv10 {
+        --badge-color: #7C3AED;
+        --badge-accent: #22C55E;
+        background: linear-gradient(135deg, rgba(30, 13, 56, 0.95), rgba(12, 45, 26, 0.94));
+        box-shadow: inset 0 0 0 1px rgba(194, 160, 255, 0.2), 0 0 16px rgba(124, 58, 237, 0.32), 0 0 20px rgba(34, 197, 94, 0.2);
+        animation: roleGlitch 3s steps(2, end) infinite;
+    }
+
+    @keyframes rolePulseCyan {
+        0%, 100% {
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 0 10px rgba(6, 182, 212, 0.28);
+        }
+        50% {
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 0 18px rgba(6, 182, 212, 0.44);
+        }
+    }
+
+    @keyframes roleGlitch {
+        0%, 92%, 100% {
+            transform: translateX(0);
+        }
+        93% {
+            transform: translateX(-1px);
+        }
+        95% {
+            transform: translateX(1px);
+        }
+        97% {
+            transform: translateX(-1px);
+        }
+    }
+
     .portal-quick-links {
         display: flex;
         flex-wrap: wrap;
@@ -249,6 +364,15 @@
             grid-template-columns: repeat(1, minmax(0, 1fr));
         }
 
+        .portal-role-meta {
+            gap: 6px;
+        }
+
+        .portal-role-set {
+            margin-left: 0;
+            margin-top: 6px;
+        }
+
         .approval-center-grid {
             grid-template-columns: repeat(1, minmax(0, 1fr));
         }
@@ -271,15 +395,59 @@
 <div class="portal-welcome-card">
     <div class="row">
         <div class="col-md-8 col-sm-12">
+            @php
+                $resolvedPrimaryRoleBadge = $primaryRoleBadge ?? [
+                    'key' => 'user',
+                    'level' => 1,
+                    'label_en' => $primaryRoleLabel ?? 'User / The Operator',
+                    'label_id' => $primaryRoleLabel ?? 'Pengguna / The Operator',
+                    'icon' => 'fa-cog',
+                    'effect' => 'static',
+                    'css_variant' => 'role-badge-lv1',
+                ];
+
+                $resolvedRoleSetBadges = !empty($roleSetBadges ?? []) ? $roleSetBadges : [$resolvedPrimaryRoleBadge];
+            @endphp
             <h3 style="margin-top: 0; margin-bottom: 8px;"><span data-i18n="portal.welcome">Welcome</span>, {{ auth()->user()->name }}</h3>
-            <div class="meta">
-                <i class="fa fa-id-badge"></i> <span data-i18n="portal.role">Role</span>: {{ $primaryRoleLabel ?? 'User' }}
+            <div class="meta portal-role-meta">
+                <i class="fa fa-id-badge"></i>
+                <span data-i18n="portal.role">Role</span>:
+                <span
+                    class="cyber-role-badge {{ $resolvedPrimaryRoleBadge['css_variant'] ?? 'role-badge-lv1' }}"
+                    data-role-badge
+                    data-role-badge-key="{{ $resolvedPrimaryRoleBadge['key'] ?? 'user' }}"
+                    data-role-badge-level="{{ $resolvedPrimaryRoleBadge['level'] ?? 1 }}"
+                    data-role-badge-effect="{{ $resolvedPrimaryRoleBadge['effect'] ?? 'static' }}"
+                    data-role-badge-label-en="{{ $resolvedPrimaryRoleBadge['label_en'] ?? ($primaryRoleLabel ?? 'User') }}"
+                    data-role-badge-label-id="{{ $resolvedPrimaryRoleBadge['label_id'] ?? ($primaryRoleLabel ?? 'User') }}"
+                >
+                    <span class="badge-level">LV {{ $resolvedPrimaryRoleBadge['level'] ?? 1 }}</span>
+                    <i class="fa {{ $resolvedPrimaryRoleBadge['icon'] ?? 'fa-user-circle' }}"></i>
+                    <span class="badge-name" data-role-badge-text>{{ $resolvedPrimaryRoleBadge['label_en'] ?? ($primaryRoleLabel ?? 'User') }}</span>
+                </span>
                 &nbsp;|&nbsp;
                 <i class="fa fa-envelope"></i> {{ auth()->user()->email }}
             </div>
-            @if(!empty($userRoleNames))
+            @if(!empty($resolvedRoleSetBadges))
                 <div class="meta" style="margin-top: 6px;">
-                    <i class="fa fa-users"></i> <span data-i18n="portal.role_set">Role Set</span>: {{ implode(', ', $userRoleNames) }}
+                    <i class="fa fa-users"></i> <span data-i18n="portal.role_set">Role Set</span>:
+                    <span class="portal-role-set">
+                        @foreach($resolvedRoleSetBadges as $roleBadge)
+                            <span
+                                class="cyber-role-badge portal-role-badge-mini {{ $roleBadge['css_variant'] ?? 'role-badge-lv1' }}"
+                                data-role-set-badge
+                                data-role-set-badge-key="{{ $roleBadge['key'] ?? 'user' }}"
+                                data-role-badge-level="{{ $roleBadge['level'] ?? 1 }}"
+                                data-role-badge-effect="{{ $roleBadge['effect'] ?? 'static' }}"
+                                data-role-badge-label-en="{{ $roleBadge['label_en'] ?? 'User' }}"
+                                data-role-badge-label-id="{{ $roleBadge['label_id'] ?? 'Pengguna' }}"
+                            >
+                                <span class="badge-level">LV {{ $roleBadge['level'] ?? 1 }}</span>
+                                <i class="fa {{ $roleBadge['icon'] ?? 'fa-user-circle' }}"></i>
+                                <span class="badge-name" data-role-badge-text>{{ $roleBadge['label_en'] ?? 'User' }}</span>
+                            </span>
+                        @endforeach
+                    </span>
                 </div>
             @endif
             <div class="meta" style="margin-top: 6px;">
@@ -908,8 +1076,7 @@
         return;
     }
 
-    var userId = '{{ (int) auth()->id() }}';
-    var storageKey = 'itapp.portal.preferences.v1.user.' + userId;
+    var apiBaseUrl = '{{ route("api.portal-preferences.index") }}'.replace(/\/$/, '');
 
     function moduleKeysInDom() {
         return Array.prototype.map.call(moduleGrid.querySelectorAll('[data-portal-module-key]'), function (node) {
@@ -945,43 +1112,117 @@
     }
 
     function loadPreferences() {
-        var defaults = defaultPreferences();
-
-        try {
-            var raw = window.localStorage.getItem(storageKey);
-            if (!raw) {
-                return defaults;
+        return fetch(apiBaseUrl, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            credentials: 'same-origin'
+        })
+        .then(function (response) {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
             }
+            return response.json();
+        })
+        .then(function (data) {
+            if (data.success && data.data) {
+                var defaults = defaultPreferences();
+                var serverPrefs = data.data;
+                
+                // Validate and merge server preferences with defaults
+                var moduleOrder = uniqueList((serverPrefs.moduleOrder || []).concat(defaults.moduleOrder));
+                var hiddenModules = uniqueList(serverPrefs.hiddenModules || []).filter(function (key) {
+                    return moduleOrder.indexOf(key) !== -1;
+                });
+                var validQuickLinkKeys = quickLinkOptions.map(function (option) {
+                    return option.key;
+                });
+                var quickLinkKeys = uniqueList(serverPrefs.quickLinkKeys || []).filter(function (key) {
+                    return validQuickLinkKeys.indexOf(key) !== -1;
+                });
 
-            var parsed = JSON.parse(raw);
-            var moduleOrder = uniqueList((parsed.moduleOrder || []).concat(defaults.moduleOrder));
-            var hiddenModules = uniqueList(parsed.hiddenModules || []).filter(function (key) {
-                return moduleOrder.indexOf(key) !== -1;
-            });
-            var validQuickLinkKeys = quickLinkOptions.map(function (option) {
-                return option.key;
-            });
-            var quickLinkKeys = uniqueList(parsed.quickLinkKeys || []).filter(function (key) {
-                return validQuickLinkKeys.indexOf(key) !== -1;
-            });
+                if (quickLinkKeys.length === 0) {
+                    quickLinkKeys = defaults.quickLinkKeys;
+                }
 
-            if (quickLinkKeys.length === 0) {
-                quickLinkKeys = defaults.quickLinkKeys;
+                return {
+                    language: serverPrefs.language === 'id' ? 'id' : 'en',
+                    moduleOrder: moduleOrder,
+                    hiddenModules: hiddenModules,
+                    quickLinkKeys: quickLinkKeys
+                };
             }
-
-            return {
-                language: parsed.language === 'id' ? 'id' : 'en',
-                moduleOrder: moduleOrder,
-                hiddenModules: hiddenModules,
-                quickLinkKeys: quickLinkKeys
-            };
-        } catch (error) {
-            return defaults;
-        }
+            return defaultPreferences();
+        })
+        .catch(function (error) {
+            console.error('Error loading preferences:', error);
+            return defaultPreferences();
+        });
     }
 
     function savePreferences(preferences) {
-        window.localStorage.setItem(storageKey, JSON.stringify(preferences));
+        return fetch(apiBaseUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify(preferences)
+        })
+        .then(function (response) {
+            if (!response.ok) {
+                throw new Error('Failed to save preferences');
+            }
+            return response.json();
+        })
+        .then(function (data) {
+            if (data.success) {
+                return data.data;
+            }
+            throw new Error(data.message || 'Failed to save preferences');
+        });
+    }
+
+    function updateLanguagePreference(language) {
+        return fetch(apiBaseUrl + '/language', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ value: language })
+        })
+        .then(function (response) {
+            if (!response.ok) {
+                throw new Error('Failed to update language preference');
+            }
+            return response.json();
+        });
+    }
+
+    function resetPreferences() {
+        return fetch(apiBaseUrl, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            credentials: 'same-origin'
+        })
+        .then(function (response) {
+            if (!response.ok) {
+                throw new Error('Failed to reset preferences');
+            }
+            return response.json();
+        });
     }
 
     function applyModuleOrder(preferences) {
@@ -1056,6 +1297,16 @@
             var key = node.getAttribute('data-i18n');
             if (dictionary[key]) {
                 node.textContent = dictionary[key];
+            }
+        });
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-role-badge-label-en]'), function (node) {
+            var labelEn = node.getAttribute('data-role-badge-label-en') || '';
+            var labelId = node.getAttribute('data-role-badge-label-id') || labelEn;
+            var labelTarget = node.querySelector('[data-role-badge-text]');
+
+            if (labelTarget) {
+                labelTarget.textContent = preferences.language === 'id' ? labelId : labelEn;
             }
         });
 
@@ -1167,9 +1418,19 @@
         renderQuickLinks(preferences);
     }
 
-    var preferences = loadPreferences();
-    applyAll(preferences);
-    syncPreferenceModal(preferences);
+    // Load preferences and initialize the UI
+    var currentPreferences = null;
+
+    loadPreferences().then(function(preferences) {
+        currentPreferences = preferences;
+        applyAll(currentPreferences);
+        syncPreferenceModal(currentPreferences);
+    }).catch(function(error) {
+        console.error('Failed to load preferences:', error);
+        currentPreferences = defaultPreferences();
+        applyAll(currentPreferences);
+        syncPreferenceModal(currentPreferences);
+    });
 
     if (modulePreferenceList) {
         modulePreferenceList.addEventListener('click', function (event) {
@@ -1204,7 +1465,9 @@
         }
 
         button.addEventListener('click', function () {
-            syncPreferenceModal(preferences);
+            if (currentPreferences) {
+                syncPreferenceModal(currentPreferences);
+            }
             if (window.jQuery) {
                 window.jQuery('#portalPersonalizationModal').modal('show');
             }
@@ -1213,30 +1476,71 @@
 
     Array.prototype.forEach.call(languageButtons, function (button) {
         button.addEventListener('click', function () {
-            preferences.language = button.getAttribute('data-lang') === 'id' ? 'id' : 'en';
-            savePreferences(preferences);
-            applyAll(preferences);
+            if (!currentPreferences) return;
+            
+            var newLanguage = button.getAttribute('data-lang') === 'id' ? 'id' : 'en';
+            currentPreferences.language = newLanguage;
+            
+            // Update language preference on server
+            updateLanguagePreference(newLanguage).then(function() {
+                // Also save full preferences to keep consistency
+                return savePreferences(currentPreferences);
+            }).then(function(savedPreferences) {
+                if (savedPreferences) {
+                    currentPreferences = savedPreferences;
+                }
+                applyAll(currentPreferences);
+            }).catch(function(error) {
+                console.error('Failed to update language preference:', error);
+                // Still apply UI changes even if server save fails
+                applyAll(currentPreferences);
+            });
         });
     });
 
     if (saveButton) {
         saveButton.addEventListener('click', function () {
-            preferences = collectPreferencesFromModal(preferences);
-            savePreferences(preferences);
-            applyAll(preferences);
-
-            if (window.jQuery) {
-                window.jQuery('#portalPersonalizationModal').modal('hide');
-            }
+            if (!currentPreferences) return;
+            
+            var newPreferences = collectPreferencesFromModal(currentPreferences);
+            currentPreferences = newPreferences;
+            
+            savePreferences(currentPreferences).then(function(savedPreferences) {
+                if (savedPreferences) {
+                    currentPreferences = savedPreferences;
+                }
+                applyAll(currentPreferences);
+                
+                if (window.jQuery) {
+                    window.jQuery('#portalPersonalizationModal').modal('hide');
+                }
+            }).catch(function(error) {
+                console.error('Failed to save preferences:', error);
+                alert('Failed to save preferences. Please try again.');
+            });
         });
     }
 
     if (resetButton) {
         resetButton.addEventListener('click', function () {
-            preferences = defaultPreferences();
-            savePreferences(preferences);
-            applyAll(preferences);
-            syncPreferenceModal(preferences);
+            if (!confirm('Are you sure you want to reset all portal preferences to defaults?')) {
+                return;
+            }
+            
+            resetPreferences().then(function(resetData) {
+                if (resetData && resetData.success) {
+                    currentPreferences = resetData.data || defaultPreferences();
+                } else {
+                    currentPreferences = defaultPreferences();
+                }
+                applyAll(currentPreferences);
+                syncPreferenceModal(currentPreferences);
+            }).catch(function(error) {
+                console.error('Failed to reset preferences:', error);
+                currentPreferences = defaultPreferences();
+                applyAll(currentPreferences);
+                syncPreferenceModal(currentPreferences);
+            });
         });
     }
 })();
