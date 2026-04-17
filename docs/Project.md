@@ -1,5 +1,33 @@
 ## Tasks :
 
+## Progress Update (2026-04-17)
+
+### Newly Implemented in Code
+- Repaired database governance to follow Project.md as source of truth (LV hierarchy + modular forms + LCD readiness):
+    - Added migration `2026_04_17_111000_align_role_levels_and_add_meeting_overlap_index.php`.
+    - Role hierarchy alignment now enforces Project LV mapping in `roles.access_level`:
+        - `guest=0`, `user=1`, `receptionist=2`, `human resources=3`, `director/management=8`, `administrator/admin=9`, `developer/super-admin=10`.
+    - Updated MySQL column comment for `roles.access_level` to LV-based mapping (`0/1/2/3/8/9/10`) to remove legacy 1..5 interpretation.
+    - Added explicit LCD overlap index for real-time room-status polling:
+        - `idx_meeting_room_lcd_overlap` on `meeting_room_bookings` (`room_id`, `status`, `start_datetime`, `end_datetime`) with safe fallback to `room_name` when needed.
+- Implemented normalized Form Management database foundation for Phase 18 (Asset Handover/Lending/Return/Disposal):
+    - Added migration `2026_04_17_100000_create_normalized_asset_forms_tables.php`.
+    - Created `asset_forms` (header/workflow state), `asset_form_items` (line items), and `asset_form_approvals` (immutable action trail).
+    - Added relational constraints and workflow indexes to support create/approve/reject/complete flows and future printable form surfaces.
+- Stabilized migration compatibility for focused PHPUnit execution:
+    - Patched MySQL-specific alignment migrations to skip MySQL-only backfill SQL while running SQLite-based test migrations.
+    - This prevents non-functional test failures from legacy `UPDATE ... JOIN` and `NOW()` SQL paths in test runtime.
+- Added focused feature tests for new schema work:
+    - `FormManagementSchemaTest` validates table/column presence and parent-child FK cascade definition.
+    - `RoleAndMeetingSchemaAlignmentTest` validates LV10 role level persistence and LCD overlap index presence.
+    - Focused execution confirmed green:
+        - `FormManagementSchemaTest` (`2 tests, 8 assertions`)
+        - `RoleAndMeetingSchemaAlignmentTest` (`2 tests, 5 assertions`)
+- Repaired `docs/Database.md` to match Project.md requirements:
+    - Updated role access-level comment to LV hierarchy (0/1/2/3/8/9/10).
+    - Added normalized form-management table definitions (`asset_forms`, `asset_form_items`, `asset_form_approvals`).
+    - Added LCD overlap index guidance in performance-index section.
+
 ## Progress Update (2026-04-16)
 
 ### Newly Implemented in Code

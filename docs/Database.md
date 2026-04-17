@@ -28,7 +28,7 @@ The database consists of **20+ tables** grouped into functional modules:
 |---|--------|--------|
 | A | **Auth & Users** | `users`, `roles`, `permissions`, `model_has_roles`, `model_has_permissions`, `role_has_permissions` |
 | B | **Tickets** | `tickets`, `ticket_history`, `ticket_comments`, `ticket_assets`, `tickets_statuses`, `tickets_types`, `tickets_priorities`, `sla_policies` |
-| C | **Assets** | `assets`, `asset_models`, `asset_types`, `asset_categories`, `asset_maintenance_logs`, `asset_lifecycle_events`, `asset_requests`, `purchase_orders` |
+| C | **Assets** | `assets`, `asset_models`, `asset_types`, `asset_categories`, `asset_maintenance_logs`, `asset_lifecycle_events`, `asset_requests`, `purchase_orders`, `asset_forms`, `asset_form_items`, `asset_form_approvals` |
 | D | **Meeting Rooms** | `meeting_rooms`, `meeting_room_bookings`, `meeting_room_display_settings` |
 | E | **Reference / Master** | `locations`, `divisions`, `departments`, `suppliers`, `manufacturers`, `statuses`, `warranty_types`, `invoices`, `movements` |
 | F | **Audit / Compliance** | `audit_logs`, `activity_log`, `daily_activities` |
@@ -186,7 +186,7 @@ CREATE TABLE `roles` (
     `id`            INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `name`          VARCHAR(125) NOT NULL,              -- VARCHAR(125) matches Spatie Permission's default schema
     `guard_name`    VARCHAR(125) NOT NULL DEFAULT 'web',  -- VARCHAR(125) matches Spatie Permission's default schema
-    `access_level`  TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '1=Guest,2=User,3=Staff,4=Admin,5=Super Admin',
+    `access_level`  TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT 'LV hierarchy: 0=Guest,1=User,2=Receptionist,3=Human Resources,8=Director,9=Administrator,10=Developer',
     `description`   VARCHAR(255) NULL,                    -- Free-text, 255 is appropriate here
     `created_at`    TIMESTAMP NULL,
     `updated_at`    TIMESTAMP NULL,
@@ -652,6 +652,89 @@ CREATE TABLE `asset_requests` (
     CONSTRAINT `fk_ar_type`      FOREIGN KEY (`asset_type_id`)     REFERENCES `asset_types` (`id`) ON DELETE SET NULL,
     CONSTRAINT `fk_ar_approver`  FOREIGN KEY (`approved_by`)       REFERENCES `users` (`id`) ON DELETE SET NULL,
     CONSTRAINT `fk_ar_asset`     FOREIGN KEY (`fulfilled_asset_id`) REFERENCES `assets` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- asset_forms  (Normalized Form Management: handover/lending/return/disposal)
+-- ============================================================
+CREATE TABLE `asset_forms` (
+    `id`                   INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `form_number`          VARCHAR(40) NOT NULL UNIQUE,
+    `form_type`            ENUM('handover','lending','return','disposal') NOT NULL,
+    `status`               ENUM('draft','submitted','approved','rejected','completed','cancelled') NOT NULL DEFAULT 'draft',
+    `requested_by`         INT UNSIGNED NULL,
+    `requested_for_user_id` INT UNSIGNED NULL,
+    `approved_by`          INT UNSIGNED NULL,
+    `asset_id`             INT UNSIGNED NULL,
+    `division_id`          INT UNSIGNED NULL,
+    `location_id`          INT UNSIGNED NULL,
+    `requested_at`         TIMESTAMP NULL,
+    `approved_at`          TIMESTAMP NULL,
+    `completed_at`         TIMESTAMP NULL,
+    `purpose`              TEXT NULL,
+    `notes`                TEXT NULL,
+    `rejection_reason`     TEXT NULL,
+    `metadata`             JSON NULL,
+    `created_at`           TIMESTAMP NULL,
+    `updated_at`           TIMESTAMP NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_asset_forms_type` (`form_type`),
+    KEY `idx_asset_forms_status` (`status`),
+    KEY `idx_asset_forms_type_status_created` (`form_type`, `status`, `created_at`),
+    KEY `idx_asset_forms_requester_status` (`requested_by`, `status`),
+    KEY `idx_asset_forms_approver_status` (`approved_by`, `status`),
+    CONSTRAINT `af_requested_by_fk` FOREIGN KEY (`requested_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+    CONSTRAINT `af_requested_for_user_fk` FOREIGN KEY (`requested_for_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+    CONSTRAINT `af_approved_by_fk` FOREIGN KEY (`approved_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+    CONSTRAINT `af_asset_id_fk` FOREIGN KEY (`asset_id`) REFERENCES `assets` (`id`) ON DELETE SET NULL,
+    CONSTRAINT `af_division_id_fk` FOREIGN KEY (`division_id`) REFERENCES `divisions` (`id`) ON DELETE SET NULL,
+    CONSTRAINT `af_location_id_fk` FOREIGN KEY (`location_id`) REFERENCES `locations` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- asset_form_items  (Form line-items)
+-- ============================================================
+CREATE TABLE `asset_form_items` (
+    `id`               INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `asset_form_id`    INT UNSIGNED NOT NULL,
+    `asset_id`         INT UNSIGNED NULL,
+    `item_name`        VARCHAR(255) NULL,
+    `asset_tag`        VARCHAR(128) NULL,
+    `serial_number`    VARCHAR(100) NULL,
+    `quantity`         INT UNSIGNED NOT NULL DEFAULT 1,
+    `condition_before` VARCHAR(100) NULL,
+    `condition_after`  VARCHAR(100) NULL,
+    `notes`            TEXT NULL,
+    `metadata`         JSON NULL,
+    `created_at`       TIMESTAMP NULL,
+    `updated_at`       TIMESTAMP NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_asset_form_items_form_created` (`asset_form_id`, `created_at`),
+    KEY `idx_asset_form_items_asset_lookup` (`asset_id`, `asset_tag`),
+    CONSTRAINT `afi_asset_form_id_fk` FOREIGN KEY (`asset_form_id`) REFERENCES `asset_forms` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `afi_asset_id_fk` FOREIGN KEY (`asset_id`) REFERENCES `assets` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- asset_form_approvals  (Immutable workflow history)
+-- ============================================================
+CREATE TABLE `asset_form_approvals` (
+    `id`           INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `asset_form_id` INT UNSIGNED NOT NULL,
+    `actor_user_id` INT UNSIGNED NULL,
+    `action`       ENUM('submitted','approved','rejected','completed','cancelled','reopened') NOT NULL,
+    `old_status`   VARCHAR(50) NULL,
+    `new_status`   VARCHAR(50) NULL,
+    `action_notes` TEXT NULL,
+    `snapshot`     JSON NULL,
+    `acted_at`     TIMESTAMP NULL,
+    `created_at`   TIMESTAMP NULL,
+    `updated_at`   TIMESTAMP NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_asset_form_approvals_form_acted` (`asset_form_id`, `acted_at`),
+    KEY `idx_asset_form_approvals_actor_action` (`actor_user_id`, `action`, `acted_at`),
+    CONSTRAINT `afa_asset_form_id_fk` FOREIGN KEY (`asset_form_id`) REFERENCES `asset_forms` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `afa_actor_user_id_fk` FOREIGN KEY (`actor_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
@@ -2082,6 +2165,10 @@ ALTER TABLE assets
 -- Meeting Rooms: cek konflik booking
 ALTER TABLE meeting_room_bookings
     ADD INDEX idx_mrb_booking_window  (room_id, start_datetime, end_datetime, status);
+
+-- Meeting Rooms LCD: query aktif real-time (NOW() di antara start/end)
+ALTER TABLE meeting_room_bookings
+    ADD INDEX idx_meeting_room_lcd_overlap (room_id, status, start_datetime, end_datetime);
 
 -- Asset Requests: workflow approval
 ALTER TABLE asset_requests

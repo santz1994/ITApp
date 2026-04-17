@@ -132,6 +132,10 @@ return new class extends Migration {
             }
         });
 
+        if (!$this->isMysql()) {
+            return;
+        }
+
         DB::statement("UPDATE locations SET name = COALESCE(name, location_name) WHERE name IS NULL OR name = ''");
         DB::statement("UPDATE locations SET description = COALESCE(description, CONCAT('Building: ', building, ', Office: ', office)) WHERE (description IS NULL OR description = '') AND building IS NOT NULL AND office IS NOT NULL");
         DB::statement("UPDATE locations SET created_at = COALESCE(created_at, NOW()), updated_at = COALESCE(updated_at, NOW())");
@@ -160,6 +164,10 @@ return new class extends Migration {
                 $table->timestamp('updated_at')->nullable();
             }
         });
+
+        if (!$this->isMysql()) {
+            return;
+        }
 
         DB::statement("UPDATE asset_types SET name = COALESCE(name, type_name) WHERE name IS NULL OR name = ''");
         DB::statement("UPDATE asset_types SET created_at = COALESCE(created_at, NOW()), updated_at = COALESCE(updated_at, NOW())");
@@ -382,6 +390,10 @@ return new class extends Migration {
             });
         }
 
+        if (!$this->isMysql()) {
+            return;
+        }
+
         DB::statement('UPDATE assets SET assigned_user_id = assigned_to WHERE assigned_user_id IS NULL AND assigned_to IS NOT NULL');
 
         if (Schema::hasTable('suppliers')) {
@@ -459,6 +471,10 @@ return new class extends Migration {
             }
         });
 
+        if (!$this->isMysql()) {
+            return;
+        }
+
         DB::statement('UPDATE asset_requests SET user_id = requested_by WHERE user_id IS NULL AND requested_by IS NOT NULL');
         DB::statement('UPDATE asset_requests SET quantity = 1 WHERE quantity IS NULL OR quantity < 1');
 
@@ -474,6 +490,10 @@ return new class extends Migration {
     private function alignMeetingRoomBookingsWithRooms(): void
     {
         if (!Schema::hasTable('meeting_room_bookings') || !Schema::hasTable('meeting_rooms')) {
+            return;
+        }
+
+        if (!$this->isMysql()) {
             return;
         }
 

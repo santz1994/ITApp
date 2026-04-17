@@ -184,7 +184,8 @@ return new class extends Migration {
         });
 
         if (Schema::hasColumn('role_has_permissions', 'created_at') && Schema::hasColumn('role_has_permissions', 'updated_at')) {
-            DB::statement('UPDATE role_has_permissions SET created_at = COALESCE(created_at, NOW()), updated_at = COALESCE(updated_at, NOW())');
+            $nowExpression = $this->isMysql() ? 'NOW()' : 'CURRENT_TIMESTAMP';
+            DB::statement("UPDATE role_has_permissions SET created_at = COALESCE(created_at, {$nowExpression}), updated_at = COALESCE(updated_at, {$nowExpression})");
         }
 
         if ($this->isMysql() && !$this->baseTableExists('role_permissions')) {
@@ -248,6 +249,11 @@ return new class extends Migration {
 
         if (Schema::hasColumn('tickets', 'sla_due_date') && Schema::hasColumn('tickets', 'sla_due')) {
             DB::statement('UPDATE tickets SET sla_due_date = sla_due WHERE sla_due_date IS NULL AND sla_due IS NOT NULL');
+        }
+
+        // Remaining ticket backfill queries use MySQL-specific UPDATE ... JOIN syntax.
+        if (!$this->isMysql()) {
+            return;
         }
 
         if (Schema::hasColumn('tickets', 'status') && Schema::hasColumn('tickets', 'ticket_status_id') && Schema::hasTable('tickets_statuses')) {
@@ -360,6 +366,11 @@ return new class extends Migration {
                 $table->string('status_name', 100)->nullable()->after('status_id');
             }
         });
+
+        // Legacy JSON/denormalized history backfills rely on MySQL JSON/concat syntax.
+        if (!$this->isMysql()) {
+            return;
+        }
 
         if (Schema::hasColumn('assets', 'asset_type') && Schema::hasColumn('assets', 'category') && Schema::hasColumn('assets', 'brand')) {
             DB::statement('UPDATE assets a LEFT JOIN asset_models am ON am.id = a.model_id LEFT JOIN asset_types at ON at.id = am.asset_type_id LEFT JOIN manufacturers m ON m.id = am.manufacturer_id SET a.asset_type = COALESCE(a.asset_type, at.type_name), a.category = COALESCE(a.category, at.type_name), a.brand = COALESCE(a.brand, m.name) WHERE (a.asset_type IS NULL OR a.category IS NULL OR a.brand IS NULL)');
