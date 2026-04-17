@@ -108,16 +108,16 @@ The database consists of **20+ tables** grouped into functional modules:
 | manager_id (FK)        |
 +------------------------+
 
-+------------------+      +------------------+      +------------------+
-|    locations     |      |    divisions     |      |   departments    |
-|------------------|      |------------------|      |------------------|
-| id (PK)          |      | id (PK)          |      | id (PK)          |
-| location_name    |      | name             |      | name             |
-| name             |      | location_id (FK) |      | code             |
-| building         |      +------------------+      | description      |
-| office           |                               +------------------+
-+------------------+
-
++------------------+    +------------------+      +------------------+      +------------------+
+|    factory       |    |    locations     |      |    divisions     |      |   departments    |
+|------------------|    |------------------|      |------------------|      |------------------|
+| id (PK)          |    | id (PK)          |      | id (PK)          |      | id (PK)          |
+| name             |    | location_name    |      | name             |      | name             |
+|                  |    | name             |      | location_id (FK) |      | code             |
++------------------+    | factory_id (FK)  |      +------------------+      | description      |
+                        | building         |                                +------------------+
+                        | office           |                        
+                        +------------------+
 +------------------+
 |   audit_logs     |
 |------------------|
@@ -579,6 +579,7 @@ CREATE TABLE `assets` (
     `category`                 VARCHAR(100) NULL,
     `asset_type`               VARCHAR(100) NULL,
     `brand`                    VARCHAR(100) NULL,
+    `factory`                  VARCHAR(100) NULL,
     `building`                 VARCHAR(100) NULL,
     `department`               VARCHAR(100) NULL,
     `location_name`            VARCHAR(255) NULL,
@@ -785,6 +786,20 @@ CREATE TABLE `departments` (
     `updated_at`  TIMESTAMP NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- factory
+-- ============================================================
+CREATE TABLE `factory` (
+    `id`          INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name`        VARCHAR(100) NOT NULL UNIQUE,
+    `code`        VARCHAR(10) NULL UNIQUE,
+    `description` VARCHAR(255) NULL,
+    `created_at`  TIMESTAMP NULL,
+    `updated_at`  TIMESTAMP NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
 
 -- ============================================================
 -- movements  (asset movement / transfer log)
