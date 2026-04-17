@@ -326,7 +326,7 @@ CREATE TABLE `tickets` (
     `description`         TEXT NOT NULL,
     `assigned_to`         INT UNSIGNED NULL COMMENT 'Assigned technician',
     `assigned_at`         TIMESTAMP NULL,
-    `assignment_type`     ENUM('auto','manual','super_admin') NOT NULL DEFAULT 'auto',
+    `assignment_type`     ENUM('auto','manual','Administrator') NOT NULL DEFAULT 'auto',
     `asset_id`            INT UNSIGNED NULL COMMENT 'Related asset (optional)',
     `sla_due`             TIMESTAMP NULL COMMENT 'SLA deadline (calculated from priority)',
     `sla_due_date`        DATETIME NULL COMMENT 'Alias kept for backward compatibility',
@@ -1102,7 +1102,7 @@ return new class extends Migration
                 $table->text('description');
                 $table->unsignedInteger('assigned_to')->nullable();
                 $table->timestamp('assigned_at')->nullable();
-                $table->enum('assignment_type', ['auto','manual','super_admin'])->default('auto');
+                $table->enum('assignment_type', ['auto','manual','Administrator'])->default('auto');
                 $table->unsignedInteger('asset_id')->nullable();
                 $table->timestamp('sla_due')->nullable();
                 $table->timestamp('first_response_at')->nullable();

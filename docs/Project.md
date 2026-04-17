@@ -2,6 +2,23 @@
 
 ## Progress Update (2026-04-17)
 
+- Implemented "Hub and Spoke" navigation architecture for the Main Portal:
+    - Main Portal now serves as the central Hub. The global sidebar has been removed from this view to maximize workspace focus.
+    - Users select a module card (Spoke) to enter a dedicated workspace where a module-specific sidebar will dynamically render based on their access level.
+- Built Main Portal backend using strict enterprise layers:
+    - `MainPortalController`: Handles HTTP request and view rendering.
+    - `MainPortalService`: Processes user role, permissions, and delegates data gathering.
+    - `MainPortalRepository`: Executes DB queries to fetch role-scoped KPI metrics (Open Tickets, Pending Meetings, Pending Purchases) based on LV 0-10 hierarchy.
+    - Global visibility (LV 9 Admin, LV 10 Developer) fetches organization-wide metrics, while lower levels fetch user-scoped metrics.
+- Developed Cyber-Industrial Main Portal UI (`resources/views/portal/index.blade.php`):
+    - Utilizes a new dedicated layout (`layouts.portal`) with no sidebar.
+    - Implemented interactive, role-aware module cards (IT Support, Assets Management, Meeting Room, User Management, Settings, Profile).
+    - Applied Cyber-Industrial CSS styling with hover states, pulse glows, and dynamic LV badges (e.g., LV 10 Matrix Glitch, LV 9 Crimson Warning).
+    - Integrated real-time KPI metric badges directly into the module cards.
+- Embedded Bilingual (ID/EN) architecture into the new portal hub:
+    - Added EN/ID language toggle controls in the portal header.
+    - Replaced all static text with `data-i18n` markers for seamless runtime language switching (e.g., `mod_it_support`, `mod_assets_desc`).
+
 ### Newly Implemented in Code
 - Repaired database governance to follow Project.md as source of truth (LV hierarchy + modular forms + LCD readiness):
     - Added migration `2026_04_17_111000_align_role_levels_and_add_meeting_overlap_index.php`.
@@ -27,6 +44,18 @@
     - Updated role access-level comment to LV hierarchy (0/1/2/3/8/9/10).
     - Added normalized form-management table definitions (`asset_forms`, `asset_form_items`, `asset_form_approvals`).
     - Added LCD overlap index guidance in performance-index section.
+- Expanded bilingual coverage to User Management module index page (`/admin/users`):
+    - Added EN/ID toggle controls (`usersIndexLanguageEnglish`, `usersIndexLanguageIndonesian`) and runtime language persistence using the same per-user portal preference storage key.
+    - Added `data-i18n` and `data-i18n-placeholder` markers for table headers, quick-create panel labels/placeholders, and helper/action text.
+    - Added runtime localization hooks for DataTable labels/export button captions and delete confirmation/alert messages.
+    - Added focused feature test suite `UserManagementBilingualTest` with coverage for marker presence and language-switch runtime hooks.
+    - Focused execution confirmed green: `UserManagementBilingualTest` (`2 tests, 17 assertions`).
+- Expanded bilingual coverage to User Management create/edit pages:
+    - `/admin/users/create` now includes EN/ID toggle controls (`userCreateLanguageEnglish`, `userCreateLanguageIndonesian`) and runtime language persistence using the shared portal preference key.
+    - `/admin/users/{user}/edit` now includes EN/ID toggle controls (`userEditLanguageEnglish`, `userEditLanguageIndonesian`) and matching runtime language persistence.
+    - Added `data-i18n` markers for create/edit section headers and action labels, plus localized runtime feedback for password strength, password matching, and submit-loading states.
+    - Expanded `UserManagementBilingualTest` coverage for create/edit marker presence and language-switch behavior hooks.
+    - Focused execution confirmed green: `UserManagementBilingualTest` (`5 tests, 47 assertions`).
 
 ## Progress Update (2026-04-16)
 
@@ -422,6 +451,8 @@
     - User Registration (Allow new users to create an account with email verification for added security)
 
 # MAIN PORTAL
+User will pick the module that they want to access from the main portal, and the features that they can access will depend on their role and permissions. The main portal will also display relevant information and metrics based on the user's role, such as open tickets for IT support staff, upcoming meetings for receptionists, and pending approvals for administrators. So main portal will be the central hub for users to navigate to different sections of the application and access the features that are relevant to their role and responsibilities, no sidebar menu, just a dashboard with cards for each module and quick links to important features within those modules. Then after user click the card or quick link, they will be directed to the respective module page where they can access the features and functionalities of that module based on their role and permissions. The main portal will also provide a personalized experience for users, allowing them to customize their dashboard with widgets and shortcuts to frequently used features, enhancing their productivity and efficiency within the application.
+
 A. Guest Interface
 - Access to login and registration pages only, with no access to other features or modules of the application. Guests will be redirected to the login page if they attempt to access any restricted areas of the application.
 

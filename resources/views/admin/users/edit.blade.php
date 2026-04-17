@@ -113,14 +113,21 @@
 <div class="content-wrapper">
     <section class="content-header">
         <h1>
-            Edit User
-            <small>Update user information and permissions</small>
+            <span data-i18n="users.edit.form.title">Edit User</span>
+            <small data-i18n="users.edit.form.subtitle">Update user information and permissions</small>
         </h1>
+        <div class="pull-right" style="margin-top: -34px;">
+            <div class="btn-group btn-group-xs" role="group" aria-label="User Edit Language Toggle">
+                <button type="button" class="btn btn-default" id="userEditLanguageEnglish" data-lang="en">EN</button>
+                <button type="button" class="btn btn-default" id="userEditLanguageIndonesian" data-lang="id">ID</button>
+            </div>
+        </div>
+        <div class="clearfix"></div>
         <ol class="breadcrumb">
-            <li><a href="{{ url('/home') }}"><i class="fa fa-dashboard"></i> Home</a></li>
-            <li><a href="{{ route('admin.dashboard') }}">Admin</a></li>
-            <li><a href="{{ route('users.index') }}">Users</a></li>
-            <li class="active">Edit: {{ optional($userSafe)->name ?? 'User' }}</li>
+            <li><a href="{{ url('/home') }}"><i class="fa fa-dashboard"></i> <span data-i18n="users.edit.breadcrumb.home">Home</span></a></li>
+            <li><a href="{{ route('admin.dashboard') }}" data-i18n="users.edit.breadcrumb.admin">Admin</a></li>
+            <li><a href="{{ route('users.index') }}" data-i18n="users.edit.breadcrumb.users">Users</a></li>
+            <li class="active"><span data-i18n="users.edit.breadcrumb.edit_prefix">Edit:</span> {{ optional($userSafe)->name ?? 'User' }}</li>
         </ol>
     </section>
 
@@ -149,7 +156,7 @@
                             @if ($errors->any())
                                 <div class="alert alert-danger alert-dismissible">
                                     <button type="button" class="close" data-dismiss="alert">&times;</button>
-                                    <h4><i class="fa fa-exclamation-circle"></i> Validation Errors</h4>
+                                    <h4><i class="fa fa-exclamation-circle"></i> <span data-i18n="users.edit.alert.validation">Validation Errors</span></h4>
                                     <ul class="list-unstyled">
                                         @foreach ($errors->all() as $error)
                                             <li>{{ $error }}</li>
@@ -186,7 +193,7 @@
 
                             <!-- Basic Information -->
                             <fieldset class="form-fieldset">
-                                <legend><i class="fa fa-user"></i> Basic Information</legend>
+                                <legend><i class="fa fa-user"></i> <span data-i18n="users.edit.section.basic">Basic Information</span></legend>
                                 
                                 <div class="row">
                                     <div class="col-xs-12 col-sm-6 col-md-6">
@@ -224,7 +231,7 @@
 
                             <!-- Security -->
                             <fieldset class="form-fieldset">
-                                <legend><i class="fa fa-lock"></i> Change Password (Optional)</legend>
+                                <legend><i class="fa fa-lock"></i> <span data-i18n="users.edit.section.security">Change Password (Optional)</span></legend>
                                 
                                 <div class="alert alert-info">
                                     <i class="fa fa-info-circle"></i> Leave password fields blank if you don't want to change the password
@@ -277,7 +284,7 @@
 
                             <!-- Division & Role -->
                             <fieldset class="form-fieldset">
-                                <legend><i class="fa fa-users"></i> Division & Role Assignment</legend>
+                                <legend><i class="fa fa-users"></i> <span data-i18n="users.edit.section.assignment">Division & Role Assignment</span></legend>
                                 
                                 <div class="row">
                                     <div class="col-xs-12 col-sm-6 col-md-6">
@@ -359,7 +366,7 @@
 
                             <!-- Contact Information -->
                             <fieldset class="form-fieldset">
-                                <legend><i class="fa fa-phone"></i> Contact Information</legend>
+                                <legend><i class="fa fa-phone"></i> <span data-i18n="users.edit.section.contact">Contact Information</span></legend>
                                 
                                 <div class="row">
                                     <div class="col-xs-12 col-sm-12 col-md-12">
@@ -382,10 +389,10 @@
 
                         <div class="box-footer" style="border-top: 2px solid #3c8dbc; padding: 15px;">
                             <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
-                                <i class="fa fa-save"></i> Update User
+                                <i class="fa fa-save"></i> <span data-i18n="users.edit.action.submit">Update User</span>
                             </button>
                             <a href="{{ route('users.index') }}" class="btn btn-default btn-lg">
-                                <i class="fa fa-arrow-left"></i> Cancel
+                                <i class="fa fa-arrow-left"></i> <span data-i18n="users.edit.action.cancel">Cancel</span>
                             </a>
                         </div>
                     </form>
@@ -506,6 +513,112 @@ function togglePassword(fieldId) {
     }
 }
 
+(function() {
+    var translations = {
+        en: {
+            'users.edit.form.title': 'Edit User',
+            'users.edit.form.subtitle': 'Update user information and permissions',
+            'users.edit.section.basic': 'Basic Information',
+            'users.edit.action.submit': 'Update User',
+            'users.edit.action.cancel': 'Cancel',
+            'users.edit.runtime.password_strength_prefix': 'Password Strength:',
+            'users.edit.runtime.password_strength.very_weak': 'Very Weak',
+            'users.edit.runtime.password_strength.weak': 'Weak',
+            'users.edit.runtime.password_strength.fair': 'Fair',
+            'users.edit.runtime.password_strength.good': 'Good',
+            'users.edit.runtime.password_strength.strong': 'Strong',
+            'users.edit.runtime.password_match': 'Passwords match',
+            'users.edit.runtime.password_mismatch': 'Passwords do not match',
+            'users.edit.runtime.loading': 'Updating User...'
+        },
+        id: {
+            'users.edit.form.title': 'Ubah Pengguna',
+            'users.edit.form.subtitle': 'Perbarui informasi dan izin pengguna',
+            'users.edit.section.basic': 'Informasi Dasar',
+            'users.edit.action.submit': 'Perbarui Pengguna',
+            'users.edit.action.cancel': 'Batal',
+            'users.edit.runtime.password_strength_prefix': 'Kekuatan Kata Sandi:',
+            'users.edit.runtime.password_strength.very_weak': 'Sangat Lemah',
+            'users.edit.runtime.password_strength.weak': 'Lemah',
+            'users.edit.runtime.password_strength.fair': 'Cukup',
+            'users.edit.runtime.password_strength.good': 'Baik',
+            'users.edit.runtime.password_strength.strong': 'Sangat Baik',
+            'users.edit.runtime.password_match': 'Kata sandi cocok',
+            'users.edit.runtime.password_mismatch': 'Kata sandi tidak cocok',
+            'users.edit.runtime.loading': 'Sedang memperbarui pengguna...'
+        }
+    };
+
+    var currentLanguage = 'en';
+    var userId = '{{ (int) auth()->id() }}';
+    var languageStorageKey = 'itapp.portal.preferences.v1.user.' + userId;
+    var englishButton = document.getElementById('userEditLanguageEnglish');
+    var indonesianButton = document.getElementById('userEditLanguageIndonesian');
+
+    function getLanguage() {
+        try {
+            var raw = window.localStorage.getItem(languageStorageKey);
+            if (!raw) {
+                return 'en';
+            }
+
+            var parsed = JSON.parse(raw);
+            return parsed && parsed.language === 'id' ? 'id' : 'en';
+        } catch (error) {
+            return 'en';
+        }
+    }
+
+    function saveLanguage(language) {
+        try {
+            var raw = window.localStorage.getItem(languageStorageKey);
+            var parsed = raw ? JSON.parse(raw) : {};
+            parsed.language = language === 'id' ? 'id' : 'en';
+            window.localStorage.setItem(languageStorageKey, JSON.stringify(parsed));
+        } catch (error) {
+            // Keep silent if localStorage is unavailable.
+        }
+    }
+
+    function getLabel(key, fallback) {
+        var dictionary = translations[currentLanguage] || translations.en;
+        return dictionary[key] || fallback || key;
+    }
+
+    function applyLanguage(language) {
+        currentLanguage = language === 'id' ? 'id' : 'en';
+        var dictionary = translations[currentLanguage] || translations.en;
+
+        Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function(node) {
+            var key = node.getAttribute('data-i18n');
+            if (dictionary[key]) {
+                node.textContent = dictionary[key];
+            }
+        });
+
+        if (englishButton && indonesianButton) {
+            englishButton.classList.toggle('active', currentLanguage === 'en');
+            indonesianButton.classList.toggle('active', currentLanguage === 'id');
+        }
+    }
+
+    window.userEditLabel = getLabel;
+
+    if (englishButton && indonesianButton) {
+        englishButton.addEventListener('click', function() {
+            saveLanguage('en');
+            applyLanguage('en');
+        });
+
+        indonesianButton.addEventListener('click', function() {
+            saveLanguage('id');
+            applyLanguage('id');
+        });
+    }
+
+    applyLanguage(getLanguage());
+})();
+
 $(document).ready(function() {
     // Initialize Select2
     $('.select2, .role_id').select2({
@@ -530,14 +643,20 @@ $(document).ready(function() {
         if (password.match(/[0-9]/)) strength++;
         if (password.match(/[^a-zA-Z0-9]/)) strength++;
         
-        var strengthText = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
+        var strengthText = [
+            window.userEditLabel('users.edit.runtime.password_strength.very_weak', 'Very Weak'),
+            window.userEditLabel('users.edit.runtime.password_strength.weak', 'Weak'),
+            window.userEditLabel('users.edit.runtime.password_strength.fair', 'Fair'),
+            window.userEditLabel('users.edit.runtime.password_strength.good', 'Good'),
+            window.userEditLabel('users.edit.runtime.password_strength.strong', 'Strong')
+        ];
         var strengthClass = ['strength-very-weak', 'strength-weak', 'strength-fair', 'strength-good', 'strength-strong'];
         var strengthColor = ['text-danger', 'text-warning', 'text-warning', 'text-info', 'text-success'];
         
         if (strength > 0) {
             $('#strength-bar').removeClass().addClass('password-strength-bar ' + strengthClass[strength-1]);
             $('#strength-text').removeClass().addClass('form-text ' + strengthColor[strength-1])
-                .html('<i class="fa fa-shield"></i> Password Strength: <strong>' + strengthText[strength-1] + '</strong>');
+                .html('<i class="fa fa-shield"></i> ' + window.userEditLabel('users.edit.runtime.password_strength_prefix', 'Password Strength:') + ' <strong>' + strengthText[strength-1] + '</strong>');
         }
     });
     
@@ -555,17 +674,17 @@ $(document).ready(function() {
         if (confirmPassword.length > 0) {
             if (password === confirmPassword) {
                 $(this).closest('.form-group').removeClass('has-error').addClass('has-success');
-                $('#password-match').html('<i class="fa fa-check-circle text-success"></i> Passwords match');
+                $('#password-match').html('<i class="fa fa-check-circle text-success"></i> ' + window.userEditLabel('users.edit.runtime.password_match', 'Passwords match'));
             } else {
                 $(this).closest('.form-group').removeClass('has-success').addClass('has-error');
-                $('#password-match').html('<i class="fa fa-times-circle text-danger"></i> Passwords do not match');
+                $('#password-match').html('<i class="fa fa-times-circle text-danger"></i> ' + window.userEditLabel('users.edit.runtime.password_mismatch', 'Passwords do not match'));
             }
         }
     });
 
     // Form submission with loading state
     $('#userEditForm').on('submit', function() {
-        $('#submitBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Updating User...');
+        $('#submitBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> ' + window.userEditLabel('users.edit.runtime.loading', 'Updating User...'));
     });
 
     // Toastr flash messages
