@@ -34,7 +34,12 @@ use App\Traits\Auditable;
 
 class User extends Authenticatable
 {
-  use HasFactory, HasRoles, HasApiTokens, Notifiable, Auditable;
+  use HasFactory, HasApiTokens, Notifiable, Auditable, HasRoles {
+    HasRoles::hasRole as protected spatieHasRole;
+    HasRoles::hasAnyRole as protected spatieHasAnyRole;
+    HasRoles::assignRole as protected spatieAssignRole;
+    HasRoles::syncRoles as protected spatieSyncRoles;
+  }
   
   /**
    * The attributes that are mass assignable.
@@ -192,7 +197,7 @@ class User extends Authenticatable
   public function scopeAdmins($query)
   {
     return $query->whereHas('roles', function($q) {
-      $q->whereIn('name', ['admin', 'super-admin']);
+      $q->whereIn('name', Role::expandNames(['administrator', 'developer']));
     });
   }
 
@@ -213,9 +218,162 @@ class User extends Authenticatable
 
   public function scopeByRole($query, $roleName)
   {
-    return $query->whereHas('roles', function($q) use ($roleName) {
-      $q->where('name', $roleName);
+    $expanded = Role::equivalentNames((string) $roleName);
+
+    return $query->whereHas('roles', function($q) use ($expanded) {
+      $q->whereIn('name', $expanded);
     });
+  }
+
+  /**
+   * Compatibility wrapper for role checks.
+   * Legacy names (super-admin/admin/management) are mapped to canonical roles.
+   */
+  public function hasRole($roles, ?string $guard = null): bool
+  {
+    if (is_string($roles) || is_numeric($roles)) {
+      foreach (Role::equivalentNames((string) $roles) as $roleName) {
+        if ($this->spatieHasRole($roleName, $guard)) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    if ($roles instanceof \Illuminate\Support\Collection) {
+      $roleNames = $this->extractRoleNamesForChecks($roles->all());
+      if (!empty($roleNames)) {
+        foreach (Role::expandNames($roleNames) as $roleName) {
+          if ($this->spatieHasRole($roleName, $guard)) {
+            return true;
+          }
+        }
+
+        return false;
+      }
+    }
+
+    if (is_array($roles)) {
+      $roleNames = $this->extractRoleNamesForChecks($roles);
+      if (!empty($roleNames)) {
+        foreach (Role::expandNames($roleNames) as $roleName) {
+          if ($this->spatieHasRole($roleName, $guard)) {
+            return true;
+          }
+        }
+
+        return false;
+      }
+    }
+
+    return $this->spatieHasRole($roles, $guard);
+  }
+
+  /**
+   * Compatibility wrapper for multi-role checks.
+   */
+  public function hasAnyRole(...$roles): bool
+  {
+    $roleNames = $this->extractRoleNamesForChecks($roles);
+
+    if (empty($roleNames)) {
+      return $this->spatieHasAnyRole(...$roles);
+    }
+
+    return $this->spatieHasAnyRole(...Role::expandNames($roleNames));
+  }
+
+  /**
+   * Normalize role assignment payload to canonical names.
+   */
+  public function assignRole(...$roles)
+  {
+    return $this->spatieAssignRole(...$this->normalizeRolePayload($roles));
+  }
+
+  /**
+   * Normalize role sync payload to canonical names.
+   */
+  public function syncRoles(...$roles)
+  {
+    return $this->spatieSyncRoles(...$this->normalizeRolePayload($roles));
+  }
+
+  /**
+   * @param mixed $roles
+   * @return array<int, string>
+   */
+  private function extractRoleNamesForChecks($roles): array
+  {
+    if ($roles instanceof \Illuminate\Support\Collection) {
+      $roles = $roles->all();
+    }
+
+    $list = is_array($roles) ? $roles : [$roles];
+    $names = [];
+
+    foreach ($list as $role) {
+      if (is_array($role)) {
+        foreach ($this->extractRoleNamesForChecks($role) as $nestedName) {
+          $names[] = $nestedName;
+        }
+        continue;
+      }
+
+      if ($role instanceof \Illuminate\Support\Collection) {
+        foreach ($role->all() as $nestedRole) {
+          $name = $this->extractRoleName($nestedRole);
+          if ($name !== null) {
+            $names[] = $name;
+          }
+        }
+        continue;
+      }
+
+      $name = $this->extractRoleName($role);
+      if ($name !== null) {
+        $names[] = $name;
+      }
+    }
+
+    return array_values(array_unique(array_filter($names, function (string $name): bool {
+      return $name !== '';
+    })));
+  }
+
+  /**
+   * @param array<int, mixed> $roles
+   * @return array<int, string>
+   */
+  private function normalizeRolePayload(array $roles): array
+  {
+    $normalized = [];
+
+    foreach ($this->extractRoleNamesForChecks($roles) as $roleName) {
+      $canonicalRoleName = Role::normalizeName($roleName);
+      if ($canonicalRoleName !== '') {
+        $normalized[] = $canonicalRoleName;
+      }
+    }
+
+    return array_values(array_unique($normalized));
+  }
+
+  /**
+   * @param mixed $role
+   */
+  private function extractRoleName($role): ?string
+  {
+    if (is_string($role) || is_numeric($role)) {
+      return strtolower(trim((string) $role));
+    }
+
+    if (is_object($role) && property_exists($role, 'name')) {
+      return strtolower(trim((string) $role->name));
+    }
+
+    return null;
   }
 
   // ========================
@@ -288,12 +446,16 @@ class User extends Authenticatable
       get: function () {
         $role = $this->primary_role;
         $colors = [
-          'super-admin' => 'danger',
-          'admin' => 'warning', 
-          'management' => 'info',
+          'developer' => 'danger',
+          'administrator' => 'warning',
+          'director' => 'info',
+          'human-resources' => 'primary',
+          'receptionist' => 'info',
           'user' => 'success',
+          'guest' => 'secondary',
         ];
-        return $colors[$role] ?? 'secondary';
+
+        return $colors[Role::normalizeName((string) $role)] ?? 'secondary';
       }
     );
   }
@@ -327,7 +489,7 @@ class User extends Authenticatable
    */
   public function canManageUsers(): bool
   {
-    return $this->hasAnyRole(['super-admin', 'admin']);
+    return $this->hasAnyRole(['developer', 'administrator']);
   }
 
   /**
@@ -335,7 +497,7 @@ class User extends Authenticatable
    */
   public function canViewManagementDashboard(): bool
   {
-    return $this->hasAnyRole(['super-admin', 'admin', 'management']);
+    return $this->hasAnyRole(['developer', 'administrator', 'director']);
   }
 
   /**
@@ -343,7 +505,7 @@ class User extends Authenticatable
    */
   public function canManageAssets(): bool
   {
-    return $this->hasAnyRole(['super-admin', 'admin']);
+    return $this->hasAnyRole(['developer', 'administrator']);
   }
 
   /**
@@ -456,7 +618,7 @@ class User extends Authenticatable
       'active' => self::active()->count(),
       'inactive' => self::inactive()->count(),
       'online' => self::where('last_login_at', '>', now()->subMinutes(5))->count(),
-      'admins' => self::whereHas('roles', fn($q) => $q->whereIn('name', ['super-admin', 'admin']))->count(),
+      'admins' => self::whereHas('roles', fn($q) => $q->whereIn('name', Role::expandNames(['developer', 'administrator'])))->count(),
       'never_logged_in' => self::whereNull('last_login_at')->count(),
     ];
   }

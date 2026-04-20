@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Users;
 
 use App\Http\Requests\Request;
+use Illuminate\Validation\Rule;
 
 class StoreUserRequest extends Request
 {
@@ -33,7 +34,12 @@ class StoreUserRequest extends Request
         ],
         'phone' => 'nullable|string|max:20',
         'division_id' => 'required|exists:divisions,id',
-        'role_id' => 'required|exists:roles,id'
+        'role_id' => [
+          'required',
+          Rule::exists('roles', 'id')->where(function ($query) {
+            $query->whereIn('name', \App\Role::assignableNames());
+          }),
+        ],
       ];
     }
 

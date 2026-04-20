@@ -7,7 +7,7 @@ use App\Division;
 use App\Location;
 use App\Status;
 use App\User;
-use Spatie\Permission\Models\Role;
+use App\Role;
 use Illuminate\Support\Facades\Cache;
 
 class FormDataComposer
@@ -37,7 +37,11 @@ class FormDataComposer
                 return User::select('id', 'name')->orderBy('name')->get();
             }),
             'roles' => Cache::remember('roles_dropdown', 7200, function () {
-                return Role::select('id', 'display_name')->orderBy('display_name')->get();
+                return Role::query()
+                    ->assignable()
+                    ->select('id', 'display_name')
+                    ->orderBy('display_name')
+                    ->get();
             }),
         ]);
     }

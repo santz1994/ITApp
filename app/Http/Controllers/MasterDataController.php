@@ -15,7 +15,7 @@ class MasterDataController extends Controller
     public function __construct(MasterDataService $service, UnifiedImportService $importService)
     {
         $this->middleware('auth');
-        $this->middleware('role:admin|super-admin');
+        $this->middleware('role:administrator|developer');
         $this->service = $service;
         $this->importService = $importService;
     }

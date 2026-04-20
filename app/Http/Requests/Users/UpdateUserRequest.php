@@ -7,6 +7,7 @@ use Illuminate\Contracts\Validation\Validator as ValidatorContract;
 use Illuminate\Http\Exceptions\HttpResponseException as HttpResponseExceptionClass;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
 
 class UpdateUserRequest extends Request
@@ -72,7 +73,12 @@ class UpdateUserRequest extends Request
         'password_confirmation' => 'nullable|min:8',
         'phone' => 'nullable|string|max:20',
         'division_id' => 'required|exists:divisions,id',
-        'role_id' => 'nullable|exists:roles,id'  // Make nullable since role assignment is handled separately
+        'role_id' => [
+          'nullable',
+          Rule::exists('roles', 'id')->where(function ($query) {
+            $query->whereIn('name', \App\Role::assignableNames());
+          }),
+        ] // Make nullable since role assignment is handled separately
       ];
     }
 
@@ -129,7 +135,7 @@ class UpdateUserRequest extends Request
         $legacy = [
           'status' => 'warning',
           'title' => 'User: ',
-          'message' => 'Cannot change role as there must be one (1) or more users with the role of Super Administrator.'
+          'message' => 'Cannot change role as there must be one (1) or more users with the role of Developer.'
         ];
         break;
       }
@@ -153,7 +159,8 @@ class UpdateUserRequest extends Request
           $uid = $userParam;
         }
         if ($uid && $roleIdInput) {
-          $superAdminRole = Role::where('name', '=', 'super-admin')->first();
+          $protectedRoleName = \App\Role::normalizeName('super-admin');
+          $superAdminRole = Role::where('name', '=', $protectedRoleName)->first();
           if ($superAdminRole) {
             $usersRole = \Illuminate\Support\Facades\DB::table('model_has_roles')
                           ->where('model_id', $uid)
@@ -240,7 +247,7 @@ class UpdateUserRequest extends Request
   // If the legacy role-change denial is detected, ensure the exact string is present
   $roleDenial = '';
   if (isset($legacy['message']) && Str::contains($legacy['message'], 'Cannot change role')) {
-    $roleDenial = 'Cannot change role as there must be one (1) or more users with the role of Super Administrator.';
+    $roleDenial = 'Cannot change role as there must be one (1) or more users with the role of Developer.';
   }
 
       // Ensure the shim form posts to the update endpoint so the controller

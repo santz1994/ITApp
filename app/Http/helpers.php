@@ -29,7 +29,12 @@
        */
       function user_has_role($user, $role)
       {
-          return is_object($user) && method_exists($user, 'hasRole') ? $user->hasRole($role) : false;
+          if (!is_object($user) || !method_exists($user, 'hasAnyRole')) {
+            return false;
+          }
+
+          $expanded = \App\Role::equivalentNames((string) $role);
+          return $user->hasAnyRole($expanded);
       }
   }
 
@@ -43,7 +48,16 @@
        */
       function user_has_any_role($user, $roles)
       {
-          return is_object($user) && method_exists($user, 'hasAnyRole') ? $user->hasAnyRole($roles) : false;
+          if (!is_object($user) || !method_exists($user, 'hasAnyRole')) {
+            return false;
+          }
+
+          $list = is_array($roles) ? $roles : [$roles];
+          $normalizedInput = array_map(static function ($roleName): string {
+            return (string) $roleName;
+          }, $list);
+
+          return $user->hasAnyRole(\App\Role::expandNames($normalizedInput));
       }
   }
 

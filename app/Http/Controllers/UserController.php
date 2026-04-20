@@ -3,20 +3,21 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Role;
 use App\User;
-use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('role:admin|super-admin');
+        $this->middleware('role:administrator|developer');
     }
 
     /**
@@ -56,7 +57,12 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|exists:roles,name'
+            'role' => [
+                'required',
+                Rule::exists('roles', 'name')->where(function ($query) {
+                    $query->whereIn('name', Role::assignableNames());
+                }),
+            ],
         ]);
 
         if ($validator->fails()) {
@@ -114,7 +120,12 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
-            'role' => 'required|exists:roles,name'
+            'role' => [
+                'required',
+                Rule::exists('roles', 'name')->where(function ($query) {
+                    $query->whereIn('name', Role::assignableNames());
+                }),
+            ],
         ]);
 
         if ($validator->fails()) {
@@ -160,7 +171,10 @@ class UserController extends Controller
      */
     public function roles(): View
     {
-        $roles = Role::withCount('users')->get();
+        $roles = Role::query()
+            ->canonical()
+            ->withCount('users')
+            ->get();
         $users = User::with('roles')->get();
         
         return view('users.roles', compact('roles', 'users'));

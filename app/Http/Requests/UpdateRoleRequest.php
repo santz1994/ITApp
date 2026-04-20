@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateRoleRequest extends FormRequest
 {
@@ -25,7 +26,14 @@ class UpdateRoleRequest extends FormRequest
         $roleId = $this->route('role') ? $this->route('role')->id : null;
 
         return [
-            'name' => ['required', 'string', 'max:255', 'unique:roles,name,'.$roleId, 'alpha_dash'],
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                'unique:roles,name,'.$roleId,
+                'alpha_dash',
+                Rule::in(\App\Role::canonicalNames()),
+            ],
             'display_name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:500'],
             'permissions' => ['nullable', 'array'],
@@ -44,6 +52,7 @@ class UpdateRoleRequest extends FormRequest
             'name.required' => 'Role name is required.',
             'name.unique' => 'This role name already exists.',
             'name.alpha_dash' => 'Role name may only contain letters, numbers, dashes and underscores.',
+            'name.in' => 'This role is not part of canonical roles policy.',
             'display_name.required' => 'Display name is required.',
             'permissions.*.exists' => 'One or more selected permissions do not exist.',
         ];

@@ -9,10 +9,27 @@ use Illuminate\Support\Facades\Artisan;
 class RoleService
 {
     /**
+     * @return array<int, string>
+     */
+    private function canonicalRoleNames(): array
+    {
+        return Role::canonicalNames();
+    }
+
+    private function ensureCanonicalRoleName(string $roleName): void
+    {
+        if (!in_array($roleName, $this->canonicalRoleNames(), true)) {
+            throw new \InvalidArgumentException('Role "' . $roleName . '" is not part of canonical roles.');
+        }
+    }
+
+    /**
      * Create a new role
      */
     public function createRole(array $data): Role
     {
+        $this->ensureCanonicalRoleName((string) ($data['name'] ?? ''));
+
         $role = Role::create([
             'name' => $data['name'],
             'display_name' => $data['display_name'],
@@ -35,6 +52,8 @@ class RoleService
      */
     public function updateRole(Role $role, array $data): Role
     {
+        $this->ensureCanonicalRoleName((string) ($data['name'] ?? ''));
+
         $role->update([
             'name' => $data['name'],
             'display_name' => $data['display_name'],
@@ -94,6 +113,9 @@ class RoleService
      */
     public function getAllRoles(): Collection
     {
-        return Role::withCount(['users', 'permissions'])->get();
+        return Role::query()
+            ->canonical()
+            ->withCount(['users', 'permissions'])
+            ->get();
     }
 }

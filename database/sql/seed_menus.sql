@@ -14,7 +14,7 @@ INSERT INTO `menus` (`id`, `label`, `route`, `icon`, `order_index`, `is_active`,
 
 -- Insert Dashboard menu permissions for all roles
 INSERT INTO `menu_role` (`menu_id`, `role_id`, `can_view`, `created_at`, `updated_at`)
-SELECT 1, id, 1, NOW(), NOW() FROM roles WHERE name IN ('super-admin', 'admin', 'director', 'user', 'receptionist');
+SELECT 1, id, 1, NOW(), NOW() FROM roles WHERE name IN ('developer', 'administrator', 'director', 'user', 'receptionist', 'human-resources');
 
 -- Insert Assets Parent Menu
 INSERT INTO `menus` (`id`, `label`, `icon`, `order_index`, `is_active`, `created_at`, `updated_at`) VALUES
@@ -27,12 +27,12 @@ INSERT INTO `menus` (`id`, `label`, `route`, `icon`, `parent_id`, `order_index`,
 (5, 'Asset Models', 'assetmodels.index', 'fa fa-cubes', 2, 3, 1, NOW(), NOW()),
 (6, 'Asset Maintenance', 'asset-maintenance.index', 'fa fa-wrench', 2, 4, 1, NOW(), NOW());
 
--- Insert Assets menu permissions (super-admin and admin only)
+-- Insert Assets menu permissions (developer and administrator only)
 INSERT INTO `menu_role` (`menu_id`, `role_id`, `can_view`, `created_at`, `updated_at`)
 SELECT m.id, r.id, 1, NOW(), NOW() 
 FROM menus m
 CROSS JOIN roles r
-WHERE m.id IN (2, 3, 4, 5, 6) AND r.name IN ('super-admin', 'admin');
+WHERE m.id IN (2, 3, 4, 5, 6) AND r.name IN ('developer', 'administrator');
 
 -- Insert Tickets Parent Menu
 INSERT INTO `menus` (`id`, `label`, `icon`, `order_index`, `is_active`, `created_at`, `updated_at`) VALUES
@@ -49,7 +49,7 @@ INSERT INTO `menu_role` (`menu_id`, `role_id`, `can_view`, `created_at`, `update
 SELECT m.id, r.id, 1, NOW(), NOW() 
 FROM menus m
 CROSS JOIN roles r
-WHERE m.id IN (7, 8, 9) AND r.name IN ('super-admin', 'admin', 'user');
+WHERE m.id IN (7, 8, 9) AND r.name IN ('developer', 'administrator', 'user', 'director', 'human-resources');
 
 -- My Tickets only for users
 INSERT INTO `menu_role` (`menu_id`, `role_id`, `can_view`, `created_at`, `updated_at`)
@@ -70,17 +70,17 @@ INSERT INTO `menu_role` (`menu_id`, `role_id`, `can_view`, `created_at`, `update
 SELECT m.id, r.id, 1, NOW(), NOW() 
 FROM menus m
 CROSS JOIN roles r
-WHERE m.id IN (11, 12, 14) AND r.name IN ('super-admin', 'admin', 'director', 'user', 'receptionist');
+WHERE m.id IN (11, 12, 14) AND r.name IN ('developer', 'administrator', 'director', 'user', 'receptionist', 'human-resources');
 
 INSERT INTO `menu_role` (`menu_id`, `role_id`, `can_view`, `created_at`, `updated_at`)
-SELECT 13, id, 1, NOW(), NOW() FROM roles WHERE name IN ('super-admin', 'admin', 'user');
+SELECT 13, id, 1, NOW(), NOW() FROM roles WHERE name IN ('developer', 'administrator', 'user');
 
 -- Insert Inventory Menu
 INSERT INTO `menus` (`id`, `label`, `route`, `icon`, `order_index`, `is_active`, `created_at`, `updated_at`) VALUES
 (15, 'Inventory', 'spares.index', 'fa fa-archive', 5, 1, NOW(), NOW());
 
 INSERT INTO `menu_role` (`menu_id`, `role_id`, `can_view`, `created_at`, `updated_at`)
-SELECT 15, id, 1, NOW(), NOW() FROM roles WHERE name IN ('super-admin', 'admin');
+SELECT 15, id, 1, NOW(), NOW() FROM roles WHERE name IN ('developer', 'administrator');
 
 -- Insert Reports Parent Menu
 INSERT INTO `menus` (`id`, `label`, `icon`, `order_index`, `is_active`, `created_at`, `updated_at`) VALUES
@@ -95,9 +95,9 @@ INSERT INTO `menu_role` (`menu_id`, `role_id`, `can_view`, `created_at`, `update
 SELECT m.id, r.id, 1, NOW(), NOW() 
 FROM menus m
 CROSS JOIN roles r
-WHERE m.id IN (16, 17, 18) AND r.name IN ('super-admin', 'admin', 'director');
+WHERE m.id IN (16, 17, 18) AND r.name IN ('developer', 'administrator', 'director');
 
--- Insert Admin Parent Menu (Super Admin only)
+-- Insert Admin Parent Menu (Developer only)
 INSERT INTO `menus` (`id`, `label`, `icon`, `order_index`, `is_active`, `created_at`, `updated_at`) VALUES
 (19, 'Administration', 'fa fa-cogs', 7, 1, NOW(), NOW());
 
@@ -112,7 +112,7 @@ INSERT INTO `menu_role` (`menu_id`, `role_id`, `can_view`, `created_at`, `update
 SELECT m.id, r.id, 1, NOW(), NOW() 
 FROM menus m
 CROSS JOIN roles r
-WHERE m.id IN (19, 20, 21, 22, 23) AND r.name = 'super-admin';
+WHERE m.id IN (19, 20, 21, 22, 23) AND r.name = 'developer';
 
 -- Show success message
 SELECT CONCAT('Successfully seeded ', COUNT(*), ' menu items') AS result FROM menus;

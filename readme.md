@@ -902,5 +902,4 @@ For technical support or questions:
 **Capacity**: 20-25 concurrent users  
 **PHP**: 8.1+ | **Laravel**: 10.x | **MySQL**: 8.0+  
 **Last Updated**: December 8, 2025  
-**Maintained By**: D-Riz#   I T A p p  
- 
+**Maintained By**: D-Riz (Lead Developer)

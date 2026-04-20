@@ -238,7 +238,10 @@ class CacheService
     public static function getRoles()
     {
         return Cache::remember('roles_all', self::CACHE_TTL, function () {
-            return \Spatie\Permission\Models\Role::orderBy('name')->get();
+            return \App\Role::query()
+                ->canonical()
+                ->orderBy('name')
+                ->get();
         });
     }
 
@@ -248,7 +251,10 @@ class CacheService
     public static function getRoleByName($roleName)
     {
         return Cache::remember("roles_name_{$roleName}", self::CACHE_TTL, function () use ($roleName) {
-            return \Spatie\Permission\Models\Role::where('name', $roleName)->first();
+            return \App\Role::query()
+                ->canonical()
+                ->where('name', $roleName)
+                ->first();
         });
     }
 

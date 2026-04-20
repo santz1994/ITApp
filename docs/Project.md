@@ -1,15 +1,98 @@
 ## Tasks :
 
+## Progress Update (2026-04-20)
+
+### Newly Implemented in Code
+- **SQL Roles Hierarchy Alignment**: Aligned `roles` table to exact LV 0-10 hierarchy mapping as required by Project.md:
+    - Executed pending migration `2026_04_17_111000_align_role_levels_and_add_meeting_overlap_index.php` to set `access_level` values.
+    - Applied column comment to `roles.access_level` documenting LV mapping: `0=Guest,1=User,2=Receptionist,3=Human Resources,8=Director,9=Administrator,10=Developer`.
+    - Verified all 7 canonical roles exist with correct access levels: guest (0), user (1), receptionist (2), human-resources (3), director (8), administrator (9), developer (10).
+    - Ensured existing user-role assignments are preserved via `model_has_roles` and legacy `role_user` pivot tables.
+- Restored local runtime stability after critical database engine corruption impacted Laravel session + core tables:
+    - Root incident presented as SQLSTATE runtime failure on missing `sessions` table during request bootstrap.
+    - Validated broader table-engine corruption symptoms on `migrations`, `users`, and `tickets` before executing recovery path.
+    - Generated pre-repair backup artifacts before structural recovery operations:
+        - `database/pre_session_repair_20260420_071959.sql`
+        - `database/pre_restore_empty_itapp_20260420_072533.sql`
+    - Executed database-first recovery flow using backup-clone strategy (`itapp_recover` -> rebuild `itapp`) instead of partial table patching to minimize hidden corruption risk.
+    - Confirmed post-restore health with table-count verification, `CHECK TABLE sessions`, and HTTP route checks (`302/200` auth flow restored).
+- Hardened `docs/Database.md` to become an end-to-end schema reference for current ITSM scope:
+    - Added explicit System module SQL coverage (`sessions`, `jobs`, `failed_jobs`, `job_batches`, `cache`, `cache_locks`, `menus`, `menu_user`, `notification_settings`).
+    - Added ITSM completeness coverage for `ticket_watchers`, `media`, `licenses`, `asset_has_licenses`, and `meeting_room_display_settings` in SQL + migration + relationship sections.
+    - Added `users.deleted_at` soft-delete guidance and legacy notification-column transition notes toward normalized `notification_settings`.
+    - Added normalization roadmap section documenting phased PK strategy (`INT UNSIGNED` legacy compatibility -> `BIGINT UNSIGNED` standardization), notification policy, depreciation policy, and documentation governance rules.
+    - Aligned media migration documentation with SQL contract (`created_by` index/FK and documented defaults) to prevent cross-section drift.
+- Implemented Smart ITSM phase-0 intake recommendations with API v1 contract and strict layering:
+    - Added versioned endpoint `POST /api/v1/tickets/smart-intake` in protected API route group.
+    - Added `TicketIntelligenceController` (thin controller), `StoreSmartTicketIntakeRequest` validation, and `SmartTicketIntakeResource` response wrapper (`success`, `data`, `message`).
+    - Added `SmartTicketIntakeService` heuristic engine for ticket type/priority inference from subject + description (ID/EN keywords).
+    - Added `TicketIntelligenceRepository` data-access layer for ticket master lookup and published Knowledge Base suggestion queries.
+    - Added `KnowledgeBaseSuggestionResource` output mapping for knowledge suggestion cards (author/meta/views/helpful counters).
+    - Added safe fallback integration in `TicketService::createTicket()` so missing `ticket_priority_id`/`ticket_type_id` can use smart recommendations without breaking existing flow.
+    - Added focused feature suite `SmartTicketIntakeApiTest` to validate auth guard, recommendation output, KB suggestion payload, and Asia/Jakarta metadata.
+    - Integrated Smart Suggest runtime on `tickets/create` UI so users can trigger recommendation directly from subject/description and auto-fill ticket type + hidden priority payload before submit.
+    - Added authenticated web endpoint `POST /tickets/smart-intake` for create-page runtime calls to avoid session mismatch on API guard while keeping the same service/resource contract.
+    - Added focused regression coverage in `TicketManagementTest` for Smart Suggest hooks and authenticated web-route recommendation response.
+- Implemented Smart ITSM predictive maintenance risk analysis API (phase-0.5 baseline):
+    - Added versioned endpoint `GET /api/v1/assets/{asset}/maintenance-risk` in protected API route group.
+    - Added `AssetMaintenanceIntelligenceController` (thin controller), `GetAssetMaintenanceRiskRequest` validation, and `AssetMaintenanceRiskResource` response wrapper (`success`, `data`, `message`).
+    - Added `PredictiveMaintenanceService` heuristic scoring engine using asset age, useful-life fallback, warranty horizon, maintenance frequency, pending maintenance, and status signals.
+    - Added `AssetMaintenanceRiskRepository` data-access layer to load asset maintenance context via `maintenanceLogs` relation.
+    - Added focused feature suite `AssetMaintenanceRiskApiTest` to validate critical risk path, low-risk path, metadata/timezone payload, and guest-auth guard.
+- Expanded bilingual coverage to Budget Management non-core module surfaces (`/budgets`, `/budgets/{budget}/edit`, `/budgets/{budget}`):
+    - Added EN/ID runtime language toggle controls (`budgetIndexLanguageEnglish`, `budgetEditLanguageEnglish`, `budgetShowLanguageEnglish` with matching Indonesian IDs) using the shared portal preference storage key (`itapp.portal.preferences.v1.user.{id}`).
+    - Added `data-i18n`, `data-i18n-placeholder`, and `data-i18n-title` markers across index table/form labels, edit action panels, and show-page utilization/links panels to keep runtime transitions deterministic.
+    - Implemented runtime localization hooks and behavior contracts: `window.budgetIndexLabel`, `window.budgetIndexDataTableLanguage`, `window.budgetIndexRefreshRuntimeText`, `window.budgetEditLabel`, and `window.budgetShowLabel`.
+    - Localized Budget DataTable runtime strings and create/edit/delete interaction prompts, including submit loading states and delete confirmation text.
+    - Added focused regression suite `BudgetManagementBilingualTest` to cover toggle visibility, marker presence, and language-switch behavior hooks across index/edit/show surfaces.
+- Expanded bilingual coverage to Supplier Management non-core module surfaces (`/suppliers`, `/suppliers/{supplier}/edit`, `/suppliers/{supplier}`):
+    - Added EN/ID runtime language toggle controls (`supplierIndexLanguageEnglish`, `supplierEditLanguageEnglish`, `supplierShowLanguageEnglish` with matching Indonesian IDs) using the shared portal preference storage key (`itapp.portal.preferences.v1.user.{id}`).
+    - Added `data-i18n`, `data-i18n-placeholder`, and `data-i18n-title` markers across supplier listing/table labels, create/edit form guidance, and supplier detail statistics/asset+invoice panels.
+    - Implemented runtime localization hooks and behavior contracts: `window.supplierIndexLabel`, `window.supplierIndexDataTableLanguage`, `window.supplierIndexRefreshRuntimeText`, `window.supplierEditLabel`, and `window.supplierShowLabel`.
+    - Localized Supplier DataTable runtime strings, create/edit validation prompts, delete confirmation prompt, and submit-loading button states.
+    - Added focused regression suite `SupplierManagementBilingualTest` to cover toggle visibility, marker presence, and language-switch behavior hooks across index/edit/show surfaces.
+
+### Validation
+- **Roles Hierarchy Validation**: Verified `roles.access_level` column comment and data integrity:
+    - `SELECT id, name, access_level FROM roles ORDER BY access_level` returns correct LV mapping.
+    - Column comment now reflects LV hierarchy as per Project.md.
+    - Total of 7 distinct roles with correct access levels (0,1,2,3,8,9,10).
+- Database recovery validation completed:
+    - Core runtime tables verified present and healthy (`sessions`, `users`, `migrations`).
+    - Request flow revalidated successfully after cache clear (no SQLSTATE/Symfony exception marker in response path).
+- Documentation integrity validation completed:
+    - Cross-section consistency checks passed for SQL schema, migration snippets, and Eloquent relationship references.
+- Smart ITSM phase-0 validation completed:
+    - `./vendor/bin/phpunit tests/Feature/SmartTicketIntakeApiTest.php` -> `OK (3 tests, 25 assertions)`.
+    - Regression check: `./vendor/bin/phpunit --filter ticket_create_edit_and_show_pages_include_language_switch_behavior_hooks tests/Feature/TicketManagementTest.php` -> `OK (1 test, 18 assertions)`.
+    - UI hook regression: `./vendor/bin/phpunit --filter ticket_create_page_shows_bilingual_toggle_and_runtime_markers tests/Feature/TicketManagementTest.php` -> `OK (1 test, 14 assertions)`.
+    - Behavior hook regression (updated with Smart Suggest assertions): `./vendor/bin/phpunit --filter ticket_create_edit_and_show_pages_include_language_switch_behavior_hooks tests/Feature/TicketManagementTest.php` -> `OK (1 test, 20 assertions)`.
+    - Authenticated web-route recommendation regression: `./vendor/bin/phpunit --filter authenticated_user_can_request_smart_ticket_intake_from_web_route tests/Feature/TicketManagementTest.php` -> `OK (1 test, 14 assertions)`.
+- Smart ITSM predictive maintenance baseline validation completed:
+    - `./vendor/bin/phpunit tests/Feature/AssetMaintenanceRiskApiTest.php` -> `OK (3 tests, 27 assertions)`.
+- Budget module bilingual validation completed:
+    - `./vendor/bin/phpunit tests/Feature/BudgetManagementBilingualTest.php` -> `OK (5 tests, 46 assertions)`.
+- Supplier module bilingual validation completed:
+    - `./vendor/bin/phpunit tests/Feature/SupplierManagementBilingualTest.php` -> `OK (5 tests, 46 assertions)`.
+
+### In Progress / Next Batch
+- Expand bilingual coverage for remaining non-core module surfaces so all runtime labels/modals/placeholders are consistently backed by `data-i18n` markers.
+- Add focused regression coverage for remaining language-switch behavior hooks to keep EN/ID transitions deterministic across modules.
+- Extend Smart ITSM after phase-0 endpoint baseline:
+    - Integrate predictive maintenance risk endpoint into module dashboards and technician workflow surfaces.
+    - Add embedding-ready adapter interface for future semantic KB matching while keeping keyword pipeline as default open-source fallback.
+- Align real migration backlog with `docs/Database.md` normalization roadmap before next schema-change batch.
+
 ## Progress Update (2026-04-17)
 
-- Implemented "Hub and Spoke" navigation architecture for the Main Portal:
-    - Main Portal now serves as the central Hub. The global sidebar has been removed from this view to maximize workspace focus.
-    - Users select a module card (Spoke) to enter a dedicated workspace where a module-specific sidebar will dynamically render based on their access level.
+- Implemented "Hub-and-Spoke" navigation architecture for the Main Portal:
+    - Main Portal now serves as the central Hub. The global sidebar has been removed from this surface to maximize workspace focus.
+    - Users select a module card (Spoke) to enter a dedicated workspace where a module-specific sidebar dynamically renders based on LV access level.
 - Built Main Portal backend using strict enterprise layers:
     - `MainPortalController`: Handles HTTP request and view rendering.
     - `MainPortalService`: Processes user role, permissions, and delegates data gathering.
     - `MainPortalRepository`: Executes DB queries to fetch role-scoped KPI metrics (Open Tickets, Pending Meetings, Pending Purchases) based on LV 0-10 hierarchy.
-    - Global visibility (LV 9 Admin, LV 10 Developer) fetches organization-wide metrics, while lower levels fetch user-scoped metrics.
+    - Global visibility (LV 9 Admin, LV 10 Developer) returns organization-wide metrics, while lower levels receive user-scoped metrics.
 - Developed Cyber-Industrial Main Portal UI (`resources/views/portal/index.blade.php`):
     - Utilizes a new dedicated layout (`layouts.portal`) with no sidebar.
     - Implemented interactive, role-aware module cards (IT Support, Assets Management, Meeting Room, User Management, Settings, Profile).
@@ -17,7 +100,7 @@
     - Integrated real-time KPI metric badges directly into the module cards.
 - Embedded Bilingual (ID/EN) architecture into the new portal hub:
     - Added EN/ID language toggle controls in the portal header.
-    - Replaced all static text with `data-i18n` markers for seamless runtime language switching (e.g., `mod_it_support`, `mod_assets_desc`).
+    - Replaced static text nodes with `data-i18n` markers for seamless runtime language switching (e.g., `mod_it_support`, `mod_assets_desc`).
 
 ### Newly Implemented in Code
 - Repaired database governance to follow Project.md as source of truth (LV hierarchy + modular forms + LCD readiness):
@@ -367,7 +450,7 @@
     - Add Chatbox feature to allow users to communicate with support staff in real-time for IT support and meeting room inquiries. This will enhance user experience and provide quick assistance for any issues or questions they may have. (Pending need my approval)
 2. Implement a responsive design to ensure the application is accessible on various devices.
     - Use CSS frameworks like Bootstrap or Tailwind CSS to create a responsive layout.
-        - Ensure that all features and functionalities are accessible and usable on mobile devices, tablets, and desktops.
+        a. Ensure that all features and functionalities are accessible and usable on mobile devices, tablets, and desktops.
     - Implement a dark mode toggle to allow users to switch between light and dark themes for better accessibility and user preference. (Pending need my approval)
 3. Integrate a notification system to keep users informed about important updates and events.
     - Implement email notifications for critical events such as ticket updates, meeting room bookings, and asset maintenance reminders. (Pending need my approval)
@@ -390,11 +473,13 @@
     - Redesign the user interface to align with the new modular structure of the application, ensuring that it is intuitive and user-friendly.
     - Implement a dashboard on the main portal to display key metrics and user information, providing users with a quick overview of their activities and relevant data.
     - Ensure that the design is responsive and accessible across different devices and screen sizes.
+    - Using modern design principles and a consistent visual language to enhance the overall user experience and make the application more visually appealing.
+    - Use modal dialogs for critical actions (e.g., ticket resolution, meeting cancellation, purchase request approval) to provide clear confirmation prompts and prevent accidental actions.
     - Implement a consistent design language and style guide across all modules to enhance the overall user experience and maintain a cohesive look and feel throughout the application.
     - Button and link updates to ensure that all navigation paths are functional and lead to the correct pages, especially with the new modular structure in place.
     - Update the sidebar and navigation menus to reflect the new structure and provide easy access to all modules and features based on user roles and permissions.
-        - Implement a user context panel on the main portal to display relevant information about the logged-in user, such as their role, last login time, and account status.
-        - Add role-focused operational snapshots on the main portal to provide users with quick access to key metrics and actions relevant to their role (e.g., open tickets for IT support staff, upcoming meetings for receptionists, pending approvals for administrators).
+        a. Implement a user context panel on the main portal to display relevant information about the logged-in user, such as their role, last login time, and account status.
+        b. Add role-focused operational snapshots on the main portal to provide users with quick access to key metrics and actions relevant to their role (e.g., open tickets for IT support staff, upcoming meetings for receptionists, pending approvals for administrators).
     - Theme and styling updates to enhance the visual appeal of the application, including color schemes, typography, and layout adjustments to improve readability and user engagement.
     - Dark and light mode toggle to allow users to switch between different themes based on their preferences and improve accessibility for users with different visual needs.
 8. Implement additional features based on user feedback and requirements, such as:
@@ -406,8 +491,8 @@
     - Implement a service layer to handle business logic and a repository layer for data access, ensuring a clear separation of concerns and easier maintenance.
     - Add comprehensive test coverage for the new features and functionalities to ensure reliability and facilitate future development.
     - Implement a dedicated workflow service for handling purchase request approvals, separating the business logic from controller actions and ensuring a more modular and maintainable codebase.
-        - Add API endpoints for managing portal personalization settings, allowing users to save their preferences for module order and quick links.
-        - Implement a notification system to send email notifications for critical events such as ticket updates, meeting room bookings, and asset maintenance reminders.
+        a. Add API endpoints for managing portal personalization settings, allowing users to save their preferences for module order and quick links.
+        b. Implement a notification system to send email notifications for critical events such as ticket updates, meeting room bookings, and asset maintenance reminders.
 10. Codebase cleanup:
     - Remove any unused or redundant code, files, and assets to improve maintainability and reduce clutter in the codebase.
     - Ensure that all remaining code is well-documented and follows consistent coding standards for better readability and collaboration among developers.
@@ -415,22 +500,22 @@
     - Ticket auto-assignment based on asset category and technician expertise to streamline the support process and ensure that tickets are handled by the most qualified staff.
     - Implement a ticket escalation process for unresolved tickets to ensure timely resolution and customer satisfaction.
     - Add a knowledge base feature to allow support staff to document solutions and best practices for common issues, improving efficiency and consistency in handling support requests.
-        - Implement a ticket prioritization system to help support staff manage their workload and address critical issues first.
-        - Add a feature to allow users to track the status of their tickets and receive notifications about updates or resolutions.
-        - Integrate the ticketing system with the assets management module to track which assets are associated with support tickets and their maintenance schedules.
+        a. Implement a ticket prioritization system to help support staff manage their workload and address critical issues first.
+        b. Add a feature to allow users to track the status of their tickets and receive notifications about updates or resolutions.
+        c. Integrate the ticketing system with the assets management module to track which assets are associated with support tickets and their maintenance schedules.
 12. Meeting Room:
     - Implement a calendar view for meeting room schedules to provide a visual representation of bookings and availability.
     - Add a feature to allow users to check meeting room availability in real-time through an LCD display, providing convenient access to this information.
     - Implement a booking approval workflow for meeting rooms that require authorization, ensuring proper management of resources and preventing conflicts.
-        - Add a feature to allow users to view and manage their meeting room bookings, including the ability to cancel or reschedule bookings as needed.
-        - Integrate the meeting room booking system with calendar applications (e.g., Google Calendar, Outlook) to allow users to sync their bookings and receive reminders.
+        a. Add a feature to allow users to view and manage their meeting room bookings, including the ability to cancel or reschedule bookings as needed.
+        b. Integrate the meeting room booking system with calendar applications (e.g., Google Calendar, Outlook) to allow users to sync their bookings and receive reminders.
 13. Assets Management:
     - Implement a comprehensive asset tracking system that includes inventory management, maintenance scheduling, and disposal processes.
     - Add a feature to generate and print labels for assets, including QR codes or barcodes for easy tracking and management.
     - Implement an asset import/export feature to allow bulk management of asset data using CSV or Excel files.
     - Add a QR code scanning functionality to quickly access asset information and update asset status using a mobile device or scanner.
-        - Integrate the assets management module with the ticketing system to track which assets are associated with support tickets and their maintenance schedules, providing a holistic view of asset performance and support history.
-        - Implement a maintenance scheduling feature that allows users to set up regular maintenance tasks for assets, receive notifications about upcoming maintenance, and track the history of maintenance activities for each asset.
+        a. Integrate the assets management module with the ticketing system to track which assets are associated with support tickets and their maintenance schedules, providing a holistic view of asset performance and support history.
+        b. Implement a maintenance scheduling feature that allows users to set up regular maintenance tasks for assets, receive notifications about upcoming maintenance, and track the history of maintenance activities for each asset.
 14. Purchase Request:
     - Implement a clear and efficient purchase request process that includes request submission, approval workflows, and tracking of procurement status.
     - Add a feature to allow users to view the status of their purchase requests and receive notifications about updates or approvals.
@@ -446,8 +531,8 @@
     - Add a chatbox management feature to allow administrators to manage and configure the chatbox feature for real-time communication with support staff, enhancing user experience and support efficiency.
     - Implement an AI management feature to allow administrators to manage and configure AI features and functionalities within the application, such as chatbots, predictive analytics, and automation tools, providing advanced capabilities and improving overall user experience.
     - All user can have many roles.
-        - Roles: Guest, User, Receptionist, Human Resources, Administrator (IT Support Staff), Director (Management), Developer (IT Programmer Staff)
-        - Access level :
+        a. Roles: Guest, User, Receptionist, Human Resources, Administrator (IT Support Staff), Director (Management), Developer (IT Programmer Staff)
+        b. Access level :
             - LV 0 : Guest (Unauthenticated users, with access to limited features such as login and registration pages)
             - LV 1 : User (Default role for all authenticated users, with access to basic features and functionalities)
             - LV 2 : Receptionist (Access to meeting room management and user support features)
@@ -482,8 +567,8 @@
 18. Form management:
     - Implement a comprehensive form management system to handle various types of forms related to asset handover, lending, return, and disposal processes.
     - Allow administrators to create, manage, update, and print forms for asset handover, lending, return, and disposal processes, providing a streamlined workflow for managing company assets and ensuring proper documentation of asset transactions.
-        - Integrate the form management system with the assets management module to ensure that all asset-related transactions are properly documented and tracked, providing a holistic view of asset performance and history.
-        - Implement features for users to view and manage their forms, including the ability to submit new forms, track the status of existing forms, and receive notifications about updates or approvals related to their forms.
+        a. Integrate the form management system with the assets management module to ensure that all asset-related transactions are properly documented and tracked, providing a holistic view of asset performance and history.
+        b. Implement features for users to view and manage their forms, including the ability to submit new forms, track the status of existing forms, and receive notifications about updates or approvals related to their forms.
 19. Database structure update:
     - Modify the existing database structure to align with the new modular design of the application, ensuring that all necessary tables and relationships are properly defined to support the new features and functionalities.
     - This may involve creating new tables for modules such as Assets Management, Purchase Request, and User Management, as well as updating existing tables to accommodate changes in data requirements and relationships between modules.

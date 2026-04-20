@@ -316,7 +316,7 @@ class MenuService
     public function getMenuPermissionMatrix(int $menuId): array
     {
         $menu = Menu::with('roles')->findOrFail($menuId);
-        $allRoles = \App\Role::all();
+        $allRoles = \App\Role::query()->canonical()->get();
         
         $matrix = [];
         foreach ($allRoles as $role) {

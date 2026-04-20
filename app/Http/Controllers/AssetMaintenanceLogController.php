@@ -15,7 +15,7 @@ class AssetMaintenanceLogController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('role:admin|super-admin');
+        $this->middleware('role:administrator|developer');
     }
 
     /**

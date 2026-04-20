@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\User;
-use Spatie\Permission\Models\Role;
+use App\Role;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -33,11 +33,11 @@ class FixRoleAssignments extends Command
     {
         $this->info("=== Fixing Role Assignments ===");
 
-        // Define test users and their roles
+        // Define test users and their canonical roles
         $testUsers = [
-            'Super Admin User' => 'super-admin',
-            'Admin User' => 'admin',
-            'User User' => 'user'
+            'Super Admin User' => 'developer',
+            'Admin User' => 'administrator',
+            'User User' => 'user',
         ];
 
         foreach ($testUsers as $userName => $roleName) {
@@ -61,7 +61,9 @@ class FixRoleAssignments extends Command
             }
             
             // Get role
-            $role = Role::where('name', $roleName)->first();
+            $role = Role::query()
+                ->whereIn('name', Role::equivalentNames($roleName))
+                ->first();
             if (!$role) {
                 $this->error("- Role not found: " . $roleName);
                 continue;
@@ -112,7 +114,7 @@ class FixRoleAssignments extends Command
         // Ensure role guard_name is set correctly
         $this->info("\nChecking role guard_name values...");
         if (Schema::hasTable('roles') && Schema::hasColumn('roles', 'guard_name')) {
-            $roles = Role::all();
+            $roles = Role::query()->canonical()->get();
             foreach ($roles as $role) {
                 if (empty($role->guard_name)) {
                     $role->guard_name = 'web';

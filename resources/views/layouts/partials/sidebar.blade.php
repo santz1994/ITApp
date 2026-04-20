@@ -23,6 +23,7 @@
     'purchase_request',
     'user_management',
     'settings',
+    'kpi',
     'profile',
   ];
 
@@ -59,12 +60,15 @@
   ) {
     $workspaceFromRoute = 'user_management';
   } elseif (
+    \Illuminate\Support\Str::startsWith($routeName, 'kpi.')
+    || \Illuminate\Support\Str::startsWith($routeName, 'management.')
+  ) {
+    $workspaceFromRoute = 'kpi';
+  } elseif (
     \Illuminate\Support\Str::startsWith($routeName, 'system-settings.')
     || \Illuminate\Support\Str::startsWith($routeName, 'system.')
     || \Illuminate\Support\Str::startsWith($routeName, 'audit-logs.')
     || \Illuminate\Support\Str::startsWith($routeName, 'admin.')
-    || \Illuminate\Support\Str::startsWith($routeName, 'kpi.')
-    || \Illuminate\Support\Str::startsWith($routeName, 'management.')
     || \Illuminate\Support\Str::startsWith($routeName, 'sla.')
     || \Illuminate\Support\Str::startsWith($routeName, 'daily-activities.')
   ) {
@@ -92,6 +96,7 @@
     'purchase_request' => ['en' => 'Purchase Request', 'id' => 'Permintaan Pengadaan'],
     'user_management' => ['en' => 'User Management', 'id' => 'Manajemen Pengguna'],
     'settings' => ['en' => 'Settings', 'id' => 'Pengaturan'],
+    'kpi' => ['en' => 'KPI Workspace', 'id' => 'Ruang Kerja KPI'],
     'profile' => ['en' => 'Profile', 'id' => 'Profil'],
   ];
 @endphp
@@ -211,15 +216,15 @@
       @endauth
       @endif
       <!-- 📅 Daily Activity (Admin=2/SuperAdmin=3 full, Management=4 view-only) -->
-      @if($showWorkspace(['settings']))
+      @if($showWorkspace(['settings', 'kpi']))
       @can('view-daily-activities')
       <li class="treeview">
         <a href="javascript:void(0)"><i class='fa fa-calendar'></i> <span>Daily Activity</span> <i class="fa fa-angle-left pull-right"></i></a>
         <ul class="treeview-menu">
-          <li><a href="{{ url('/daily-activities')}}"><i class="fa fa-list"></i> Activity List</a></li>
-          <li><a href="{{ url('/daily-activities/calendar')}}"><i class="fa fa-calendar-o"></i> Calendar View</a></li>
+          <li><a href="{{ url('/daily-activities') }}{{ $sidebarWorkspace === 'kpi' ? '?workspace=kpi' : '' }}"><i class="fa fa-list"></i> Activity List</a></li>
+          <li><a href="{{ url('/daily-activities/calendar') }}{{ $sidebarWorkspace === 'kpi' ? '?workspace=kpi' : '' }}"><i class="fa fa-calendar-o"></i> Calendar View</a></li>
           @can('create-daily-activities')
-          <li><a href="{{ url('/daily-activities/create')}}"><i class="fa fa-plus-circle"></i> Add Activity</a></li>
+          <li><a href="{{ url('/daily-activities/create') }}{{ $sidebarWorkspace === 'kpi' ? '?workspace=kpi' : '' }}"><i class="fa fa-plus-circle"></i> Add Activity</a></li>
           @endcan
         </ul>
       </li>
@@ -227,15 +232,15 @@
       @endif
 
       <!-- 📋 Reports (management, admin, super-admin) -->
-      @if($showWorkspace(['settings']))
+      @if($showWorkspace(['settings', 'kpi']))
       @can('view-reports')
       <li class="treeview">
         <a href="javascript:void(0)"><i class='fa fa-bar-chart'></i> <span>Reports</span> <i class="fa fa-angle-left pull-right"></i></a>
         <ul class="treeview-menu">
-          <li><a href="{{ route('kpi.dashboard') }}"><i class="fa fa-dashboard"></i> KPI Dashboard</a></li>
+          <li><a href="{{ route('kpi.dashboard', ['workspace' => 'kpi']) }}"><i class="fa fa-dashboard"></i> KPI Dashboard</a></li>
           @hasrole('management|admin|super-admin')
-          <li><a href="{{ url('/management/dashboard')}}"><i class="fa fa-line-chart"></i> Management Dashboard</a></li>
-          <li><a href="{{ url('/management/admin-performance')}}"><i class="fa fa-users"></i> Admin Performance</a></li>
+          <li><a href="{{ url('/management/dashboard') }}{{ $sidebarWorkspace === 'kpi' ? '?workspace=kpi' : '' }}"><i class="fa fa-line-chart"></i> Management Dashboard</a></li>
+          <li><a href="{{ url('/management/admin-performance') }}{{ $sidebarWorkspace === 'kpi' ? '?workspace=kpi' : '' }}"><i class="fa fa-users"></i> Admin Performance</a></li>
           @endhasrole
         </ul>
       </li>
@@ -314,59 +319,41 @@
               @endcan
               @endif
 
-            <!-- ⚙️ System Settings (super-admin only) -->
+            <!-- ⚙️ Settings & AI (admin and super-admin) -->
               @if($showWorkspace(['settings']))
-            @role('super-admin')
-            <li class="treeview">
-                <a href="javascript:void(0)"><i class='fa fa-cogs'></i> <span>System Settings</span> <i class="fa fa-angle-left pull-right"></i></a>
+              @role(['admin', 'super-admin'])
+              <li class="treeview">
+                <a href="javascript:void(0)"><i class='fa fa-cogs'></i> <span>Settings &amp; AI</span> <i class="fa fa-angle-left pull-right"></i></a>
                 <ul class="treeview-menu">
-                    <li><a href="{{ route('system-settings.index') }}"><i class="fa fa-th"></i> Settings Overview</a></li>
-                    <li><a href="{{ route('admin.menus.index') }}"><i class="fa fa-bars"></i> Menu Management</a></li>
-                    <li><a href="{{ route('sla.index') }}"><i class="fa fa-clock-o"></i> SLA Policies</a></li>
-                    <li><a href="{{ route('sla.dashboard') }}"><i class="fa fa-dashboard"></i> SLA Dashboard</a></li>
-                    <li><a href="{{ route('sla.learning.dashboard') }}"><i class="fa fa-graduation-cap text-purple"></i> SLA Learning System</a></li>
-                </ul>
-            </li>
-            @endrole
+                  @role('super-admin')
+                  <li><a href="{{ route('system-settings.index') }}"><i class="fa fa-sliders"></i> System Settings</a></li>
+                  <li><a href="{{ route('admin.menus.index') }}"><i class="fa fa-bars"></i> Menu Management</a></li>
+                  <li><a href="{{ route('sla.index') }}"><i class="fa fa-clock-o"></i> SLA Policies</a></li>
+                  <li><a href="{{ route('sla.dashboard') }}"><i class="fa fa-dashboard"></i> SLA Dashboard</a></li>
+                  <li><a href="{{ route('sla.learning.dashboard') }}"><i class="fa fa-graduation-cap"></i> SLA Learning System</a></li>
+                  <li class="divider" role="separator"></li>
+                  <li><a href="{{ route('system.settings') }}"><i class="fa fa-server"></i> System Info</a></li>
+                  <li><a href="{{ route('system.permissions') }}"><i class="fa fa-key"></i> Permissions</a></li>
+                  <li><a href="{{ route('system.roles') }}"><i class="fa fa-users"></i> Roles</a></li>
+                  <li><a href="{{ route('system.maintenance') }}"><i class="fa fa-wrench"></i> Maintenance</a></li>
+                  <li><a href="{{ route('system.logs') }}"><i class="fa fa-file-text"></i> System Logs</a></li>
+                  <li class="divider" role="separator"></li>
+                  @endrole
 
-            <!-- 🔐 System Management (super-admin only) -->
-            @role('super-admin')
-            <li class="treeview">
-                <a href="javascript:void(0)"><i class='fa fa-shield'></i> <span>System Management</span> <i class="fa fa-angle-left pull-right"></i></a>
-                <ul class="treeview-menu">
-                    <li><a href="{{ route('system.settings') }}"><i class="fa fa-server"></i> System Info</a></li>
-                    <li><a href="{{ route('system.permissions') }}"><i class="fa fa-key"></i> Permissions</a></li>
-                    <li><a href="{{ route('system.roles') }}"><i class="fa fa-users"></i> Roles</a></li>
-                    <li><a href="{{ route('system.maintenance') }}"><i class="fa fa-wrench"></i> Maintenance</a></li>
-                    <li><a href="{{ route('system.logs') }}"><i class="fa fa-file-text"></i> System Logs</a></li>
-                </ul>
-            </li>
-            @endrole
+                  <li><a href="{{ route('audit-logs.index') }}"><i class="fa fa-history"></i> Audit Logs</a></li>
+                  <li><a href="{{ route('audit-logs.export') }}"><i class="fa fa-download"></i> Export Audit Logs</a></li>
 
-            <!-- 📝 Audit Logs (admin & super-admin) -->
-            @role(['admin', 'super-admin'])
-            <li class="treeview">
-                <a href="javascript:void(0)"><i class='fa fa-history'></i> <span>Audit Logs</span> <i class="fa fa-angle-left pull-right"></i></a>
-                <ul class="treeview-menu">
-                    <li><a href="{{ route('audit-logs.index') }}"><i class="fa fa-list"></i> View Logs</a></li>
-                    <li><a href="{{ route('audit-logs.export') }}"><i class="fa fa-download"></i> Export Logs</a></li>
+                  @role('super-admin')
+                  <li class="divider" role="separator"></li>
+                  <li><a href="{{ url('/admin/dashboard') }}"><i class="fa fa-dashboard"></i> Admin Dashboard</a></li>
+                  <li><a href="{{ url('/admin/database') }}"><i class="fa fa-database"></i> Database Management</a></li>
+                  <li><a href="{{ url('/admin/cache') }}"><i class="fa fa-hdd-o"></i> Cache Management</a></li>
+                  <li><a href="{{ url('/admin/backup') }}"><i class="fa fa-cloud-download"></i> Backup &amp; Restore</a></li>
+                  <li><a href="{{ url('/admin/notification-settings') }}"><i class="fa fa-bell"></i> Notification Settings</a></li>
+                  @endrole
                 </ul>
-            </li>
+              </li>
               @endrole
-
-            <!-- 🔧 Admin Tools (super-admin only) -->
-            @role('super-admin')
-            <li class="treeview">
-                <a href="javascript:void(0)"><i class='fa fa-wrench'></i> <span>Admin Tools</span> <i class="fa fa-angle-left pull-right"></i></a>
-                <ul class="treeview-menu">
-                    <li><a href="{{ url('/admin/dashboard')}}"><i class="fa fa-dashboard"></i> Admin Dashboard</a></li>
-                    <li><a href="{{ url('/admin/database')}}"><i class="fa fa-database"></i> Database Management</a></li>
-                    <li><a href="{{ url('/admin/cache')}}"><i class="fa fa-hdd-o"></i> Cache Management</a></li>
-                    <li><a href="{{ url('/admin/backup')}}"><i class="fa fa-cloud-download"></i> Backup & Restore</a></li>
-                    <li><a href="{{ url('/admin/notification-settings')}}"><i class="fa fa-bell"></i> Notification Settings</a></li>
-                </ul>
-            </li>
-            @endrole
               @endif
         </ul><!-- /.sidebar-menu -->
     </section>

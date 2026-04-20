@@ -195,7 +195,7 @@ class MenuManagementController extends Controller
     public function permissions($id)
     {
         $menu = Menu::with(['roles', 'parent'])->findOrFail($id);
-        $allRoles = Role::orderBy('name')->get();
+        $allRoles = Role::query()->canonical()->orderBy('name')->get();
         $permissionMatrix = $this->menuService->getMenuPermissionMatrix($id);
         
         return view('admin.menus.permissions', compact('menu', 'allRoles', 'permissionMatrix'));

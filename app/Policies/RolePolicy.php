@@ -55,7 +55,7 @@ class RolePolicy
      * 
      * Business Rules:
      * - Only Super Admin can delete roles
-     * - Cannot delete system roles (super-admin, admin, management, user)
+     * - Cannot delete canonical system roles
      */
     public function delete(User $user, Role $role): bool
     {
@@ -64,7 +64,7 @@ class RolePolicy
         }
 
         // Protect system roles
-        $systemRoles = ['super-admin', 'admin', 'management', 'user'];
+        $systemRoles = Role::canonicalNames();
         return !in_array($role->name, $systemRoles);
     }
 

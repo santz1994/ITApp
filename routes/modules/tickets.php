@@ -3,7 +3,7 @@
 /**
  * Ticket Management Routes
  * 
- * All ticket-related routes for admin and super-admin users
+ * All ticket-related routes for administrator and developer users
  * Controllers refactored into specialized classes:
  * - TicketController: Core CRUD operations
  * - TicketAssignmentController: Assignment operations
@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 // ADMIN/SUPER-ADMIN ROUTES - Define FIRST
 // IMPORTANT: Specific string routes BEFORE parameterized routes to avoid routing conflicts
 // ========================================
-Route::middleware(['web', 'auth', 'role:admin|super-admin'])->group(function () {
+Route::middleware(['web', 'auth', 'role:administrator|developer'])->group(function () {
     
     // SPECIFIC STRING ROUTES - Must come BEFORE /tickets/{ticket}
     Route::get('/tickets/unassigned', [\App\Http\Controllers\TicketController::class, 'unassigned'])->name('tickets.unassigned');
@@ -39,7 +39,7 @@ Route::middleware(['web', 'auth', 'role:admin|super-admin'])->group(function () 
     Route::post('/tickets/{ticket}/update-status', [\App\Http\Controllers\Tickets\TicketStatusController::class, 'updateStatus'])->name('tickets.update-status')->where('ticket', '[0-9]+');
     Route::post('/tickets/{ticket}/complete-with-resolution', [\App\Http\Controllers\Tickets\TicketStatusController::class, 'completeWithResolution'])->name('tickets.complete-with-resolution')->where('ticket', '[0-9]+');
     
-    // RESOLVE/UNRESOLVE ROUTES (for assigned agents and super-admin)
+    // RESOLVE/UNRESOLVE ROUTES (for assigned agents and developer)
     Route::patch('/tickets/{ticket}/resolve', [\App\Http\Controllers\TicketController::class, 'resolve'])->name('tickets.resolve')->where('ticket', '[0-9]+');
     Route::patch('/tickets/{ticket}/unresolve', [\App\Http\Controllers\TicketController::class, 'unresolve'])->name('tickets.unresolve')->where('ticket', '[0-9]+');
     
@@ -65,6 +65,7 @@ Route::middleware(['web', 'auth', 'role:admin|super-admin'])->group(function () 
 Route::middleware(['web', 'auth'])->group(function () {
     // Specific routes first
     Route::get('/tickets/create', [\App\Http\Controllers\TicketController::class, 'create'])->name('tickets.create');
+    Route::post('/tickets/smart-intake', [\App\Http\Controllers\Tickets\TicketSmartIntakeController::class, 'store'])->name('tickets.smart-intake');
     Route::get('/tickets/bulk/options', [\App\Http\Controllers\BulkOperationController::class, 'getBulkOptions'])->name('tickets.bulk.options');
     Route::post('/tickets', [\App\Http\Controllers\TicketController::class, 'store'])->name('tickets.store');
     Route::get('/tickets', [\App\Http\Controllers\TicketController::class, 'index'])->name('tickets.index');
@@ -85,6 +86,6 @@ Route::middleware(['web', 'auth'])->group(function () {
 // ========================================
 // ENHANCED TICKET CREATION (Multi-role access)
 // ========================================
-Route::middleware(['web', 'auth', 'role:management|admin|super-admin'])->group(function () {
+Route::middleware(['web', 'auth', 'role:director|administrator|developer'])->group(function () {
     Route::get('/tickets/create-with-asset', [\App\Http\Controllers\TicketController::class, 'createWithAsset'])->name('tickets.create-with-asset');
 });

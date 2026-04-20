@@ -129,26 +129,29 @@ class ComprehensivePermissionsSeeder extends Seeder
             echo "  ✓ {$permission['name']}\n";
         }
 
-        // Get roles
-        $superAdminRole = Role::where('name', 'super-admin')->first();
-        $adminRole = Role::where('name', 'admin')->first();
-        $managementRole = Role::where('name', 'management')->first();
+        // Get canonical roles
+        $developerRole = Role::where('name', 'developer')->first();
+        $administratorRole = Role::where('name', 'administrator')->first();
+        $directorRole = Role::where('name', 'director')->first();
+        $humanResourcesRole = Role::where('name', 'human-resources')->first();
+        $receptionistRole = Role::where('name', 'receptionist')->first();
         $userRole = Role::where('name', 'user')->first();
+        $guestRole = Role::where('name', 'guest')->first();
 
-        if (!$superAdminRole || !$adminRole || !$managementRole || !$userRole) {
-            echo "\n⚠️  ERROR: Roles not found! Run RolesTableSeeder first.\n";
+        if (!$developerRole || !$administratorRole || !$directorRole || !$userRole) {
+            echo "\n⚠️  ERROR: Canonical roles not found! Run RolesTableSeeder first.\n";
             return;
         }
 
         // Assign permissions to roles
         echo "\nAssigning permissions to roles...\n";
 
-        // Super Admin - ALL PERMISSIONS
-        $superAdminRole->syncPermissions(Permission::all());
-        echo "  ✓ Super Admin: " . Permission::count() . " permissions\n";
+        // Developer - ALL PERMISSIONS (LV 10)
+        $developerRole->syncPermissions(Permission::all());
+        echo "  ✓ Developer: " . Permission::count() . " permissions\n";
 
-        // Admin - Most permissions except super-admin specific ones
-        $adminPermissions = [
+        // Administrator - operational full access except developer-only areas
+        $administratorPermissions = [
             'view-assets', 'create-assets', 'edit-assets', 'delete-assets', 'export-assets', 'import-assets', 'manage-assets',
             'view-tickets', 'create-tickets', 'edit-tickets', 'delete-tickets', 'assign-tickets', 'export-tickets',
             'view-daily-activities', 'create-daily-activities', 'edit-daily-activities', 'delete-daily-activities',
@@ -158,18 +161,29 @@ class ComprehensivePermissionsSeeder extends Seeder
             'view-notifications', 'manage-notifications',
             'view-meeting-bookings', 'create-meeting-bookings', 'approve-meeting-bookings', 'reject-meeting-bookings', 'cancel-meeting-bookings',
         ];
-        $adminRole->syncPermissions($adminPermissions);
-        echo "  ✓ Admin: " . count($adminPermissions) . " permissions\n";
+        $administratorRole->syncPermissions($administratorPermissions);
+        echo "  ✓ Administrator: " . count($administratorPermissions) . " permissions\n";
 
-        // Management - View and report permissions
-        $managementPermissions = [
+        // Director - View and report permissions (LV 8)
+        $directorPermissions = [
             'view-assets',
             'view-tickets', 'create-tickets', 'edit-tickets',
             'view-daily-activities', 'create-daily-activities', 'edit-daily-activities',
             'view-kpi-dashboard', 'view-reports', 'view-management-dashboard',
+            'view-meeting-bookings', 'create-meeting-bookings', 'approve-meeting-bookings', 'reject-meeting-bookings',
         ];
-        $managementRole->syncPermissions($managementPermissions);
-        echo "  ✓ Management: " . count($managementPermissions) . " permissions\n";
+        $directorRole->syncPermissions($directorPermissions);
+        echo "  ✓ Director: " . count($directorPermissions) . " permissions\n";
+
+        // Human Resources - user management + profile workflows (LV 3)
+        if ($humanResourcesRole) {
+            $humanResourcesPermissions = [
+                'view-users', 'create-users', 'edit-users',
+                'view-tickets', 'create-tickets',
+            ];
+            $humanResourcesRole->syncPermissions($humanResourcesPermissions);
+            echo "  ✓ Human Resources: " . count($humanResourcesPermissions) . " permissions\n";
+        }
 
         // User - Limited permissions
         $userPermissions = [
@@ -178,35 +192,24 @@ class ComprehensivePermissionsSeeder extends Seeder
         ];
         $userRole->syncPermissions($userPermissions);
         echo "  ✓ User: " . count($userPermissions) . " permissions\n";
-        
-        // Director - Meeting room approval authority
-        $directorRole = Role::firstOrCreate(['name' => 'director', 'guard_name' => $guardName], [
-            'display_name' => 'Director',
-            'description' => 'Can approve/reject meeting room bookings and view management reports'
-        ]);
-        $directorPermissions = [
-            'view-assets',
-            'view-tickets', 'create-tickets',
-            'view-daily-activities',
-            'view-kpi-dashboard', 'view-reports', 'view-management-dashboard',
-            'view-meeting-bookings', 'create-meeting-bookings', 'approve-meeting-bookings', 'reject-meeting-bookings',
-        ];
-        $directorRole->syncPermissions($directorPermissions);
-        echo "  ✓ Director: " . count($directorPermissions) . " permissions\n";
+
+        // Guest - no authenticated permissions
+        if ($guestRole) {
+            $guestRole->syncPermissions([]);
+            echo "  ✓ Guest: 0 permissions\n";
+        }
         
         // Receptionist - Meeting room management
-        $receptionistRole = Role::firstOrCreate(['name' => 'receptionist', 'guard_name' => $guardName], [
-            'display_name' => 'Receptionist',
-            'description' => 'Can manage meeting room bookings and receptionist dashboard'
-        ]);
-        $receptionistPermissions = [
-            'view-meeting-bookings', 'create-meeting-bookings', 'cancel-meeting-bookings', 'manage-receptionist-dashboard',
-        ];
-        $receptionistRole->syncPermissions($receptionistPermissions);
-        echo "  ✓ Receptionist: " . count($receptionistPermissions) . " permissions\n";
+        if ($receptionistRole) {
+            $receptionistPermissions = [
+                'view-meeting-bookings', 'create-meeting-bookings', 'cancel-meeting-bookings', 'manage-receptionist-dashboard',
+            ];
+            $receptionistRole->syncPermissions($receptionistPermissions);
+            echo "  ✓ Receptionist: " . count($receptionistPermissions) . " permissions\n";
+        }
 
         echo "\n✅ All permissions created and assigned successfully!\n";
-        echo "Total Roles: 6 (super-admin, admin, management, user, director, receptionist)\n";
+        echo "Total Roles: 7 (guest, user, receptionist, human-resources, director, administrator, developer)\n";
         echo "Total Permissions: " . Permission::count() . "\n";
     }
 }

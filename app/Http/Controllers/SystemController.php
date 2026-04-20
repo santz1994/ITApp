@@ -40,7 +40,11 @@ class SystemController extends Controller
     public function permissions(): View
     {
         $permissions = $this->permissionService->getAllPermissions();
-        $roles = Role::with('permissions')->withCount('permissions')->get();
+        $roles = Role::query()
+            ->whereIn('name', \App\Role::canonicalNames())
+            ->with('permissions')
+            ->withCount('permissions')
+            ->get();
         
         return view('system.permissions', compact('permissions', 'roles'));
     }

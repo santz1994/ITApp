@@ -6,6 +6,7 @@ use App\Ticket;
 use App\DailyActivity;
 use App\User;
 use App\TicketsStatus;
+use App\TicketsType;
 use App\TicketsEntry;
 use App\AdminOnlineStatus;
 use Carbon\Carbon;
@@ -63,18 +64,40 @@ class TicketService
         return DB::transaction(function () use ($data) {
             // Remove sla_due from input data if present (will be calculated by SLA Learning System)
             unset($data['sla_due']);
+
+            $smartRecommendation = null;
+            if (empty($data['ticket_priority_id']) || empty($data['ticket_type_id'])) {
+                $smartRecommendation = app(SmartTicketIntakeService::class)->analyze(
+                    (string) ($data['subject'] ?? ''),
+                    (string) ($data['description'] ?? ''),
+                    false
+                );
+            }
             
             // Generate ticket code
             $data['ticket_code'] = $this->generateTicketCode();
 
             // AUTO-DETECT PRIORITY from subject and description if not provided
             if (empty($data['ticket_priority_id'])) {
-                $data['ticket_priority_id'] = \App\Services\TicketPriorityDetector::detectPriority(
-                    $data['subject'] ?? '',
-                    $data['description'] ?? ''
-                );
+                $data['ticket_priority_id'] = data_get($smartRecommendation, 'recommended.ticket_priority_id')
+                    ?? \App\Services\TicketPriorityDetector::detectPriority(
+                        $data['subject'] ?? '',
+                        $data['description'] ?? ''
+                    );
+
                 Log::info('Auto-detected ticket priority', [
                     'priority_id' => $data['ticket_priority_id'],
+                    'subject' => $data['subject'] ?? ''
+                ]);
+            }
+
+            // AUTO-DETECT TYPE from subject and description if not provided
+            if (empty($data['ticket_type_id'])) {
+                $data['ticket_type_id'] = data_get($smartRecommendation, 'recommended.ticket_type_id')
+                    ?? $this->getDefaultTicketTypeId();
+
+                Log::info('Auto-detected ticket type', [
+                    'type_id' => $data['ticket_type_id'],
                     'subject' => $data['subject'] ?? ''
                 ]);
             }
@@ -406,6 +429,16 @@ class TicketService
     {
         $status = TicketsStatus::where('status', $statusName)->first();
         return $status ? $status->id : 1; // Default to 1 if not found
+    }
+
+    /**
+     * Get default ticket type ID as a safe fallback.
+     */
+    private function getDefaultTicketTypeId()
+    {
+        $ticketType = TicketsType::query()->orderBy('id')->first();
+
+        return $ticketType ? $ticketType->id : 1;
     }
 
     /**

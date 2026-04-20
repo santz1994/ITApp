@@ -12,13 +12,23 @@ class Supplier extends Model
   protected $fillable = ['name'];
   public $timestamps = false;
 
-  public function invoice()
+  public function invoices()
   {
     return $this->hasMany(Invoice::class);
   }
 
-  public function asset()
+  public function invoice()
+  {
+    return $this->invoices();
+  }
+
+  public function assets()
   {
     return $this->hasMany(Asset::class);
+  }
+
+  public function asset()
+  {
+    return $this->assets();
   }
 }

@@ -17,22 +17,27 @@
 7. [Yajra DataTables Integration](#7-yajra-datatables-integration)
 8. [Performance Indexes & Optimization](#8-performance-indexes--optimization)
 9. [GDPR & Audit Logging (ISO 27001)](#9-gdpr--audit-logging-iso-27001)
+10. [ITSM Coverage & Normalization Roadmap](#10-itsm-coverage--normalization-roadmap)
 
 ---
 
 ## 1. Database Structure Overview
 
-The database consists of **20+ tables** grouped into functional modules:
+The database consists of **60+ tables** grouped into functional modules:
 
 | # | Module | Tables |
 |---|--------|--------|
 | A | **Auth & Users** | `users`, `roles`, `permissions`, `model_has_roles`, `model_has_permissions`, `role_has_permissions` |
-| B | **Tickets** | `tickets`, `ticket_history`, `ticket_comments`, `ticket_assets`, `tickets_statuses`, `tickets_types`, `tickets_priorities`, `sla_policies` |
-| C | **Assets** | `assets`, `asset_models`, `asset_types`, `asset_categories`, `asset_maintenance_logs`, `asset_lifecycle_events`, `asset_requests`, `purchase_orders`, `asset_forms`, `asset_form_items`, `asset_form_approvals` |
+| B | **Tickets** | `tickets`, `ticket_history`, `ticket_comments`, `ticket_assets`, `ticket_watchers`, `tickets_statuses`, `tickets_types`, `tickets_priorities`, `sla_policies`, `media` |
+| C | **Assets** | `assets`, `asset_models`, `asset_types`, `asset_categories`, `asset_maintenance_logs`, `asset_lifecycle_events`, `asset_requests`, `purchase_orders`, `asset_forms`, `asset_form_items`, `asset_form_approvals`, `licenses`, `asset_has_licenses` |
 | D | **Meeting Rooms** | `meeting_rooms`, `meeting_room_bookings`, `meeting_room_display_settings` |
 | E | **Reference / Master** | `locations`, `divisions`, `departments`, `suppliers`, `manufacturers`, `statuses`, `warranty_types`, `invoices`, `movements` |
-| F | **Audit / Compliance** | `audit_logs`, `activity_log`, `daily_activities` |
-| G | **System** | `sessions`, `jobs`, `cache`, `menus`, `menu_user`, `notification_settings` |
+| F | **Audit / Compliance** | `audit_logs`, `activity_logs`, `daily_activities` |
+| G | **System** | `sessions`, `jobs`, `failed_jobs`, `job_batches`, `cache`, `cache_locks`, `menus`, `menu_user`, `notification_settings` |
+
+> Note:
+> - Legacy core tables still use `INT UNSIGNED` for many PK/FK pairs. New table additions in this document are designed to be compatible with current production schema first.
+> - Long-term standardization target is `$table->id()` / `unsignedBigInteger` for all major entities in new development phases.
 
 ---
 
@@ -159,6 +164,8 @@ CREATE TABLE `users` (
     `phone`                       VARCHAR(30) NULL,
     `profile_picture`             VARCHAR(255) NULL,
     `portal_preferences`          JSON NULL COMMENT 'Bilingual toggle, role badge, theme prefs',
+    -- NOTE: Notification flags below are legacy columns kept for backward compatibility.
+    -- Canonical target for new development is `notification_settings` (see System module section).
     `notify_email`                TINYINT(1) NOT NULL DEFAULT 1,
     `notify_ticket_created`       TINYINT(1) NOT NULL DEFAULT 1,
     `notify_ticket_assigned`      TINYINT(1) NOT NULL DEFAULT 1,
@@ -168,12 +175,14 @@ CREATE TABLE `users` (
     `is_active`                   TINYINT(1) NOT NULL DEFAULT 1,
     `last_login_at`               TIMESTAMP NULL,
     `remember_token`              VARCHAR(100) NULL,
+    `deleted_at`                  TIMESTAMP NULL COMMENT 'Soft delete to preserve historical ownership and audit traceability',
     `created_at`                  TIMESTAMP NULL,
     `updated_at`                  TIMESTAMP NULL,
     PRIMARY KEY (`id`),
     KEY `idx_users_role_active_login` (`role_id`, `is_active`, `last_login_at`),
     KEY `idx_users_division` (`division_id`),
     KEY `idx_users_location` (`location_id`),
+    KEY `idx_users_deleted` (`deleted_at`),
     CONSTRAINT `fk_users_role` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE SET NULL,
     CONSTRAINT `fk_users_division` FOREIGN KEY (`division_id`) REFERENCES `divisions` (`id`) ON DELETE SET NULL,
     CONSTRAINT `fk_users_location` FOREIGN KEY (`location_id`) REFERENCES `locations` (`id`) ON DELETE SET NULL
@@ -415,6 +424,54 @@ CREATE TABLE `ticket_assets` (
     CONSTRAINT `fk_ta_ticket` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_ta_asset`  FOREIGN KEY (`asset_id`)  REFERENCES `assets` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- ticket_watchers (CC / observers for ticket updates)
+-- ============================================================
+CREATE TABLE `ticket_watchers` (
+    `id`         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `ticket_id`  INT UNSIGNED NOT NULL,
+    `user_id`    INT UNSIGNED NOT NULL,
+    `watch_type` ENUM('watcher','cc') NOT NULL DEFAULT 'watcher',
+    `created_at` TIMESTAMP NULL,
+    `updated_at` TIMESTAMP NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_ticket_watchers_ticket_user` (`ticket_id`, `user_id`),
+    KEY `idx_ticket_watchers_user` (`user_id`),
+    CONSTRAINT `fk_tw_ticket` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_tw_user`   FOREIGN KEY (`user_id`)   REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- media (polymorphic attachments: ticket, ticket_comment, asset, etc.)
+-- Compatible with Spatie Media Library pattern
+-- ============================================================
+CREATE TABLE `media` (
+    `id`                    BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `model_type`            VARCHAR(255) NOT NULL,
+    `model_id`              BIGINT UNSIGNED NOT NULL,
+    `uuid`                  CHAR(36) NULL,
+    `collection_name`       VARCHAR(255) NOT NULL DEFAULT 'default',
+    `name`                  VARCHAR(255) NOT NULL,
+    `file_name`             VARCHAR(255) NOT NULL,
+    `mime_type`             VARCHAR(255) NULL,
+    `disk`                  VARCHAR(255) NOT NULL DEFAULT 'public',
+    `conversions_disk`      VARCHAR(255) NULL,
+    `size`                  BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    `manipulations`         LONGTEXT NULL,
+    `custom_properties`     LONGTEXT NULL,
+    `generated_conversions` LONGTEXT NULL,
+    `responsive_images`     LONGTEXT NULL,
+    `order_column`          INT UNSIGNED NULL,
+    `created_by`            INT UNSIGNED NULL,
+    `created_at`            TIMESTAMP NULL,
+    `updated_at`            TIMESTAMP NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_media_model` (`model_type`, `model_id`),
+    KEY `idx_media_collection` (`collection_name`),
+    KEY `idx_media_created_by` (`created_by`),
+    CONSTRAINT `fk_media_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 ---
@@ -556,7 +613,11 @@ CREATE TABLE `assets` (
     `warranty_months`          INT NULL,
     `warranty_type_id`         INT UNSIGNED NULL,
     `warranty_expiration_date` DATETIME NULL,
-    `cost`                     DECIMAL(15,2) NULL,
+    `cost`                     DECIMAL(15,2) NULL COMMENT 'Legacy alias for purchase_price',
+    `purchase_price`           DECIMAL(15,2) NULL COMMENT 'Acquisition cost used for accounting calculations',
+    `salvage_value`            DECIMAL(15,2) NULL COMMENT 'Residual value at end of useful life',
+    `useful_life_months`       INT UNSIGNED NULL COMMENT 'Depreciation horizon in months',
+    `depreciation_method`      ENUM('straight_line','declining_balance','units_of_production') NULL,
     `ip_address`               VARCHAR(45) NULL,
     `mac_address`              VARCHAR(17) NULL,
     `status_id`                INT UNSIGNED NOT NULL DEFAULT 1,
@@ -574,7 +635,7 @@ CREATE TABLE `assets` (
     `lending_history`          JSON NULL,
     `return_history`           JSON NULL,
     `location_history`         JSON NULL,
-    `depreciation_schedule`    JSON NULL,
+    `depreciation_schedule`    JSON NULL COMMENT 'Legacy cached schedule; prefer dynamic calculation from structured columns',
     -- Denormalized display fields
     `category`                 VARCHAR(100) NULL,
     `asset_type`               VARCHAR(100) NULL,
@@ -613,6 +674,53 @@ CREATE TABLE `assets` (
     CONSTRAINT `fk_assets_status`        FOREIGN KEY (`status_id`)        REFERENCES `statuses` (`id`),
     CONSTRAINT `fk_assets_assigned`      FOREIGN KEY (`assigned_to`)      REFERENCES `users` (`id`) ON DELETE SET NULL,
     CONSTRAINT `fk_assets_assigned_user` FOREIGN KEY (`assigned_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- licenses (software license inventory)
+-- ============================================================
+CREATE TABLE `licenses` (
+    `id`               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `software_name`    VARCHAR(150) NOT NULL,
+    `vendor`           VARCHAR(150) NULL,
+    `version`          VARCHAR(80) NULL,
+    `license_key`      VARCHAR(255) NULL COMMENT 'Store encrypted at application layer',
+    `license_type`     ENUM('per_device','per_user','volume','subscription','trial') NOT NULL DEFAULT 'per_device',
+    `seats_total`      INT UNSIGNED NOT NULL DEFAULT 1,
+    `seats_used`       INT UNSIGNED NOT NULL DEFAULT 0,
+    `purchase_date`    DATE NULL,
+    `expiration_date`  DATE NULL,
+    `status`           ENUM('active','expired','revoked') NOT NULL DEFAULT 'active',
+    `notes`            TEXT NULL,
+    `created_at`       TIMESTAMP NULL,
+    `updated_at`       TIMESTAMP NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_licenses_status` (`status`),
+    KEY `idx_licenses_expiry` (`expiration_date`),
+    KEY `idx_licenses_vendor_software` (`vendor`, `software_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- asset_has_licenses (pivot: asset M:M licenses)
+-- ============================================================
+CREATE TABLE `asset_has_licenses` (
+    `id`            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `asset_id`      INT UNSIGNED NOT NULL,
+    `license_id`    BIGINT UNSIGNED NOT NULL,
+    `assigned_by`   INT UNSIGNED NULL,
+    `assigned_at`   TIMESTAMP NULL,
+    `unassigned_at` TIMESTAMP NULL,
+    `notes`         TEXT NULL,
+    `created_at`    TIMESTAMP NULL,
+    `updated_at`    TIMESTAMP NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_ahl_asset` (`asset_id`),
+    KEY `idx_ahl_license` (`license_id`),
+    KEY `idx_ahl_active` (`unassigned_at`),
+    UNIQUE KEY `uk_ahl_asset_license_active` (`asset_id`, `license_id`, `unassigned_at`),
+    CONSTRAINT `fk_ahl_asset`       FOREIGN KEY (`asset_id`)    REFERENCES `assets` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_ahl_license`     FOREIGN KEY (`license_id`)  REFERENCES `licenses` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_ahl_assigned_by` FOREIGN KEY (`assigned_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
@@ -820,6 +928,27 @@ CREATE TABLE `meeting_room_bookings` (
     CONSTRAINT `fk_mrb_approver` FOREIGN KEY (`approved_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
     CONSTRAINT `fk_mrb_manager`  FOREIGN KEY (`manager_id`)  REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- meeting_room_display_settings (LCD/display behavior per room)
+-- ============================================================
+CREATE TABLE `meeting_room_display_settings` (
+    `id`                         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `meeting_room_id`            INT UNSIGNED NOT NULL,
+    `show_upcoming_only`         TINYINT(1) NOT NULL DEFAULT 1,
+    `upcoming_window_minutes`    INT UNSIGNED NOT NULL DEFAULT 120,
+    `refresh_interval_seconds`   INT UNSIGNED NOT NULL DEFAULT 30,
+    `clock_timezone`             VARCHAR(64) NOT NULL DEFAULT 'Asia/Jakarta',
+    `language`                   ENUM('id','en') NOT NULL DEFAULT 'id',
+    `theme`                      VARCHAR(50) NOT NULL DEFAULT 'default',
+    `is_active`                  TINYINT(1) NOT NULL DEFAULT 1,
+    `created_at`                 TIMESTAMP NULL,
+    `updated_at`                 TIMESTAMP NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_mrds_room` (`meeting_room_id`),
+    KEY `idx_mrds_active` (`is_active`),
+    CONSTRAINT `fk_mrds_room` FOREIGN KEY (`meeting_room_id`) REFERENCES `meeting_rooms` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 ---
@@ -939,6 +1068,188 @@ CREATE TABLE `audit_logs` (
     CONSTRAINT `fk_audit_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     COMMENT='Immutable audit log — do NOT allow DELETE on this table';
+
+-- ============================================================
+-- activity_logs (application activity stream)
+-- ============================================================
+CREATE TABLE `activity_logs` (
+    `id`            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `log_name`      VARCHAR(255) NULL,
+    `description`   TEXT NOT NULL,
+    `subject_type`  VARCHAR(255) NULL,
+    `subject_id`    BIGINT UNSIGNED NULL,
+    `causer_type`   VARCHAR(255) NULL,
+    `causer_id`     BIGINT UNSIGNED NULL,
+    `properties`    LONGTEXT NULL,
+    `event`         VARCHAR(255) NULL,
+    `batch_uuid`    VARCHAR(255) NULL,
+    `created_at`    TIMESTAMP NULL,
+    `updated_at`    TIMESTAMP NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_activity_logs_log_name` (`log_name`),
+    KEY `idx_activity_logs_created_at` (`created_at`),
+    KEY `idx_activity_logs_event` (`event`),
+    KEY `idx_activity_logs_subject` (`subject_type`, `subject_id`),
+    KEY `idx_activity_logs_causer` (`causer_type`, `causer_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- daily_activities (operational daily tracking)
+-- ============================================================
+CREATE TABLE `daily_activities` (
+    `id`             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `user_id`        INT UNSIGNED NOT NULL,
+    `activity_date`  DATE NOT NULL,
+    `category`       VARCHAR(100) NOT NULL,
+    `title`          VARCHAR(255) NOT NULL,
+    `description`    TEXT NULL,
+    `status`         ENUM('planned','in_progress','completed','cancelled') NOT NULL DEFAULT 'planned',
+    `started_at`     DATETIME NULL,
+    `completed_at`   DATETIME NULL,
+    `metadata`       JSON NULL,
+    `created_at`     TIMESTAMP NULL,
+    `updated_at`     TIMESTAMP NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_daily_activities_user_date` (`user_id`, `activity_date`),
+    KEY `idx_daily_activities_status_date` (`status`, `activity_date`),
+    CONSTRAINT `fk_daily_activities_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+---
+
+### 3.7 System Module (Laravel Runtime + App Settings)
+
+```sql
+-- ============================================================
+-- sessions (Laravel database session driver)
+-- ============================================================
+CREATE TABLE `sessions` (
+    `id`            VARCHAR(255) NOT NULL,
+    `user_id`       INT UNSIGNED NULL,
+    `ip_address`    VARCHAR(45) NULL,
+    `user_agent`    TEXT NULL,
+    `payload`       LONGTEXT NOT NULL,
+    `last_activity` INT NOT NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_sessions_user_id` (`user_id`),
+    KEY `idx_sessions_last_activity` (`last_activity`),
+    CONSTRAINT `fk_sessions_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- jobs / failed_jobs / job_batches (Laravel queue)
+-- ============================================================
+CREATE TABLE `jobs` (
+    `id`           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `queue`        VARCHAR(255) NOT NULL,
+    `payload`      LONGTEXT NOT NULL,
+    `attempts`     TINYINT UNSIGNED NOT NULL,
+    `reserved_at`  INT UNSIGNED NULL,
+    `available_at` INT UNSIGNED NOT NULL,
+    `created_at`   INT UNSIGNED NOT NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_jobs_queue` (`queue`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `failed_jobs` (
+    `id`         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `uuid`       VARCHAR(255) NOT NULL,
+    `connection` TEXT NOT NULL,
+    `queue`      TEXT NOT NULL,
+    `payload`    LONGTEXT NOT NULL,
+    `exception`  LONGTEXT NOT NULL,
+    `failed_at`  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_failed_jobs_uuid` (`uuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `job_batches` (
+    `id`             VARCHAR(255) NOT NULL,
+    `name`           VARCHAR(255) NOT NULL,
+    `total_jobs`     INT NOT NULL,
+    `pending_jobs`   INT NOT NULL,
+    `failed_jobs`    INT NOT NULL,
+    `failed_job_ids` LONGTEXT NOT NULL,
+    `options`        MEDIUMTEXT NULL,
+    `cancelled_at`   INT NULL,
+    `created_at`     INT NOT NULL,
+    `finished_at`    INT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- cache / cache_locks (Laravel cache database driver)
+-- ============================================================
+CREATE TABLE `cache` (
+    `key`        VARCHAR(255) NOT NULL,
+    `value`      MEDIUMTEXT NOT NULL,
+    `expiration` INT NOT NULL,
+    PRIMARY KEY (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `cache_locks` (
+    `key`        VARCHAR(255) NOT NULL,
+    `owner`      VARCHAR(255) NOT NULL,
+    `expiration` INT NOT NULL,
+    PRIMARY KEY (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- menus / menu_user (app navigation matrix)
+-- ============================================================
+CREATE TABLE `menus` (
+    `id`          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name`        VARCHAR(120) NOT NULL,
+    `route_name`  VARCHAR(190) NULL,
+    `icon`        VARCHAR(80) NULL,
+    `parent_id`   BIGINT UNSIGNED NULL,
+    `sort_order`  INT NOT NULL DEFAULT 0,
+    `is_active`   TINYINT(1) NOT NULL DEFAULT 1,
+    `created_at`  TIMESTAMP NULL,
+    `updated_at`  TIMESTAMP NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_menus_parent_sort` (`parent_id`, `sort_order`),
+    CONSTRAINT `fk_menus_parent` FOREIGN KEY (`parent_id`) REFERENCES `menus` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `menu_user` (
+    `id`         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `menu_id`    BIGINT UNSIGNED NOT NULL,
+    `user_id`    INT UNSIGNED NOT NULL,
+    `created_at` TIMESTAMP NULL,
+    `updated_at` TIMESTAMP NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_menu_user` (`menu_id`, `user_id`),
+    CONSTRAINT `fk_menu_user_menu` FOREIGN KEY (`menu_id`) REFERENCES `menus` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_menu_user_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- notification_settings (normalized user notification preferences)
+-- ============================================================
+CREATE TABLE `notification_settings` (
+    `id`                      BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `user_id`                 INT UNSIGNED NOT NULL,
+    `email_enabled`           TINYINT(1) NOT NULL DEFAULT 1,
+    `in_app_enabled`          TINYINT(1) NOT NULL DEFAULT 1,
+    `push_enabled`            TINYINT(1) NOT NULL DEFAULT 0,
+    `whatsapp_enabled`        TINYINT(1) NOT NULL DEFAULT 0,
+    `slack_enabled`           TINYINT(1) NOT NULL DEFAULT 0,
+    `notify_ticket_created`   TINYINT(1) NOT NULL DEFAULT 1,
+    `notify_ticket_assigned`  TINYINT(1) NOT NULL DEFAULT 1,
+    `notify_ticket_updated`   TINYINT(1) NOT NULL DEFAULT 1,
+    `notify_meeting_approved` TINYINT(1) NOT NULL DEFAULT 1,
+    `notify_meeting_rejected` TINYINT(1) NOT NULL DEFAULT 1,
+    `notify_purchase_updates` TINYINT(1) NOT NULL DEFAULT 1,
+    `quiet_hours_start`       TIME NULL,
+    `quiet_hours_end`         TIME NULL,
+    `created_at`              TIMESTAMP NULL,
+    `updated_at`              TIMESTAMP NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_notification_settings_user` (`user_id`),
+    CONSTRAINT `fk_notification_settings_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
 ---
@@ -997,7 +1308,10 @@ return new class extends Migration
             if (! Schema::hasColumn('users', 'last_login_at')) {
                 $table->timestamp('last_login_at')->nullable()->index();
             }
-            // Notification preferences
+            if (! Schema::hasColumn('users', 'deleted_at')) {
+                $table->softDeletes();
+            }
+            // Legacy notification flags (target normalization: notification_settings table)
             $notifyColumns = [
                 'notify_email', 'notify_ticket_created', 'notify_ticket_assigned',
                 'notify_ticket_updated', 'notify_meeting_approved', 'notify_meeting_rejected',
@@ -1017,6 +1331,7 @@ return new class extends Migration
                 'username', 'first_name', 'last_name', 'role_id',
                 'division_id', 'location_id', 'phone', 'profile_picture',
                 'portal_preferences', 'is_active', 'last_login_at',
+                'deleted_at',
                 'notify_email', 'notify_ticket_created', 'notify_ticket_assigned',
                 'notify_ticket_updated', 'notify_meeting_approved', 'notify_meeting_rejected',
             ]);
@@ -1318,6 +1633,166 @@ return new class extends Migration
 
 ---
 
+### 4.5 Migrasi ITSM Completeness (Watchers, Media, Licenses, Settings)
+
+```php
+<?php
+// database/migrations/2025_01_01_000040_add_itsm_completeness_tables.php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        if (! Schema::hasTable('ticket_watchers')) {
+            Schema::create('ticket_watchers', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedInteger('ticket_id');
+                $table->unsignedInteger('user_id');
+                $table->enum('watch_type', ['watcher', 'cc'])->default('watcher');
+                $table->timestamps();
+
+                $table->unique(['ticket_id', 'user_id']);
+                $table->foreign('ticket_id')->references('id')->on('tickets')->onDelete('cascade');
+                $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            });
+        }
+
+        if (! Schema::hasTable('media')) {
+            Schema::create('media', function (Blueprint $table) {
+                $table->id();
+                $table->string('model_type');
+                $table->unsignedBigInteger('model_id');
+                $table->uuid('uuid')->nullable()->unique();
+                $table->string('collection_name')->default('default');
+                $table->string('name');
+                $table->string('file_name');
+                $table->string('mime_type')->nullable();
+                $table->string('disk')->default('public');
+                $table->string('conversions_disk')->nullable();
+                $table->unsignedBigInteger('size')->default(0);
+                $table->longText('manipulations')->nullable();
+                $table->longText('custom_properties')->nullable();
+                $table->longText('generated_conversions')->nullable();
+                $table->longText('responsive_images')->nullable();
+                $table->unsignedInteger('order_column')->nullable()->index();
+                $table->unsignedInteger('created_by')->nullable();
+                $table->timestamps();
+
+                $table->index(['model_type', 'model_id'], 'idx_media_model');
+                $table->index('collection_name', 'idx_media_collection');
+                $table->index('created_by', 'idx_media_created_by');
+                $table->foreign('created_by')->references('id')->on('users')->nullOnDelete();
+            });
+        }
+
+        if (! Schema::hasTable('licenses')) {
+            Schema::create('licenses', function (Blueprint $table) {
+                $table->id();
+                $table->string('software_name', 150);
+                $table->string('vendor', 150)->nullable();
+                $table->string('version', 80)->nullable();
+                $table->string('license_key')->nullable();
+                $table->enum('license_type', ['per_device','per_user','volume','subscription','trial'])->default('per_device');
+                $table->unsignedInteger('seats_total')->default(1);
+                $table->unsignedInteger('seats_used')->default(0);
+                $table->date('purchase_date')->nullable();
+                $table->date('expiration_date')->nullable();
+                $table->enum('status', ['active','expired','revoked'])->default('active');
+                $table->text('notes')->nullable();
+                $table->timestamps();
+            });
+        }
+
+        if (! Schema::hasTable('asset_has_licenses')) {
+            Schema::create('asset_has_licenses', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedInteger('asset_id');
+                $table->unsignedBigInteger('license_id');
+                $table->unsignedInteger('assigned_by')->nullable();
+                $table->timestamp('assigned_at')->nullable();
+                $table->timestamp('unassigned_at')->nullable();
+                $table->timestamps();
+
+                $table->index(['asset_id', 'license_id']);
+                $table->foreign('asset_id')->references('id')->on('assets')->onDelete('cascade');
+                $table->foreign('license_id')->references('id')->on('licenses')->onDelete('cascade');
+                $table->foreign('assigned_by')->references('id')->on('users')->nullOnDelete();
+            });
+        }
+
+        if (! Schema::hasTable('notification_settings')) {
+            Schema::create('notification_settings', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedInteger('user_id')->unique();
+                $table->boolean('email_enabled')->default(true);
+                $table->boolean('in_app_enabled')->default(true);
+                $table->boolean('push_enabled')->default(false);
+                $table->boolean('whatsapp_enabled')->default(false);
+                $table->boolean('slack_enabled')->default(false);
+                $table->boolean('notify_ticket_created')->default(true);
+                $table->boolean('notify_ticket_assigned')->default(true);
+                $table->boolean('notify_ticket_updated')->default(true);
+                $table->boolean('notify_meeting_approved')->default(true);
+                $table->boolean('notify_meeting_rejected')->default(true);
+                $table->boolean('notify_purchase_updates')->default(true);
+                $table->time('quiet_hours_start')->nullable();
+                $table->time('quiet_hours_end')->nullable();
+                $table->timestamps();
+
+                $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            });
+        }
+
+        if (! Schema::hasTable('meeting_room_display_settings')) {
+            Schema::create('meeting_room_display_settings', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedInteger('meeting_room_id')->unique();
+                $table->string('timezone', 64)->default('Asia/Jakarta');
+                $table->unsignedSmallInteger('refresh_seconds')->default(30);
+                $table->boolean('show_clock')->default(true);
+                $table->boolean('show_next_booking')->default(true);
+                $table->boolean('show_qr_checkin')->default(false);
+                $table->json('theme_config')->nullable();
+                $table->timestamps();
+
+                $table->foreign('meeting_room_id')
+                    ->references('id')
+                    ->on('meeting_rooms')
+                    ->onDelete('cascade');
+            });
+        }
+
+        if (! Schema::hasColumn('users', 'deleted_at')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->softDeletes();
+            });
+        }
+    }
+
+    public function down(): void
+    {
+        if (Schema::hasColumn('users', 'deleted_at')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->dropSoftDeletes();
+            });
+        }
+
+        Schema::dropIfExists('notification_settings');
+        Schema::dropIfExists('asset_has_licenses');
+        Schema::dropIfExists('licenses');
+        Schema::dropIfExists('media');
+        Schema::dropIfExists('meeting_room_display_settings');
+        Schema::dropIfExists('ticket_watchers');
+    }
+};
+```
+
+---
+
 ## 5. Eloquent Model Relationships
 
 ### 5.1 User Model
@@ -1328,9 +1803,10 @@ return new class extends Migration
 
 class User extends Authenticatable
 {
-    use HasRoles; // Spatie — provides roles() and permissions() relations
+    use HasRoles, SoftDeletes; // Spatie roles + historical data preservation
 
     /** Tickets yang dilaporkan user ini */
+
     public function createdTickets()
     {
         return $this->hasMany(Ticket::class, 'user_id');
@@ -1358,6 +1834,20 @@ class User extends Authenticatable
     public function assetRequests()
     {
         return $this->hasMany(AssetRequest::class, 'requested_by');
+    }
+
+    /** Tickets yang di-follow (watcher/cc) */
+    public function watchedTickets()
+    {
+        return $this->belongsToMany(Ticket::class, 'ticket_watchers', 'user_id', 'ticket_id')
+                    ->withPivot(['watch_type'])
+                    ->withTimestamps();
+    }
+
+    /** Preferensi notifikasi (normalized table) */
+    public function notificationSetting()
+    {
+        return $this->hasOne(NotificationSetting::class);
     }
 
     /** Division tempat user bekerja */
@@ -1472,6 +1962,20 @@ class Ticket extends Model
         return $this->hasMany(TicketComment::class)->orderBy('created_at', 'asc');
     }
 
+    /** User yang memantau ticket ini (watcher/cc) */
+    public function watchers()
+    {
+        return $this->belongsToMany(User::class, 'ticket_watchers', 'ticket_id', 'user_id')
+                    ->withPivot(['watch_type'])
+                    ->withTimestamps();
+    }
+
+    /** Lampiran/file terkait ticket (polymorphic media) */
+    public function media()
+    {
+        return $this->morphMany(Media::class, 'model');
+    }
+
     // ===== SCOPES =====
 
     /** Tickets yang belum selesai */
@@ -1575,6 +2079,20 @@ class Asset extends Model
     {
         return $this->belongsToMany(Ticket::class, 'ticket_assets', 'asset_id', 'ticket_id')
                     ->withTimestamps();
+    }
+
+    /** Lisensi software yang terpasang ke asset ini */
+    public function licenses()
+    {
+        return $this->belongsToMany(License::class, 'asset_has_licenses', 'asset_id', 'license_id')
+                    ->withPivot(['assigned_by', 'assigned_at', 'unassigned_at'])
+                    ->withTimestamps();
+    }
+
+    /** Lampiran/file terkait asset (invoice, warranty, foto, dsb.) */
+    public function media()
+    {
+        return $this->morphMany(Media::class, 'model');
     }
 
     /** Log pemeliharaan asset */
@@ -1686,6 +2204,58 @@ class MeetingRoomBooking extends Model
                   });
             })
             ->exists();
+    }
+}
+```
+
+### 5.5 NotificationSetting Model
+
+```php
+<?php
+// app/NotificationSetting.php
+
+class NotificationSetting extends Model
+{
+    protected $fillable = [
+        'user_id',
+        'email_enabled',
+        'in_app_enabled',
+        'push_enabled',
+        'whatsapp_enabled',
+        'slack_enabled',
+        'notify_ticket_created',
+        'notify_ticket_assigned',
+        'notify_ticket_updated',
+        'notify_meeting_approved',
+        'notify_meeting_rejected',
+        'notify_purchase_updates',
+        'quiet_hours_start',
+        'quiet_hours_end',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+}
+```
+
+### 5.6 MeetingRoom Model
+
+```php
+<?php
+// app/MeetingRoom.php
+
+class MeetingRoom extends Model
+{
+    public function bookings()
+    {
+        return $this->hasMany(MeetingRoomBooking::class, 'room_id');
+    }
+
+    public function displaySetting()
+    {
+        return $this->hasOne(MeetingRoomDisplaySetting::class, 'meeting_room_id');
     }
 }
 ```
@@ -2328,13 +2898,70 @@ public function exportUserData(int $userId): array
 | **GDPR** — Right to Access (Art. 15) | `exportUserData()` returns all PII records |
 | **GDPR** — Right to Erasure (Art. 17) | `assets.deleted_at` SoftDelete; anonymize user PII fields |
 | **GDPR** — Data Minimization | `portal_preferences` JSON; only store fields that are needed |
-| **GDPR** — Consent Tracking | `notify_*` columns allow granular notification opt-out |
+| **GDPR** — Consent Tracking | `notification_settings` as source-of-truth; legacy `users.notify_*` retained temporarily for backward compatibility |
 | **SOC 2** — Availability | Indexes + mandatory pagination; no unbounded `SELECT *` |
 | **SOC 2** — Confidentiality | Passwords auto-hashed; `api_token` unique; all mutations audited |
 | **SOC 2** — Processing Integrity | Foreign keys + enums prevent invalid state transitions |
 
 ---
 
-> **Last Updated:** 2026-04-16
-> **Maintainer:** ITApp Development Team
+## 10. ITSM Coverage & Normalization Roadmap
+
+### 10.1 Current Coverage Snapshot
+
+| Area | Status | Notes |
+|---|---|---|
+| Ticket watchers / subscribers | ✅ Covered | `ticket_watchers` enables watcher + cc subscription model |
+| File attachments across modules | ✅ Covered | `media` polymorphic table documents generic attachment strategy |
+| Asset software lifecycle | ✅ Covered | `licenses` + `asset_has_licenses` support license assignment tracking |
+| Meeting room display profile | ✅ Covered | `meeting_room_display_settings` enables LCD/display behavior config |
+| User notification preferences | ✅ Covered (Normalized) | `notification_settings` is normalized target; `users.notify_*` is legacy fallback |
+| Laravel runtime tables | ✅ Covered | `sessions`, `jobs`, `failed_jobs`, `job_batches`, `cache`, `cache_locks` documented |
+
+### 10.2 Primary Key Strategy (INT UNSIGNED -> BIGINT UNSIGNED)
+
+Current production uses mixed key types because the legacy monolith started with `increments()` (`INT UNSIGNED`) and newer tables use `$table->id()` (`BIGINT UNSIGNED`).
+
+**Standard target for all new development:**
+- Use `$table->id()` for primary key.
+- Use `$table->foreignId(...)->constrained()` for foreign key.
+- Avoid introducing new `INT UNSIGNED` PK on newly created tables.
+
+**Phased migration strategy for legacy tables:**
+1. **Phase A — Compatibility First (Now):** Keep legacy `INT UNSIGNED` keys on core tables (`users`, `tickets`, `assets`) to avoid risky FK churn.
+2. **Phase B — New Tables BIGINT:** Any new module table must use BIGINT PK/FK and bridge to legacy INT only where required.
+3. **Phase C — Controlled Conversion:** Convert one domain at a time (Auth -> Tickets -> Assets) with shadow columns and FK cutover migration scripts.
+4. **Phase D — Cleanup:** Remove bridge columns/FKs once all dependent tables use BIGINT.
+
+**Non-negotiable rules during conversion:**
+- Always run full DB backup before each migration batch.
+- Run migration in transaction-safe chunks and validate FK integrity after each table group.
+- Provide rollback script for every PK conversion migration.
+
+### 10.3 Notification Settings Normalization Policy
+
+- Canonical source: `notification_settings` (one row per user, unique `user_id`).
+- Transitional mode: application may read legacy `users.notify_*` if normalized row does not exist.
+- Decommission plan: once all services read/write `notification_settings`, legacy columns can be removed in a dedicated breaking-change release.
+
+### 10.4 Depreciation Data Policy (Assets)
+
+For reporting consistency and accounting interoperability:
+- Keep source fields explicit (`purchase_price`, `residual_value`, `useful_life_months`, `depreciation_method`).
+- Prefer computed values at query/report layer for derived metrics (`monthly_depreciation`, `book_value`).
+- Recalculate derived values after updates to avoid stale denormalized numbers.
+
+### 10.5 Documentation Governance
+
+- Any schema addition must update 4 sections in this document together:
+    1. SQL schema section (CREATE TABLE)
+    2. Migration section
+    3. Eloquent relationship section
+    4. Index/compliance notes when relevant
+- Keep this file aligned with actual migration files in `database/migrations` before release tagging.
+
+---
+
+> **Last Updated:** 2026-04-20
+> **Maintainer:** D-Riz (Lead Developer)
 > **Stack:** Laravel 10 · PHP 8.1+ · MySQL 8.0 · Yajra DataTables 10

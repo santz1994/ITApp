@@ -49,36 +49,66 @@ class PermissionsAndRolesSeeder extends Seeder
             Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'web']);
         }
 
-        // Roles
-    $super = Role::firstOrCreate(['name' => 'super-admin', 'guard_name' => 'web']);
-    // Some code checks for 'super_admin' (underscore) — create alias role to reduce 403s in tests
-    $superUnderscore = Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
-    $admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
-    $management = Role::firstOrCreate(['name' => 'management', 'guard_name' => 'web']);
-    $user = Role::firstOrCreate(['name' => 'user', 'guard_name' => 'web']);
+        // Roles (canonical only)
+        $guard = config('auth.defaults.guard', 'web');
+        $roleByName = [];
+        foreach (\App\Role::canonicalNames() as $roleName) {
+            $roleByName[$roleName] = Role::firstOrCreate(['name' => $roleName, 'guard_name' => $guard]);
+        }
 
         // Assign permissions
         $allPermissions = Permission::all();
-        $super->syncPermissions($allPermissions);
-        $superUnderscore->syncPermissions($allPermissions);
 
-        $adminPermNames = [
-            'view_all_assets', 'view-assets', 'create-assets', 'edit-assets', 'view-tickets', 'create-tickets', 'edit-tickets', 'assign-tickets',
-            'view_ticket_reports', 'view_asset_reports', 'view_admin_performance', 'view_daily_activities', 'create-daily-activities',
-            'export-data', 'import-data', 'export-tickets',
-            // Asset request management
-            'view-asset-requests', 'create-asset-requests', 'approve-asset-requests', 'reject-asset-requests', 'fulfill-asset-requests',
-            'view-users', 'create-users', 'edit-users',
-        ];
-        $admin->syncPermissions(Permission::whereIn('name', $adminPermNames)->get());
+        if (isset($roleByName['developer'])) {
+            $roleByName['developer']->syncPermissions($allPermissions);
+        }
 
-        $managementPermNames = [
-            'view_kpi_dashboard', 'view-kpi-dashboard', 'view_admin_performance', 'view_reports', 'view-management-dashboard',
-            'view-assets', 'view-tickets', 'create-tickets', 'view-daily-activities'
-        ];
-        $management->syncPermissions(Permission::whereIn('name', $managementPermNames)->get());
+        if (isset($roleByName['administrator'])) {
+            $administratorPermNames = [
+                'view_all_assets', 'view-assets', 'create-assets', 'edit-assets', 'view-tickets', 'create-tickets', 'edit-tickets', 'assign-tickets',
+                'view_ticket_reports', 'view_asset_reports', 'view_admin_performance', 'view_daily_activities', 'create-daily-activities',
+                'export-data', 'import-data', 'export-tickets',
+                // Asset request management
+                'view-asset-requests', 'create-asset-requests', 'approve-asset-requests', 'reject-asset-requests', 'fulfill-asset-requests',
+                'view-users', 'create-users', 'edit-users',
+            ];
 
-        $user->syncPermissions([]);
+            $roleByName['administrator']->syncPermissions(Permission::whereIn('name', $administratorPermNames)->get());
+        }
+
+        if (isset($roleByName['director'])) {
+            $directorPermNames = [
+                'view_kpi_dashboard', 'view-kpi-dashboard', 'view_admin_performance', 'view_reports', 'view-management-dashboard',
+                'view-assets', 'view-tickets', 'create-tickets', 'view-daily-activities',
+            ];
+
+            $roleByName['director']->syncPermissions(Permission::whereIn('name', $directorPermNames)->get());
+        }
+
+        if (isset($roleByName['receptionist'])) {
+            $receptionistPermNames = [
+                'view-tickets', 'create-tickets', 'view-daily-activities',
+            ];
+
+            $roleByName['receptionist']->syncPermissions(Permission::whereIn('name', $receptionistPermNames)->get());
+        }
+
+        if (isset($roleByName['human-resources'])) {
+            $hrPermNames = [
+                'view-users', 'create-users', 'edit-users',
+                'view-tickets', 'create-tickets',
+            ];
+
+            $roleByName['human-resources']->syncPermissions(Permission::whereIn('name', $hrPermNames)->get());
+        }
+
+        if (isset($roleByName['user'])) {
+            $roleByName['user']->syncPermissions([]);
+        }
+
+        if (isset($roleByName['guest'])) {
+            $roleByName['guest']->syncPermissions([]);
+        }
 
         try {
             Artisan::call('permission:cache-reset');

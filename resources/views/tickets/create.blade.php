@@ -92,13 +92,42 @@
               </div>
 
               <div class="form-group">
-                <label>Prioritas <span class="badge bg-blue">Otomatis</span></label>
-                <input type="hidden" name="ticket_priority_id" value="">
-                <p class="form-control-static">
-                  <i class="fa fa-magic"></i> Sistem akan otomatis mendeteksi prioritas berdasarkan kata kunci dalam subjek dan deskripsi
+                <label>
+                  <span data-i18n="tickets.create.field.priority_auto">Priority</span>
+                  <span class="badge bg-blue" data-i18n="tickets.create.badge.auto">Automatic</span>
+                </label>
+                <input type="hidden" name="ticket_priority_id" id="ticket_priority_id" value="{{ old('ticket_priority_id') }}">
+                <div style="margin-bottom: 10px;">
+                  <button type="button" class="btn btn-default btn-sm" id="smart-intake-btn">
+                    <i class="fa fa-magic"></i>
+                    <span data-i18n="tickets.create.smart.action.suggest">Smart Suggest Type & Priority</span>
+                  </button>
+                  <small class="text-muted" style="margin-left: 8px;" data-i18n="tickets.create.smart.help">Use subject and description to auto-suggest ticket type and impact level.</small>
+                </div>
+                <p class="form-control-static" id="smart-priority-summary">
+                  <i class="fa fa-magic"></i>
+                  <span data-i18n="tickets.create.smart.summary.waiting">System will auto-detect priority from your subject and description.</span>
                 </p>
+                <small id="smart-intake-status" class="text-muted" style="display: none;"></small>
+                <div id="smart-intake-result" class="alert alert-info" style="display: none; margin-top: 10px;">
+                  <p style="margin: 0 0 8px 0;"><strong data-i18n="tickets.create.smart.result.title">Smart Recommendation</strong></p>
+                  <p style="margin: 0;">
+                    <span data-i18n="tickets.create.smart.result.type">Type:</span>
+                    <strong id="smart-intake-type-name">-</strong>
+                    <small class="text-muted" id="smart-intake-type-confidence"></small>
+                  </p>
+                  <p style="margin: 4px 0 0 0;">
+                    <span data-i18n="tickets.create.smart.result.priority">Priority:</span>
+                    <span class="label label-info" id="smart-intake-priority-name">-</span>
+                    <small class="text-muted" id="smart-intake-priority-confidence"></small>
+                  </p>
+                  <div id="smart-intake-kb-wrapper" style="display: none; margin-top: 8px;">
+                    <small><strong data-i18n="tickets.create.smart.result.kb">Related Knowledge Base:</strong></small>
+                    <ul id="smart-intake-kb-list" style="padding-left: 18px; margin-bottom: 0;"></ul>
+                  </div>
+                </div>
                 <div class="alert alert-info" style="margin-top: 10px;">
-                  <strong>Contoh kata kunci:</strong>
+                  <strong data-i18n="tickets.create.smart.keyword.title">Keyword examples:</strong>
                   <ul class="list-unstyled" style="margin-bottom: 0;">
                     <li><span class="label label-danger">HIGH</span> urgent, mendesak, darurat, mati, crash, down</li>
                     <li><span class="label label-warning">MEDIUM</span> lambat, masalah, error, gangguan, maintenance</li>
@@ -337,6 +366,17 @@
           'tickets.create.field.ticket_type': 'Ticket Type',
           'tickets.create.option.select_type': '-- Select Ticket Type --',
           'tickets.create.help.ticket_type': 'Request category (example: hardware issue, software support, network issue)',
+          'tickets.create.field.priority_auto': 'Priority',
+          'tickets.create.badge.auto': 'Automatic',
+          'tickets.create.smart.action.suggest': 'Smart Suggest Type & Priority',
+          'tickets.create.smart.help': 'Use subject and description to auto-suggest ticket type and impact level.',
+          'tickets.create.smart.summary.waiting': 'System will auto-detect priority from your subject and description.',
+          'tickets.create.smart.summary.applied': 'Type set to {type} and priority set to {priority}.',
+          'tickets.create.smart.result.title': 'Smart Recommendation',
+          'tickets.create.smart.result.type': 'Type:',
+          'tickets.create.smart.result.priority': 'Priority:',
+          'tickets.create.smart.result.kb': 'Related Knowledge Base:',
+          'tickets.create.smart.keyword.title': 'Keyword examples:',
           'tickets.create.field.location': 'Location',
           'tickets.create.help.location_auto': 'Location is auto-filled from your profile',
           'tickets.create.option.select_location': '-- Select Location --',
@@ -355,6 +395,13 @@
           'tickets.create.runtime.select_template': 'Please select a template first',
           'tickets.create.runtime.char_counter': '{count} / {min} characters (minimum {min})',
           'tickets.create.runtime.loading_create': 'Creating ticket...',
+          'tickets.create.runtime.smart.subject_short': 'Subject must be at least 5 characters before running Smart Suggest.',
+          'tickets.create.runtime.smart.description_short': 'Description must be at least 10 characters before running Smart Suggest.',
+          'tickets.create.runtime.smart.loading': 'Analyzing ticket context...',
+          'tickets.create.runtime.smart.applied': 'Smart recommendation applied successfully.',
+          'tickets.create.runtime.smart.failed': 'Failed to get smart recommendation. Please try again.',
+          'tickets.create.runtime.smart.unauthorized': 'Session expired for API call. Please refresh and try again.',
+          'tickets.create.runtime.smart.confidence': 'Confidence: {percent}%',
           'tickets.create.select2.location': 'Select location',
           'tickets.create.select2.status_optional': 'Select status (optional)',
           'tickets.create.select2.ticket_type': 'Select ticket type',
@@ -378,6 +425,17 @@
           'tickets.create.field.ticket_type': 'Jenis Tiket',
           'tickets.create.option.select_type': '-- Pilih Jenis Tiket --',
           'tickets.create.help.ticket_type': 'Kategori permintaan (contoh: Masalah Hardware, Dukungan Software, Masalah Jaringan)',
+          'tickets.create.field.priority_auto': 'Prioritas',
+          'tickets.create.badge.auto': 'Otomatis',
+          'tickets.create.smart.action.suggest': 'Saran Cerdas Tipe & Prioritas',
+          'tickets.create.smart.help': 'Gunakan subjek dan deskripsi untuk saran otomatis tipe tiket dan tingkat dampak.',
+          'tickets.create.smart.summary.waiting': 'Sistem akan otomatis mendeteksi prioritas dari subjek dan deskripsi Anda.',
+          'tickets.create.smart.summary.applied': 'Tipe diset ke {type} dan prioritas diset ke {priority}.',
+          'tickets.create.smart.result.title': 'Rekomendasi Cerdas',
+          'tickets.create.smart.result.type': 'Tipe:',
+          'tickets.create.smart.result.priority': 'Prioritas:',
+          'tickets.create.smart.result.kb': 'Knowledge Base Terkait:',
+          'tickets.create.smart.keyword.title': 'Contoh kata kunci:',
           'tickets.create.field.location': 'Lokasi',
           'tickets.create.help.location_auto': 'Lokasi otomatis diambil dari profil Anda',
           'tickets.create.option.select_location': '-- Pilih Lokasi --',
@@ -396,6 +454,13 @@
           'tickets.create.runtime.select_template': 'Pilih template terlebih dahulu',
           'tickets.create.runtime.char_counter': '{count} / {min} karakter (minimal {min})',
           'tickets.create.runtime.loading_create': 'Membuat tiket...',
+          'tickets.create.runtime.smart.subject_short': 'Subjek harus minimal 5 karakter sebelum menjalankan Saran Cerdas.',
+          'tickets.create.runtime.smart.description_short': 'Deskripsi harus minimal 10 karakter sebelum menjalankan Saran Cerdas.',
+          'tickets.create.runtime.smart.loading': 'Menganalisis konteks tiket...',
+          'tickets.create.runtime.smart.applied': 'Rekomendasi cerdas berhasil diterapkan.',
+          'tickets.create.runtime.smart.failed': 'Gagal mengambil rekomendasi cerdas. Silakan coba lagi.',
+          'tickets.create.runtime.smart.unauthorized': 'Sesi API berakhir. Silakan refresh halaman lalu coba lagi.',
+          'tickets.create.runtime.smart.confidence': 'Keyakinan: {percent}%',
           'tickets.create.select2.location': 'Pilih lokasi',
           'tickets.create.select2.status_optional': 'Pilih status (opsional)',
           'tickets.create.select2.ticket_type': 'Pilih jenis tiket',
@@ -525,6 +590,202 @@
       // Update counter on load and on input
       updateCharCounter();
       $('#description').on('input', updateCharCounter);
+
+      function smartPriorityLabelClass(priorityName) {
+        var normalized = String(priorityName || '').toLowerCase();
+
+        if (normalized.indexOf('urgent') !== -1 || normalized.indexOf('high') !== -1 || normalized.indexOf('tinggi') !== -1) {
+          return 'label label-danger';
+        }
+
+        if (normalized.indexOf('normal') !== -1 || normalized.indexOf('medium') !== -1 || normalized.indexOf('sedang') !== -1) {
+          return 'label label-warning';
+        }
+
+        return 'label label-info';
+      }
+
+      function smartConfidenceLabel(confidenceValue) {
+        var numericConfidence = Number(confidenceValue || 0);
+        if (!isFinite(numericConfidence) || numericConfidence < 0) {
+          numericConfidence = 0;
+        }
+
+        var percent = Math.round(Math.min(1, numericConfidence) * 100);
+
+        return window.ticketCreateLabelFormat('tickets.create.runtime.smart.confidence', 'Confidence: {percent}%', {
+          percent: percent
+        });
+      }
+
+      function setSmartIntakeStatus(message, mode) {
+        var $status = $('#smart-intake-status');
+        $status.removeClass('text-muted text-danger text-success');
+
+        if (!message) {
+          $status.text('').hide();
+          return;
+        }
+
+        if (mode === 'error') {
+          $status.addClass('text-danger');
+        } else if (mode === 'success') {
+          $status.addClass('text-success');
+        } else {
+          $status.addClass('text-muted');
+        }
+
+        $status.text(message).show();
+      }
+
+      function renderKnowledgeBaseSuggestions(suggestions) {
+        var $wrapper = $('#smart-intake-kb-wrapper');
+        var $list = $('#smart-intake-kb-list');
+
+        $list.empty();
+
+        if (!Array.isArray(suggestions) || suggestions.length === 0) {
+          $wrapper.hide();
+          return;
+        }
+
+        suggestions.slice(0, 3).forEach(function(item) {
+          var title = item && item.title ? item.title : '-';
+          var slug = item && item.slug ? item.slug : null;
+          var $itemNode = $('<li></li>');
+
+          if (slug) {
+            $('<a></a>')
+              .attr('href', '/knowledge-base/' + encodeURIComponent(slug))
+              .attr('target', '_blank')
+              .attr('rel', 'noopener noreferrer')
+              .text(title)
+              .appendTo($itemNode);
+          } else {
+            $itemNode.text(title);
+          }
+
+          $list.append($itemNode);
+        });
+
+        $wrapper.show();
+      }
+
+      function applySmartRecommendation(data) {
+        var recommendation = data && data.recommended ? data.recommended : {};
+        var typeId = recommendation.ticket_type_id ? String(recommendation.ticket_type_id) : '';
+        var typeName = recommendation.ticket_type_name || '-';
+        var priorityId = recommendation.ticket_priority_id ? String(recommendation.ticket_priority_id) : '';
+        var priorityName = recommendation.ticket_priority_name || '-';
+
+        if (typeId) {
+          $('#ticket_type_id').val(typeId).trigger('change');
+        }
+
+        if (priorityId) {
+          $('#ticket_priority_id').val(priorityId);
+        }
+
+        $('#smart-intake-type-name').text(typeName);
+        $('#smart-intake-priority-name')
+          .text(priorityName)
+          .attr('class', smartPriorityLabelClass(priorityName));
+        $('#smart-intake-type-confidence').text('(' + smartConfidenceLabel(recommendation.type_confidence) + ')');
+        $('#smart-intake-priority-confidence').text('(' + smartConfidenceLabel(recommendation.priority_confidence) + ')');
+
+        $('#smart-priority-summary span').text(
+          window.ticketCreateLabelFormat(
+            'tickets.create.smart.summary.applied',
+            'Type set to {type} and priority set to {priority}.',
+            { type: typeName, priority: priorityName }
+          )
+        );
+
+        renderKnowledgeBaseSuggestions(data.knowledge_base_suggestions || []);
+        $('#smart-intake-result').show();
+      }
+
+      function runSmartSuggestion() {
+        var subject = $.trim($('#subject').val() || '');
+        var description = $.trim($('#description').val() || '');
+
+        if (subject.length < 5) {
+          setSmartIntakeStatus(
+            window.ticketCreateLabel('tickets.create.runtime.smart.subject_short', 'Subject must be at least 5 characters before running Smart Suggest.'),
+            'error'
+          );
+          return;
+        }
+
+        if (description.length < 10) {
+          setSmartIntakeStatus(
+            window.ticketCreateLabel('tickets.create.runtime.smart.description_short', 'Description must be at least 10 characters before running Smart Suggest.'),
+            'error'
+          );
+          return;
+        }
+
+        var csrfToken = $('meta[name="csrf-token"]').attr('content');
+        var $button = $('#smart-intake-btn');
+        var originalButtonHtml = $button.html();
+
+        $button.prop('disabled', true);
+        $button.html('<i class="fa fa-spinner fa-spin"></i> ' + window.ticketCreateLabel('tickets.create.runtime.smart.loading', 'Analyzing ticket context...'));
+
+        setSmartIntakeStatus(
+          window.ticketCreateLabel('tickets.create.runtime.smart.loading', 'Analyzing ticket context...'),
+          'loading'
+        );
+
+        $.ajax({
+          url: '{{ route('tickets.smart-intake') }}',
+          method: 'POST',
+          dataType: 'json',
+          data: {
+            subject: subject,
+            description: description
+          },
+          headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+          }
+        })
+          .done(function(response) {
+            if (response && response.success && response.data) {
+              applySmartRecommendation(response.data);
+              setSmartIntakeStatus(
+                window.ticketCreateLabel('tickets.create.runtime.smart.applied', 'Smart recommendation applied successfully.'),
+                'success'
+              );
+              return;
+            }
+
+            setSmartIntakeStatus(
+              window.ticketCreateLabel('tickets.create.runtime.smart.failed', 'Failed to get smart recommendation. Please try again.'),
+              'error'
+            );
+          })
+          .fail(function(xhr) {
+            if (xhr && (xhr.status === 401 || xhr.status === 419)) {
+              setSmartIntakeStatus(
+                window.ticketCreateLabel('tickets.create.runtime.smart.unauthorized', 'Session expired for API call. Please refresh and try again.'),
+                'error'
+              );
+              return;
+            }
+
+            setSmartIntakeStatus(
+              window.ticketCreateLabel('tickets.create.runtime.smart.failed', 'Failed to get smart recommendation. Please try again.'),
+              'error'
+            );
+          })
+          .always(function() {
+            $button.prop('disabled', false);
+            $button.html(originalButtonHtml);
+          });
+      }
+
+      $('#smart-intake-btn').on('click', runSmartSuggestion);
 
       // SLA Due Date Calculator
       function calculateSLADueDate() {

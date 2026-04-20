@@ -26,7 +26,7 @@ Route::middleware(['web', 'auth'])->group(function () {
     // ========================================
     // MANAGEMENT DASHBOARD
     // ========================================
-    Route::middleware(['role:management|super-admin'])->prefix('management')->group(function () {
+    Route::middleware(['role:director|developer'])->prefix('management')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\ManagementDashboardController::class, 'index'])->name('management.dashboard');
         Route::get('/admin-performance', [\App\Http\Controllers\ManagementDashboardController::class, 'adminPerformance'])->name('management.admin-performance');
         Route::get('/ticket-reports', [\App\Http\Controllers\ManagementDashboardController::class, 'ticketReports'])->name('management.ticket-reports');
@@ -37,7 +37,7 @@ Route::middleware(['web', 'auth'])->group(function () {
     // ADMIN & SUPER-ADMIN SHARED ROUTES
     // ========================================
     // KPI routes: allow management, admin, or super-admin
-    Route::middleware(['role:management|admin|super-admin'])->group(function () {
+    Route::middleware(['role:director|administrator|developer'])->group(function () {
         Route::get('/kpi-dashboard', [\App\Http\Controllers\KPIDashboardController::class, 'index'])->name('kpi.dashboard');
         Route::get('/kpi-data', [\App\Http\Controllers\KPIDashboardController::class, 'getKPIData'])->name('kpi.data');
         
@@ -52,7 +52,7 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::resource('daily-activities', \App\Http\Controllers\DailyActivityController::class);
     });
 
-    Route::middleware(['role:admin|super-admin'])->group(function () {
+    Route::middleware(['role:administrator|developer'])->group(function () {
         
         // Audit Logs
         Route::get('/audit-logs', [\App\Http\Controllers\AuditLogController::class, 'index'])->name('audit-logs.index');
@@ -62,7 +62,7 @@ Route::middleware(['web', 'auth'])->group(function () {
     });
     
     // Notification Settings (Super-Admin Only)
-    Route::middleware(['role:super-admin'])->group(function () {
+    Route::middleware(['role:developer'])->group(function () {
         Route::get('/admin/notification-settings', [\App\Http\Controllers\NotificationSettingController::class, 'index'])->name('notification-settings.index');
         Route::post('/admin/notification-settings', [\App\Http\Controllers\NotificationSettingController::class, 'update'])->name('notification-settings.update');
     });
@@ -73,11 +73,11 @@ Route::middleware(['web', 'auth'])->group(function () {
     // Note: allow both admin and super-admin here because some admin
     // actions (like approving asset requests and basic user management)
     // are expected to be accessible to users with the 'admin' role in tests.
-    Route::middleware(['role:admin|super-admin'])->group(function () {
+    Route::middleware(['role:administrator|developer'])->group(function () {
         
         // User Management Routes (with admin prefix)
         // These admin/user management pages are restricted to super-admin only in tests.
-        Route::middleware(['role:super-admin'])->prefix('admin/users')->group(function () {
+        Route::middleware(['role:developer'])->prefix('admin/users')->group(function () {
             Route::get('/', [\App\Http\Controllers\UsersController::class, 'index'])->name('admin.users.index');
             Route::get('/create', [\App\Http\Controllers\UsersController::class, 'create'])->name('admin.users.create');
             Route::post('/', [\App\Http\Controllers\UsersController::class, 'store'])->name('admin.users.store');
@@ -167,7 +167,7 @@ Route::middleware(['web', 'auth'])->group(function () {
         // Keep both unprefixed and admin-prefixed endpoints for compatibility with legacy tests.
         Route::resource('status', \App\Http\Controllers\StatusesController::class)->except(['show', 'create']);
         // Admin-prefixed assets-statuses (super-admin only)
-        Route::middleware(['role:super-admin'])->prefix('admin')->group(function () {
+        Route::middleware(['role:developer'])->prefix('admin')->group(function () {
             Route::get('/assets-statuses', [\App\Http\Controllers\StatusesController::class, 'index'])->name('admin.assets-statuses.index');
             Route::post('/assets-statuses', [\App\Http\Controllers\StatusesController::class, 'store'])->name('admin.assets-statuses.store');
             Route::get('/assets-statuses/{status}/edit', [\App\Http\Controllers\StatusesController::class, 'edit'])->name('admin.assets-statuses.edit');
@@ -293,7 +293,7 @@ Route::middleware(['web', 'auth'])->group(function () {
             Route::delete('/ticket-types/{ticketsType}', [\App\Http\Controllers\TicketsTypesController::class, 'destroy'])->name('admin.ticket-types.destroy');
 
             // Storeroom compatibility routes (legacy)
-            Route::middleware(['role:super-admin'])->group(function () {
+            Route::middleware(['role:developer'])->group(function () {
                 Route::get('/storeroom', [\App\Http\Controllers\StoreroomsController::class, 'index'])->name('admin.storeroom.index');
                 Route::patch('/storeroom/update', [\App\Http\Controllers\StoreroomsController::class, 'update'])->name('admin.storeroom.update');
                 Route::post('/storeroom/update', [\App\Http\Controllers\StoreroomsController::class, 'update']);
@@ -319,7 +319,7 @@ Route::middleware(['web', 'auth'])->group(function () {
     // ========================================
     // MENU MANAGEMENT SYSTEM (Super Admin Only)
     // ========================================
-    Route::middleware(['role:super-admin', 'permission:manage-menus'])->prefix('admin/menus')->name('admin.menus.')->group(function () {
+    Route::middleware(['role:developer', 'permission:manage-menus'])->prefix('admin/menus')->name('admin.menus.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\MenuManagementController::class, 'index'])->name('index');
         Route::get('/create', [\App\Http\Controllers\Admin\MenuManagementController::class, 'create'])->name('create');
         Route::post('/', [\App\Http\Controllers\Admin\MenuManagementController::class, 'store'])->name('store');

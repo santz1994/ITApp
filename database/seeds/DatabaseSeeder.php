@@ -46,7 +46,9 @@ class DatabaseSeeder extends Seeder
        */
 
     $this->call(\Database\Seeders\TestUsersTableSeeder::class);
-    $this->call(\Database\Seeders\ReceptionistRoleSeeder::class); // Receptionist role with permissions
+    if (in_array('receptionist', \App\Role::canonicalNames(), true)) {
+      $this->call(\Database\Seeders\ReceptionistRoleSeeder::class);
+    }
       // $this->call(TestAssignRolesTableSeeder::class);
       // $this->call(DivisionsTableSeeder::class);
     $this->call(LocationsTableSeeder::class);

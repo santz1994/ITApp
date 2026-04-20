@@ -34,6 +34,9 @@ class UserService
             // Assign role if provided
             if (isset($data['role_id'])) {
                 $role = Role::findOrFail($data['role_id']);
+                if (!in_array($role->name, \App\Role::assignableNames(), true)) {
+                    throw new \InvalidArgumentException('Selected role is not part of canonical roles policy.');
+                }
                 $user->assignRole($role);
             }
 
@@ -69,6 +72,9 @@ class UserService
             // Update roles if provided
             if (isset($data['role_id'])) {
                 $role = Role::findOrFail($data['role_id']);
+                if (!in_array($role->name, \App\Role::assignableNames(), true)) {
+                    throw new \InvalidArgumentException('Selected role is not part of canonical roles policy.');
+                }
                 $user->syncRoles([$role]);
             }
 
@@ -82,6 +88,9 @@ class UserService
     public function assignRole(User $user, int $roleId)
     {
         $role = Role::findOrFail($roleId);
+        if (!in_array($role->name, \App\Role::assignableNames(), true)) {
+            throw new \InvalidArgumentException('Selected role is not part of canonical roles policy.');
+        }
         $user->assignRole($role);
         
         return $user->fresh('roles');
@@ -145,7 +154,11 @@ class UserService
      */
     public function getUsersByRole(string $roleName)
     {
-        return User::role($roleName)
+        $normalizedRoleName = \App\Role::normalizeName($roleName);
+
+        return User::whereHas('roles', function ($query) use ($normalizedRoleName) {
+            $query->whereIn('name', \App\Role::equivalentNames($normalizedRoleName));
+            })
                    ->with(['roles', 'division'])
                    ->get();
     }
@@ -195,20 +208,24 @@ class UserService
     }
 
     /**
-     * Update user with role validation (prevents removing last super admin)
+     * Update user with role validation (prevents removing last top-level role)
      */
     public function updateUserWithRoleValidation(User $user, array $data)
     {
         return DB::transaction(function () use ($user, $data) {
-            // Check if changing role would leave no super admins
+            // Check if changing role would leave no top-level role users
             if (isset($data['role_id'])) {
                 $currentUserRole = $user->roles->first();
                 $newRole = Role::findOrFail($data['role_id']);
+                $protectedRoleName = \App\Role::normalizeName('super-admin');
                 
-                if ($currentUserRole && $currentUserRole->name === 'super-admin' && $newRole->name !== 'super-admin') {
-                    $superAdminCount = User::role('super-admin')->count();
+                if ($currentUserRole && $currentUserRole->name === $protectedRoleName && $newRole->name !== $protectedRoleName) {
+                    $superAdminCount = User::whereHas('roles', function ($query) use ($protectedRoleName) {
+                        $query->where('name', $protectedRoleName);
+                    })->count();
+
                     if ($superAdminCount <= 1) {
-                        throw new \Exception('Cannot change role as there must be one (1) or more users with the role of Super Administrator.');
+                        throw new \Exception('Cannot change role as there must be one (1) or more users with the role of ' . ucfirst(str_replace('-', ' ', $protectedRoleName)) . '.');
                     }
                 }
             }

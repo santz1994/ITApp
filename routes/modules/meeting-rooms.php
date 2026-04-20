@@ -89,12 +89,12 @@ Route::middleware(['auth'])->group(function () {
     // Quick edit meeting subject (Receptionist/Admin only)
     Route::put('meeting-room-bookings/{id}/quick-edit-subject', [MeetingRoomBookingController::class, 'quickEditSubject'])
         ->name('meeting-room-bookings.quick-edit-subject')
-        ->middleware('role:receptionist|admin|super-admin');
+        ->middleware('role:receptionist|administrator|developer');
     
     // Quick edit meeting time (Receptionist/Admin only)
     Route::put('meeting-room-bookings/{id}/quick-edit-time', [MeetingRoomBookingController::class, 'quickEditTime'])
         ->name('meeting-room-bookings.quick-edit-time')
-        ->middleware('role:receptionist|admin|super-admin');
+        ->middleware('role:receptionist|administrator|developer');
     
     // ========================================
     // DIRECTOR DASHBOARD
@@ -103,7 +103,7 @@ Route::middleware(['auth'])->group(function () {
     // Director Dashboard (Director/Management/Admin only)
     Route::get('meeting-room-director-dashboard', [MeetingRoomBookingController::class, 'directorDashboard'])
         ->name('meeting-room-bookings.director-dashboard')
-        ->middleware('role:director|management|admin|super-admin');
+        ->middleware('role:director|administrator|developer');
     
     // ========================================
     // RECEPTIONIST DASHBOARD
@@ -112,22 +112,22 @@ Route::middleware(['auth'])->group(function () {
     // Receptionist Dashboard (Receptionist/Admin only)
     Route::get('meeting-room-receptionist-dashboard', [MeetingRoomBookingController::class, 'receptionistDashboard'])
         ->name('meeting-room-bookings.receptionist-dashboard')
-        ->middleware('role:receptionist|admin|super-admin');
+        ->middleware('role:receptionist|administrator|developer');
     
     // Toggle Room Availability (AJAX)
     Route::post('meeting-room-bookings/toggle-availability', [MeetingRoomBookingController::class, 'toggleRoomAvailability'])
         ->name('meeting-room-bookings.toggle-availability')
-        ->middleware('role:receptionist|admin|super-admin');
+        ->middleware('role:receptionist|administrator|developer');
     
     // Quick Booking from Dashboard (AJAX)
     Route::post('meeting-room-bookings/quick-booking', [MeetingRoomBookingController::class, 'quickBooking'])
         ->name('meeting-room-bookings.quick-booking')
-        ->middleware('role:receptionist|admin|super-admin');
+        ->middleware('role:receptionist|administrator|developer');
     
     // Update Booking Time (Drag & Drop) (AJAX)
     Route::put('meeting-room-bookings/{id}/update-time', [MeetingRoomBookingController::class, 'updateBookingTime'])
         ->name('meeting-room-bookings.update-time')
-        ->middleware('role:receptionist|admin|super-admin');
+        ->middleware('role:receptionist|administrator|developer');
     
     // ========================================
     // CALENDAR & DISPLAY VIEWS

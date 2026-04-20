@@ -54,7 +54,7 @@ class DummyDataSeeder extends Seeder
 
         // 3. Create Users (20 additional users with various roles)
         $this->command->info('Creating additional users...');
-        $adminRole = DB::table('roles')->where('name', 'admin')->first();
+        $adminRole = DB::table('roles')->where('name', 'administrator')->first();
         $userRole = DB::table('roles')->where('name', 'user')->first();
 
         // Create 5 admin users

@@ -65,9 +65,9 @@ class TestUsersTableSeeder extends Seeder
         $legacyUser = $createUser('User User', 'user.user@test', 'password');
 
         // Assign roles using Spatie assignRole (idempotent and respects guard_name)
-        $superRole = Role::where('name', 'super-admin')->first();
-        $adminRole = Role::where('name', 'admin')->first();
-        $managementRole = Role::where('name', 'management')->first();
+        $superRole = Role::where('name', 'developer')->first();
+        $adminRole = Role::where('name', 'administrator')->first();
+        $managementRole = Role::where('name', 'director')->first();
         $userRole = Role::where('name', 'user')->first();
 
         if ($superRole) {

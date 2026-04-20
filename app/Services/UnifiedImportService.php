@@ -215,7 +215,7 @@ class UnifiedImportService
             $division_name = trim($row['D'] ?? '');
             $location_name = trim($row['E'] ?? '');
             $phone = trim($row['F'] ?? '');
-            $role_name = trim($row['G'] ?? 'User');
+            $role_name = trim($row['G'] ?? 'user');
             
             if (empty($name) || empty($email)) {
                 $skipped++;
@@ -245,10 +245,15 @@ class UnifiedImportService
                 );
                 
                 // Assign role if provided
-                if ($role_name && $user->wasRecentlyCreated) {
-                    $role = Role::where('name', $role_name)->first();
+                if ($role_name !== '') {
+                    $normalizedRoleName = \App\Role::normalizeName($role_name);
+                    $role = Role::query()
+                        ->whereIn('name', \App\Role::equivalentNames($normalizedRoleName))
+                        ->whereIn('name', \App\Role::assignableNames())
+                        ->first();
+
                     if ($role) {
-                        $user->assignRole($role_name);
+                        $user->syncRoles([$role->name]);
                     }
                 }
                 
@@ -279,14 +284,31 @@ class UnifiedImportService
                 $skipped++;
                 continue;
             }
+
+            $normalizedName = \App\Role::normalizeName($name);
+            if (!in_array($normalizedName, \App\Role::canonicalNames(), true)) {
+                $this->errors[] = "Roles row {$rowNum}: role '{$name}' is not in Project canonical role list.";
+                $skipped++;
+                continue;
+            }
             
             try {
+                $roleLevels = \App\Role::projectRoleLevels();
+                $payload = [
+                    'display_name' => $display_name ?: ucwords(str_replace('-', ' ', $normalizedName)),
+                    'description' => $description,
+                ];
+
+                if (\Illuminate\Support\Facades\Schema::hasColumn('roles', 'access_level')) {
+                    $payload['access_level'] = $roleLevels[$normalizedName] ?? null;
+                }
+
                 Role::updateOrCreate(
-                    ['name' => $name],
                     [
-                        'display_name' => $display_name ?: $name,
-                        'description' => $description
-                    ]
+                        'name' => $normalizedName,
+                        'guard_name' => config('auth.defaults.guard', 'web'),
+                    ],
+                    $payload
                 );
                 $imported++;
             } catch (\Exception $e) {
@@ -668,7 +690,7 @@ class UnifiedImportService
         $sheet = $spreadsheet->createSheet();
         $sheet->setTitle('Users');
         $sheet->fromArray(['Name', 'Email', 'Password', 'Division', 'Location', 'Phone', 'Role'], null, 'A1');
-        $sheet->fromArray(['John Doe', 'john@example.com', '123456', 'IT Department', 'Head Office', '081234567890', 'User'], null, 'A2');
+        $sheet->fromArray(['John Doe', 'john@example.com', '123456', 'IT Department', 'Head Office', '081234567890', 'user'], null, 'A2');
     }
     
     protected function addRolesSheet($spreadsheet)
@@ -676,7 +698,16 @@ class UnifiedImportService
         $sheet = $spreadsheet->createSheet();
         $sheet->setTitle('Roles');
         $sheet->fromArray(['Name', 'Display Name', 'Description'], null, 'A1');
-        $sheet->fromArray(['admin', 'Administrator', 'Full system access'], null, 'A2');
+
+        $row = 2;
+        foreach (\App\Role::canonicalNames() as $roleName) {
+            $sheet->fromArray([
+                $roleName,
+                ucwords(str_replace('-', ' ', $roleName)),
+                'Canonical role from Project.md',
+            ], null, "A{$row}");
+            $row++;
+        }
     }
     
     protected function addPermissionsSheet($spreadsheet)
@@ -854,7 +885,7 @@ class UnifiedImportService
         $sheet->setTitle('Roles');
         $sheet->fromArray(['Name', 'Display Name', 'Description'], null, 'A1');
         
-        $roles = Role::all();
+        $roles = Role::query()->canonical()->orderBy('name')->get();
         $row = 2;
         foreach ($roles as $role) {
             $sheet->fromArray([$role->name, $role->display_name, $role->description], null, "A{$row}");

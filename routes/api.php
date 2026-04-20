@@ -11,6 +11,8 @@ use App\Http\Controllers\API\SearchController;
 use App\Http\Controllers\API\FilterController;
 use App\Http\Controllers\API\BulkOperationController;
 use App\Http\Controllers\API\ExportController;
+use App\Http\Controllers\API\V1\AssetMaintenanceIntelligenceController;
+use App\Http\Controllers\API\V1\TicketIntelligenceController;
 use App\Http\Controllers\Api\DatatableController;
 
 /*
@@ -72,6 +74,15 @@ Route::middleware(['auth:sanctum,web', 'throttle:api'])->group(function () {
     // Search endpoints for tickets
     Route::get('/tickets/search', [TicketController::class, 'search'])->name('api.tickets.search');
     Route::get('/tickets/{ticket}/comments/search', [TicketController::class, 'commentsSearch'])->name('api.tickets.commentsSearch');
+
+    // Versioned Smart ITSM intake endpoint
+    Route::prefix('v1')->name('api.v1.')->group(function () {
+        Route::get('/assets/{asset}/maintenance-risk', [AssetMaintenanceIntelligenceController::class, 'show'])
+            ->name('assets.maintenance-risk');
+
+        Route::post('/tickets/smart-intake', [TicketIntelligenceController::class, 'store'])
+            ->name('tickets.smart-intake');
+    });
     
     // User API endpoints
     Route::apiResource('users', UserController::class)->names([

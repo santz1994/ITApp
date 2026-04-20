@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\User;
-use Spatie\Permission\Models\Role;
+use App\Role;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
@@ -97,8 +97,8 @@ class UsersController extends Controller
     $pageTitle = 'Create New User';
     
     try {
-        // Get all roles ordered by name
-        $roles = Role::orderBy('name')->get();
+      // Get canonical roles only
+      $roles = Role::query()->assignable()->orderBy('name')->get();
         
         // Get all divisions ordered by name
         $divisions = \App\Division::orderBy('name')->get();
@@ -123,7 +123,12 @@ class UsersController extends Controller
     
     try {
         // Ensure we get proper model instances, not strings
-        $roles = Role::whereNotNull('name')->orderBy('name')->get()->filter(function($role) {
+      $roles = Role::query()
+          ->assignable()
+        ->whereNotNull('name')
+        ->orderBy('name')
+        ->get()
+        ->filter(function($role) {
             return is_object($role) && isset($role->name);
         });
         
@@ -197,15 +202,16 @@ class UsersController extends Controller
       return back();
     }
 
-    // Prevent deleting the last super-admin
+    // Prevent deleting the last highest-privilege role holder
     try {
-      $superAdminRole = Role::where('name', 'super-admin')->first();
-      if ($superAdminRole) {
+      $protectedRoleName = Role::normalizeName('super-admin');
+      $protectedRole = Role::where('name', $protectedRoleName)->first();
+      if ($protectedRole) {
         $usersRole = DB::table('model_has_roles')->where('model_id', $user->id)->where('model_type', User::class)->first();
-        $superAdminCount = DB::table('model_has_roles')->where('role_id', $superAdminRole->id)->count();
-        if ($usersRole && $usersRole->role_id == $superAdminRole->id && $superAdminCount <= 1) {
+        $protectedRoleCount = DB::table('model_has_roles')->where('role_id', $protectedRole->id)->count();
+        if ($usersRole && $usersRole->role_id == $protectedRole->id && $protectedRoleCount <= 1) {
           Session::flash('status', 'warning');
-          Session::flash('message', 'Cannot delete user as there must be one (1) or more users with the role of Super Administrator.');
+          Session::flash('message', 'Cannot delete user as there must be one (1) or more users with the role of ' . ($protectedRole->display_name ?? ucfirst($protectedRoleName)) . '.');
           return back();
         }
       }
@@ -228,7 +234,10 @@ class UsersController extends Controller
 
   public function roles()
   {
-    $roles = \Spatie\Permission\Models\Role::with(['users', 'permissions'])->get();
+    $roles = Role::query()
+      ->canonical()
+      ->with(['users', 'permissions'])
+      ->get();
     return view('users.roles', compact('roles'));
   }
 

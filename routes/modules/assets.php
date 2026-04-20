@@ -3,7 +3,7 @@
 /**
  * Asset Management Routes
  * 
- * All asset-related routes for admin and super-admin users
+ * All asset-related routes for administrator and developer users
  * Includes: Assets, Maintenance, QR Codes, Spares
  */
 
@@ -46,7 +46,7 @@ Route::middleware(['auth'])->group(function () {
 // ========================================
 // ASSET WRITE ROUTES (Admin and Super-Admin only)
 // ========================================
-Route::middleware(['auth', 'role:admin|super-admin'])->group(function () {
+Route::middleware(['auth', 'role:administrator|developer'])->group(function () {
     
     // ========================================
     // EXPORT/IMPORT/PRINT ROUTES (must be before {asset} wildcard)

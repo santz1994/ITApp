@@ -9,6 +9,8 @@ use App\Ticket;
 use App\Asset;
 use App\TicketComment;
 use App\TicketHistory;
+use App\TicketsPriority;
+use App\TicketsType;
 
 /**
  * Ticket Management Feature Tests
@@ -116,8 +118,12 @@ class TicketManagementTest extends TestCase
         $response->assertSee('data-i18n="tickets.create.form.title"', false);
         $response->assertSee('data-i18n="tickets.create.section.basic"', false);
         $response->assertSee('data-i18n="tickets.create.action.submit"', false);
+        $response->assertSee('id="smart-intake-btn"', false);
+        $response->assertSee('id="smart-intake-result"', false);
         $response->assertSee("'tickets.create.runtime.template_applied'", false);
         $response->assertSee("'tickets.create.runtime.loading_create'", false);
+        $response->assertSee("'tickets.create.runtime.smart.loading'", false);
+        $response->assertSee("'tickets.create.runtime.smart.applied'", false);
     }
 
     /** @test */
@@ -187,6 +193,8 @@ class TicketManagementTest extends TestCase
         $createResponse->assertSee("indonesianButton.addEventListener('click'", false);
         $createResponse->assertSee('window.ticketCreateLabel = getLabel;', false);
         $createResponse->assertSee('window.ticketCreateLabelFormat = formatLabel;', false);
+        $createResponse->assertSee('function runSmartSuggestion()', false);
+        $createResponse->assertSee("$('#smart-intake-btn').on('click', runSmartSuggestion);", false);
         $createResponse->assertSee('applyLanguage(getLanguage());', false);
 
         $ticket = Ticket::create([
@@ -218,6 +226,38 @@ class TicketManagementTest extends TestCase
         $showResponse->assertSee('window.ticketShowLabel = getLabel;', false);
         $showResponse->assertSee('window.ticketShowConfirm = ticketShowConfirm;', false);
         $showResponse->assertSee('applyLanguage(getLanguage());', false);
+    }
+
+    /** @test */
+    public function authenticated_user_can_request_smart_ticket_intake_from_web_route()
+    {
+        TicketsType::firstOrCreate(['type' => 'Hardware Issue']);
+        TicketsPriority::firstOrCreate(['priority' => 'Urgent']);
+
+        $response = $this->actingAs($this->user)
+            ->postJson(route('tickets.smart-intake'), [
+                'subject' => 'URGENT: Printer down in finance room',
+                'description' => 'Printer cannot print and finance team cannot continue closing process.',
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.metadata.timezone', 'Asia/Jakarta')
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data' => [
+                    'recommended' => [
+                        'ticket_type_id',
+                        'ticket_type_name',
+                        'ticket_priority_id',
+                        'ticket_priority_name',
+                    ],
+                    'matched_signals',
+                    'knowledge_base_suggestions',
+                    'metadata',
+                ],
+            ]);
     }
 
     /** @test */

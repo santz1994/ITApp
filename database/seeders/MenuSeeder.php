@@ -314,7 +314,15 @@ class MenuSeeder extends Seeder
 
             // Attach roles
             if (!empty($roles)) {
-                $roleIds = Role::whereIn('name', $roles)->pluck('id')->toArray();
+                $normalizedRoles = Role::expandNames(array_map(static function ($roleName): string {
+                    return (string) $roleName;
+                }, $roles));
+
+                $roleIds = Role::query()
+                    ->whereIn('name', $normalizedRoles)
+                    ->whereIn('name', Role::canonicalNames())
+                    ->pluck('id')
+                    ->toArray();
                 
                 $syncData = [];
                 foreach ($roleIds as $roleId) {

@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['web', 'auth', 'role:admin|super-admin'])->group(function () {
+Route::middleware(['web', 'auth', 'role:administrator|developer'])->group(function () {
     // Master Data landing (exports overview)
     Route::get('/exports', [\App\Http\Controllers\MasterDataController::class, 'index'])->name('masterdata.index');
     // Export all data

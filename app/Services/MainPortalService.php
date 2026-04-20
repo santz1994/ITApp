@@ -143,7 +143,7 @@ class MainPortalService
             ],
             [
                 'key' => 'settings',
-                'title' => 'Settings',
+                'title' => 'Settings & AI',
                 'subtitle' => 'Konfigurasi Sistem',
                 'description' => 'Configure ticket, asset, and system-level settings securely.',
                 'icon' => 'fa-cogs',
