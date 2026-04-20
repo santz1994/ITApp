@@ -319,14 +319,40 @@
 <script>
 // Approve request confirmation
 window.approveRequest = function(id) {
-    if(confirm('Are you sure you want to approve this request?')) {
+    if (typeof window.itappActionConfirm === 'function') {
+        window.itappActionConfirm({
+            title: 'Approve Request',
+            message: 'Are you sure you want to approve this request?',
+            confirmText: 'Approve',
+            confirmClass: 'btn-success',
+            onConfirm: function() {
+                document.getElementById('approve-request-' + id).submit();
+            }
+        });
+        return;
+    }
+
+    if (confirm('Are you sure you want to approve this request?')) {
         document.getElementById('approve-request-' + id).submit();
     }
 };
 
 // Reject request confirmation
 window.rejectRequest = function(id) {
-    if(confirm('Are you sure you want to reject this request?')) {
+    if (typeof window.itappActionConfirm === 'function') {
+        window.itappActionConfirm({
+            title: 'Reject Request',
+            message: 'Are you sure you want to reject this request?',
+            confirmText: 'Reject',
+            confirmClass: 'btn-danger',
+            onConfirm: function() {
+                document.getElementById('reject-request-' + id).submit();
+            }
+        });
+        return;
+    }
+
+    if (confirm('Are you sure you want to reject this request?')) {
         document.getElementById('reject-request-' + id).submit();
     }
 };

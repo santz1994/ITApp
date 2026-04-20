@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Spatie\Permission\PermissionRegistrar;
 
 class UserService
 {
@@ -38,6 +39,8 @@ class UserService
                     throw new \InvalidArgumentException('Selected role is not part of canonical roles policy.');
                 }
                 $user->assignRole($role);
+                $user->update(['role_id' => $role->id]);
+                app(PermissionRegistrar::class)->forgetCachedPermissions();
             }
 
             return $user->load('roles', 'division');
@@ -76,6 +79,8 @@ class UserService
                     throw new \InvalidArgumentException('Selected role is not part of canonical roles policy.');
                 }
                 $user->syncRoles([$role]);
+                $user->update(['role_id' => $role->id]);
+                app(PermissionRegistrar::class)->forgetCachedPermissions();
             }
 
             return $user->fresh(['roles', 'division']);
@@ -92,6 +97,8 @@ class UserService
             throw new \InvalidArgumentException('Selected role is not part of canonical roles policy.');
         }
         $user->assignRole($role);
+        $user->update(['role_id' => $role->id]);
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
         
         return $user->fresh('roles');
     }
@@ -103,6 +110,10 @@ class UserService
     {
         $role = Role::findOrFail($roleId);
         $user->removeRole($role);
+
+        $nextRoleId = optional($user->fresh('roles')->roles->first())->id;
+        $user->update(['role_id' => $nextRoleId]);
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
         
         return $user->fresh('roles');
     }

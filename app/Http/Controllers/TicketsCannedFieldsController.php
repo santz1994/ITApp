@@ -22,7 +22,7 @@ class TicketsCannedFieldsController extends Controller
   public function index()
   {
     $user = auth()->user();
-    if (!$user || $user->role !== 'super-admin') {
+    if (!$user || !$user->hasRole('developer')) {
       abort(403);
     }
 
@@ -39,7 +39,7 @@ class TicketsCannedFieldsController extends Controller
   public function store(StoreTicketsCannedFieldRequest $request)
   {
     $user = auth()->user();
-    if (!$user || $user->role !== 'super-admin') {
+    if (!$user || !$user->hasRole('developer')) {
       abort(403);
     }
 
@@ -69,7 +69,7 @@ class TicketsCannedFieldsController extends Controller
   public function edit(TicketsCannedField $ticketsCannedField)
   {
     $user = auth()->user();
-    if (!$user || $user->role !== 'super-admin') {
+    if (!$user || !$user->hasRole('developer')) {
       abort(403);
     }
 
@@ -85,7 +85,7 @@ class TicketsCannedFieldsController extends Controller
   public function update(StoreTicketsCannedFieldRequest $request, TicketsCannedField $ticketsCannedField)
   {
     $user = auth()->user();
-    if (!$user || $user->role !== 'super-admin') {
+    if (!$user || !$user->hasRole('developer')) {
       abort(403);
     }
 

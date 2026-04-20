@@ -139,7 +139,7 @@ class MainPortalService
                 'url' => $this->routeOrFallback('users.index'),
                 'stat' => $metrics['active_users'] ?? 0,
                 'stat_label' => 'Active Users',
-                'roles' => ['admin', 'super-admin', 'developer'],
+                'roles' => ['administrator', 'developer'],
             ],
             [
                 'key' => 'settings',
@@ -151,7 +151,7 @@ class MainPortalService
                 'url' => $this->routeOrFallback('system-settings.index'),
                 'stat' => null,
                 'stat_label' => null,
-                'roles' => ['admin', 'super-admin', 'developer'],
+                'roles' => ['administrator', 'developer'],
             ],
             [
                 'key' => 'kpi_dashboard',
@@ -163,7 +163,7 @@ class MainPortalService
                 'url' => $this->routeOrFallback('kpi.dashboard'),
                 'stat' => $metrics['pending_meeting_approvals'] ?? 0,
                 'stat_label' => 'Pending Approvals',
-                'roles' => ['director', 'management', 'admin', 'super-admin'],
+                'roles' => ['director', 'administrator', 'developer'],
             ],
             [
                 'key' => 'lcd_screen',
@@ -175,7 +175,7 @@ class MainPortalService
                 'url' => $this->routeOrFallback('meeting-room-bookings.lcd-dashboard'),
                 'stat' => null,
                 'stat_label' => null,
-                'roles' => ['receptionist', 'admin', 'super-admin', 'director'],
+                'roles' => ['receptionist', 'administrator', 'developer', 'director'],
             ],
         ];
 
@@ -284,7 +284,7 @@ class MainPortalService
 
     private function buildApprovalCenter(User $user, array $metrics): array
     {
-        if (!user_has_any_role($user, ['admin', 'super-admin', 'developer', 'director', 'management'])) {
+        if (!user_has_any_role($user, ['administrator', 'developer', 'director'])) {
             return [
                 'enabled' => false,
                 'total_pending' => 0,
@@ -357,7 +357,7 @@ class MainPortalService
             ];
         }
 
-        if (user_has_any_role($user, ['admin', 'super-admin', 'developer'])) {
+        if (user_has_any_role($user, ['administrator', 'developer'])) {
             return [
                 $this->highlight('Assigned Open Tickets', $metrics['assigned_open_tickets'] ?? 0, 'fa-user-circle', 'aqua'),
                 $this->highlight('Open Tickets', $metrics['open_tickets'] ?? 0, 'fa-life-ring', 'yellow'),
@@ -366,7 +366,7 @@ class MainPortalService
             ];
         }
 
-        if (user_has_any_role($user, ['director', 'management'])) {
+        if (user_has_any_role($user, ['director'])) {
             return [
                 $this->highlight('Open Tickets', $metrics['open_tickets'] ?? 0, 'fa-line-chart', 'aqua'),
                 $this->highlight('Pending Approvals', $metrics['pending_meeting_approvals'] ?? 0, 'fa-check-square-o', 'orange'),
@@ -460,7 +460,7 @@ class MainPortalService
 
     private function resolveTicketQueueUrl(User $user): string
     {
-        if (user_has_any_role($user, ['admin', 'super-admin'])) {
+        if (user_has_any_role($user, ['administrator', 'developer'])) {
             return $this->routeFirstAvailable(['tickets.unassigned', 'tickets.index']);
         }
 
@@ -473,7 +473,7 @@ class MainPortalService
     private function isStandardUser(User $user): bool
     {
         return user_has_role($user, 'user')
-            && !user_has_any_role($user, ['admin', 'super-admin', 'management', 'director', 'receptionist']);
+            && !user_has_any_role($user, ['administrator', 'developer', 'director', 'receptionist']);
     }
 
     private function isAllowedForRoles(User $user, array $roles): bool
@@ -501,11 +501,11 @@ class MainPortalService
             return 'Meeting room operations, live status, and daily support shortcuts.';
         }
 
-        if (user_has_any_role($user, ['director', 'management'])) {
+        if (user_has_any_role($user, ['director'])) {
             return 'Overview of operational metrics, approvals, and cross-module activity.';
         }
 
-        if (user_has_any_role($user, ['admin', 'super-admin'])) {
+        if (user_has_any_role($user, ['administrator', 'developer'])) {
             return 'Unified operational command center for support, assets, governance, and reporting.';
         }
 

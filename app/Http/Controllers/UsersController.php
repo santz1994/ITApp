@@ -7,6 +7,7 @@ use App\Role;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Users\StoreUserRequest;
 use App\Http\Requests\Users\UpdateUserRequest;
 use Illuminate\Http\Request;
@@ -151,6 +152,10 @@ class UsersController extends Controller
       // Use UserService to update user with role validation
       $data = $request->validated();
       $updatedUser = $this->userService->updateUserWithRoleValidation($user, $data);
+
+      if ((int) Auth::id() === (int) $updatedUser->id) {
+        Auth::setUser($updatedUser->fresh(['roles', 'division']));
+      }
 
       // Set success message
       Session::flash('status', 'success');

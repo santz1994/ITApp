@@ -24,6 +24,9 @@
 <!-- Main header enhancements (custom) -->
 <script src="{{ asset('/js/mainheader-enhancements.js') }}" type="text/javascript"></script>
 
+<!-- Critical action confirmation and submit-guard -->
+<script src="{{ asset('/js/critical-action-modal.js') }}" type="text/javascript"></script>
+
 <!-- AdminLTE Initialization Script -->
 <script type="text/javascript">
 $(document).ready(function() {

@@ -221,7 +221,7 @@
       @endauth
       @endif
       <!-- 📅 Daily Activity (Admin=2/SuperAdmin=3 full, Management=4 view-only) -->
-      @if($showWorkspace(['settings', 'kpi']))
+      @if($showWorkspace(['kpi']))
       @can('view-daily-activities')
       <li class="treeview">
         <a href="javascript:void(0)"><i class='fa fa-calendar'></i> <span>Daily Activity</span> <i class="fa fa-angle-left pull-right"></i></a>
@@ -237,7 +237,7 @@
       @endif
 
       <!-- 📋 Reports (management, admin, super-admin) -->
-      @if($showWorkspace(['settings', 'kpi']))
+      @if($showWorkspace(['kpi']))
       @can('view-reports')
       <li class="treeview">
         <a href="javascript:void(0)"><i class='fa fa-bar-chart'></i> <span>Reports</span> <i class="fa fa-angle-left pull-right"></i></a>

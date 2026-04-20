@@ -17,8 +17,8 @@ class TicketsTypesController extends Controller
   public function index()
   {
     $user = auth()->user();
-  // Only super-admin users are allowed to manage ticket types in the legacy app.
-  if (!$user || $user->role !== 'super-admin') {
+  // Only developer users are allowed to manage ticket types.
+  if (!$user || !$user->hasRole('developer')) {
       abort(403);
     }
     $pageTitle = 'Ticket Types';
@@ -29,7 +29,7 @@ class TicketsTypesController extends Controller
   public function store(StoreTicketsTypeRequest $request)
   {
     $user = auth()->user();
-    if (!$user || $user->role !== 'super-admin') {
+    if (!$user || !$user->hasRole('developer')) {
       abort(403);
     }
   $ticketsType = TicketsType::create($request->validated());
@@ -47,7 +47,7 @@ class TicketsTypesController extends Controller
   public function edit(TicketsType $ticketsType)
   {
     $user = auth()->user();
-    if (!$user || $user->role !== 'super-admin') {
+    if (!$user || !$user->hasRole('developer')) {
       abort(403);
     }
     $pageTitle = 'Edit Ticket Type - ' . $ticketsType->type;
@@ -58,7 +58,7 @@ class TicketsTypesController extends Controller
   public function update(UpdateTicketsTypeRequest $request, TicketsType $ticketsType)
   {
     $user = auth()->user();
-    if (!$user || $user->role !== 'super-admin') {
+    if (!$user || !$user->hasRole('developer')) {
       abort(403);
     }
   $ticketsType->update($request->validated());
@@ -76,7 +76,7 @@ class TicketsTypesController extends Controller
   public function destroy(TicketsType $ticketsType)
   {
     $user = auth()->user();
-    if (!$user || $user->role !== 'super-admin') {
+    if (!$user || !$user->hasRole('developer')) {
       abort(403);
     }
 

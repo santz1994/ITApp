@@ -39,6 +39,7 @@ class User extends Authenticatable
     HasRoles::hasAnyRole as protected spatieHasAnyRole;
     HasRoles::assignRole as protected spatieAssignRole;
     HasRoles::syncRoles as protected spatieSyncRoles;
+    HasRoles::scopeRole as protected spatieScopeRole;
   }
   
   /**
@@ -226,6 +227,48 @@ class User extends Authenticatable
   }
 
   /**
+   * Compatibility wrapper for role query scope.
+   *
+   * Allows legacy role names (e.g. admin/super-admin/management) to be used
+   * in query builders without triggering Spatie role-not-found exceptions.
+   */
+  public function scopeRole($query, $roles, $guard = null)
+  {
+    $normalizedRoles = $this->normalizeRoleScopeInput($roles);
+
+    if (empty($normalizedRoles)) {
+      return $this->spatieScopeRole($query, $roles, $guard);
+    }
+
+    return $this->spatieScopeRole($query, $normalizedRoles, $guard);
+  }
+
+  /**
+   * Compatibility wrapper for without-role query scope.
+   */
+  public function scopeWithoutRole($query, $roles, $guard = null)
+  {
+    $normalizedRoles = $this->normalizeRoleScopeInput($roles);
+    $roleNames = !empty($normalizedRoles)
+      ? $normalizedRoles
+      : $this->extractRoleNamesForChecks($roles);
+
+    if (empty($roleNames)) {
+      return $query;
+    }
+
+    $expandedRoleNames = Role::expandNames($roleNames);
+
+    return $query->whereDoesntHave('roles', function ($roleQuery) use ($expandedRoleNames, $guard) {
+      $roleQuery->whereIn('name', $expandedRoleNames);
+
+      if ($guard !== null) {
+        $roleQuery->where('guard_name', $guard);
+      }
+    });
+  }
+
+  /**
    * Compatibility wrapper for role checks.
    * Legacy names (super-admin/admin/management) are mapped to canonical roles.
    */
@@ -347,6 +390,24 @@ class User extends Authenticatable
    * @return array<int, string>
    */
   private function normalizeRolePayload(array $roles): array
+  {
+    $normalized = [];
+
+    foreach ($this->extractRoleNamesForChecks($roles) as $roleName) {
+      $canonicalRoleName = Role::normalizeName($roleName);
+      if ($canonicalRoleName !== '') {
+        $normalized[] = $canonicalRoleName;
+      }
+    }
+
+    return array_values(array_unique($normalized));
+  }
+
+  /**
+   * @param mixed $roles
+   * @return array<int, string>
+   */
+  private function normalizeRoleScopeInput($roles): array
   {
     $normalized = [];
 

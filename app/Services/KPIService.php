@@ -30,7 +30,7 @@ class KPIService
     public function getIndividualAdminPerformance($adminId, $dateRange)
     {
         $admin = User::find($adminId);
-        if (!$admin || !$admin->hasRole('admin')) {
+        if (!$admin || !$admin->hasRole('administrator')) {
             throw new \Exception('Invalid admin');
         }
 
@@ -63,7 +63,7 @@ class KPIService
      */
     public function getAllAdminsPerformance($dateRange)
     {
-        $admins = User::role('admin')->with(['roles', 'adminOnlineStatus'])->get();
+        $admins = User::role('administrator')->with(['roles', 'adminOnlineStatus'])->get();
         $performance = [];
 
         foreach ($admins as $admin) {
@@ -281,7 +281,7 @@ class KPIService
 
     private function getTopPerformer($dateRange)
     {
-        $admins = User::role('admin')->get();
+        $admins = User::role('administrator')->get();
         $topScore = 0;
         $topPerformer = null;
 
@@ -301,7 +301,7 @@ class KPIService
 
     private function getWorkloadDistribution($dateRange)
     {
-        return User::role('admin')
+        return User::role('administrator')
                   ->select('users.name', DB::raw('count(tickets.id) as ticket_count'))
                   ->leftJoin('tickets', function($join) use ($dateRange) {
                       $join->on('users.id', '=', 'tickets.assigned_to')

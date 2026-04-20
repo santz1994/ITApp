@@ -159,7 +159,7 @@ class ManagementDashboardController extends Controller
             'recent_overdue_tickets' => $this->ticketService->getOverdueTickets()->sortByDesc('created_at')->take(5),
             'unassigned_tickets' => $this->ticketService->getUnassignedTickets()->count(),
             'total_assets' => Asset::count(),
-            'active_admins' => User::role('admin')->whereHas('adminOnlineStatus', function($q) {
+            'active_admins' => User::role('administrator')->whereHas('adminOnlineStatus', function($q) {
                 $q->where('last_activity', '>=', now()->subHours(8));
             })->count()
         ];

@@ -476,25 +476,37 @@
             if(auth()->user() && $ticket->assigned_to == auth()->user()->id && !$ticket->resolved_at) {
               $canResolve = true;
             }
-            // Super-admin dapat override resolve/unresolve
-            if(auth()->user() && auth()->user()->hasRole('super-admin')) {
+            // Developer can override resolve/unresolve
+            if(auth()->user() && auth()->user()->hasRole('developer')) {
               $canResolve = true;
             }
           @endphp
           
           @if($canResolve && !$ticket->resolved_at)
-            <form action="{{ route('tickets.resolve', $ticket) }}" method="POST" style="margin-bottom: 10px;">
+            <form action="{{ route('tickets.resolve', $ticket) }}" method="POST" style="margin-bottom: 10px;"
+                  data-confirm-title="Resolve Ticket"
+                  data-confirm-i18n-key="tickets.show.runtime.confirm.resolve"
+                  data-confirm-message="Mark this ticket as resolved?"
+                  data-confirm-button="Resolve"
+                  data-confirm-class="btn-success"
+                  data-disable-on-submit="true">
               @csrf
               @method('PATCH')
-              <button type="submit" class="btn btn-success btn-block" onclick="return window.ticketShowConfirm('tickets.show.runtime.confirm.resolve', 'Mark this ticket as resolved?')">
+              <button type="submit" class="btn btn-success btn-block">
                 <i class="fa fa-check-circle"></i> <span data-i18n="tickets.show.action.resolve">Mark as Resolved</span>
               </button>
             </form>
-          @elseif($canResolve && $ticket->resolved_at && auth()->user()->hasRole('super-admin'))
-            <form action="{{ route('tickets.unresolve', $ticket) }}" method="POST" style="margin-bottom: 10px;">
+          @elseif($canResolve && $ticket->resolved_at && auth()->user()->hasRole('developer'))
+            <form action="{{ route('tickets.unresolve', $ticket) }}" method="POST" style="margin-bottom: 10px;"
+                  data-confirm-title="Reopen Ticket"
+                  data-confirm-i18n-key="tickets.show.runtime.confirm.reopen"
+                  data-confirm-message="Reopen this ticket?"
+                  data-confirm-button="Reopen"
+                  data-confirm-class="btn-warning"
+                  data-disable-on-submit="true">
               @csrf
               @method('PATCH')
-              <button type="submit" class="btn btn-warning btn-block" onclick="return window.ticketShowConfirm('tickets.show.runtime.confirm.reopen', 'Reopen this ticket?')">
+              <button type="submit" class="btn btn-warning btn-block">
                 <i class="fa fa-undo"></i> <span data-i18n="tickets.show.action.reopen">Reopen Ticket</span>
               </button>
             </form>

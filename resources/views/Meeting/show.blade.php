@@ -202,19 +202,19 @@
                 <div class="box-body">
                     <div class="row">
                         <div class="col-md-12">
-                            {{-- Approve/Reject Buttons (Director/Admin Only - Prominent Display) --}
+                            {{-- Approve/Reject Buttons (Director/Administrator Only - Prominent Display) --}
 
                             {{-- Back Button --}}
                             <a href="{{ route('meeting-room-bookings.index') }}" class="btn btn-default btn-lg">
                                 <i class="fa fa-arrow-left"></i> <span data-i18n="meeting.show.action.back">Back</span>
                             </a>
 
-                            {{-- Edit Button (Owner if Pending & Future, OR Receptionist if not started, OR Superadmin anytime) --}}
+                            {{-- Edit Button (Owner if Pending & Future, OR Receptionist/Administrator if not started, OR Developer anytime) --}}
                             @if(
                                 ($booking->user_id == Auth::id() && $booking->canBeEdited()) ||
                                 (user_has_role(Auth::user(), 'receptionist') && $booking->canBeEditedByReceptionist()) ||
-                                (user_has_role(Auth::user(), 'admin') && $booking->canBeEditedByReceptionist()) ||
-                                user_has_role(Auth::user(), 'super-admin')
+                                (user_has_role(Auth::user(), 'administrator') && $booking->canBeEditedByReceptionist()) ||
+                                user_has_role(Auth::user(), 'developer')
                             )
                             <a href="{{ route('meeting-room-bookings.edit', $booking->id) }}" class="btn btn-primary btn-lg">
                                 <i class="fa fa-edit"></i> Edit
@@ -222,7 +222,7 @@
                             @endif
 
                             {{-- Print Button --}}
-                            @if(user_has_role(Auth::user(), 'receptionist') || user_has_role(Auth::user(), 'admin') || $booking->user_id == Auth::id())
+                                @if(user_has_role(Auth::user(), 'receptionist') || user_has_role(Auth::user(), 'administrator') || $booking->user_id == Auth::id())
                             <a href="{{ route('meeting-room-bookings.print', $booking->id) }}" 
                                class="btn btn-info btn-lg" target="_blank">
                                 <i class="fa fa-print"></i> Print
@@ -230,10 +230,15 @@
                             @endif
 
                             {{-- Cancel Button (Receptionist Only) --}}
-                            @if((user_has_role(Auth::user(), 'receptionist') || user_has_role(Auth::user(), 'admin')) && $booking->canBeCancelled())
+                                @if((user_has_role(Auth::user(), 'receptionist') || user_has_role(Auth::user(), 'administrator')) && $booking->canBeCancelled())
                             <form action="{{ route('meeting-room-bookings.cancel', $booking->id) }}" 
-                                  method="POST" style="display: inline;"
-                                                                    onsubmit="return window.meetingShowConfirm('meeting.show.runtime.confirm.cancel', 'Are you sure you want to cancel this booking?');">
+                                    method="POST" style="display: inline;"
+                                    data-confirm-title="Cancel Booking"
+                                    data-confirm-i18n-key="meeting.show.runtime.confirm.cancel"
+                                    data-confirm-message="Are you sure you want to cancel this booking?"
+                                    data-confirm-button="Cancel Booking"
+                                    data-confirm-class="btn-warning"
+                                    data-disable-on-submit="true">
                                 @csrf
                                 <button type="submit" class="btn btn-warning btn-lg">
                                                                         <i class="fa fa-ban"></i> <span data-i18n="meeting.show.action.cancel">Cancel</span>
@@ -242,10 +247,15 @@
                             @endif
 
                             {{-- Finish Button (Receptionist/Superadmin/Director/Management Only) --}}
-                            @if((user_has_any_role(Auth::user(), ['receptionist', 'super-admin', 'director', 'management'])) && $booking->canBeFinished())
+                                @if((user_has_any_role(Auth::user(), ['receptionist', 'developer', 'director'])) && $booking->canBeFinished())
                             <form action="{{ route('meeting-room-bookings.finish', $booking->id) }}" 
-                                  method="POST" style="display: inline;"
-                                                                    onsubmit="return window.meetingShowConfirm('meeting.show.runtime.confirm.finish', 'Mark this meeting as finished?');">
+                                    method="POST" style="display: inline;"
+                                    data-confirm-title="Finish Meeting"
+                                    data-confirm-i18n-key="meeting.show.runtime.confirm.finish"
+                                    data-confirm-message="Mark this meeting as finished?"
+                                    data-confirm-button="Finish"
+                                    data-confirm-class="btn-success"
+                                    data-disable-on-submit="true">
                                 @csrf
                                 <button type="submit" class="btn btn-success btn-lg">
                                                                         <i class="fa fa-check"></i> <span data-i18n="meeting.show.action.finish">Finish</span>
@@ -254,7 +264,7 @@
                             @endif
 
                             {{-- Extend Time Button (User/Receptionist/Superadmin for ongoing meetings) --}}
-                            @if(($booking->user_id == Auth::id() || user_has_any_role(Auth::user(), ['receptionist', 'super-admin'])) 
+                                @if(($booking->user_id == Auth::id() || user_has_any_role(Auth::user(), ['receptionist', 'developer'])) 
                                 && $booking->status == 'approved' 
                                 && $booking->start_datetime <= now() 
                                 && $booking->end_datetime >= now())
@@ -265,7 +275,7 @@
                             @endif
 
                             {{-- Quick Edit Subject Button (Receptionist/Admin for pending/approved meetings) --}}
-                            @if(user_has_any_role(Auth::user(), ['receptionist', 'super-admin']) 
+                            @if(user_has_any_role(Auth::user(), ['receptionist', 'developer']) 
                                 && in_array($booking->status, ['pending', 'approved']))
                             <button type="button" class="btn btn-primary btn-lg" 
                                     data-toggle="modal" data-target="#quickEditSubjectModal">
@@ -274,7 +284,7 @@
                             @endif
 
                             {{-- Quick Edit Time Button (Receptionist/Admin for pending/approved future meetings) --}}
-                            @if(user_has_any_role(Auth::user(), ['receptionist', 'super-admin']) 
+                            @if(user_has_any_role(Auth::user(), ['receptionist', 'developer']) 
                                 && in_array($booking->status, ['pending', 'approved'])
                                 && $booking->start_datetime->isFuture())
                             <button type="button" class="btn btn-warning btn-lg" 
@@ -284,10 +294,15 @@
                             @endif
 
                             {{-- Delete Button (Owner if Pending, OR Super-admin) --}}
-                            @if(($booking->user_id == Auth::id() && $booking->canBeEdited()) || user_has_role(Auth::user(), 'super-admin'))
+                                @if(($booking->user_id == Auth::id() && $booking->canBeEdited()) || user_has_role(Auth::user(), 'developer'))
                             <form action="{{ route('meeting-room-bookings.destroy', $booking->id) }}" 
-                                  method="POST" style="display: inline;"
-                                                                    onsubmit="return window.meetingShowConfirm('meeting.show.runtime.confirm.delete', 'Are you sure you want to delete this booking?');">
+                                    method="POST" style="display: inline;"
+                                    data-confirm-title="Delete Booking"
+                                    data-confirm-i18n-key="meeting.show.runtime.confirm.delete"
+                                    data-confirm-message="Are you sure you want to delete this booking?"
+                                    data-confirm-button="Delete"
+                                    data-confirm-class="btn-danger"
+                                    data-disable-on-submit="true">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger btn-lg">
@@ -365,7 +380,7 @@
             </div>
 
             {{-- Approve/Reject Actions (Director Only) --}}
-            @if(user_has_role(Auth::user(), 'director') || user_has_role(Auth::user(), 'admin'))
+            @if(user_has_role(Auth::user(), 'director') || user_has_role(Auth::user(), 'administrator'))
                 @if($booking->status == 'pending' && $booking->canBeApproved())
                 <div class="box box-success">
                     <div class="box-header with-border">
@@ -373,8 +388,13 @@
                     </div>
                     <div class="box-body">
                         {{-- Approve Form --}}
-                        <form action="{{ route('meeting-room-bookings.approve', $booking->id) }}" method="POST" 
-                            onsubmit="return window.meetingShowConfirm('meeting.show.runtime.confirm.approve', 'Approve this booking?');">
+                        <form action="{{ route('meeting-room-bookings.approve', $booking->id) }}" method="POST"
+                            data-confirm-title="Approve Booking"
+                            data-confirm-i18n-key="meeting.show.runtime.confirm.approve"
+                            data-confirm-message="Approve this booking?"
+                            data-confirm-button="Approve"
+                            data-confirm-class="btn-success"
+                            data-disable-on-submit="true">
                             @csrf
                             <div class="form-group">
                                 <label for="approve_notes">Catatan (Opsional) / Notes (Optional)</label>

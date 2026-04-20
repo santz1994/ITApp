@@ -23,7 +23,7 @@ class KPIDashboardController extends Controller
         // Check permission
         /** @var \App\User $user */
         $user = auth()->user();
-        if (!$user || !$user->hasRole(['management', 'super-admin', 'admin'])) {
+        if (!$user || !$user->hasRole(['director', 'developer', 'administrator'])) {
             abort(403, 'Unauthorized access to KPI Dashboard');
         }
 

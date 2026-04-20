@@ -3,6 +3,11 @@
     <title>QutyIT @if(isset($pageTitle))- @yield('htmlheader_title', $pageTitle) @endif</title>
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <!-- Enterprise Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
@@ -28,6 +33,8 @@
     <link href="{{ asset('/css/ui-enhancements.css') }}" rel="stylesheet" type="text/css" />
     <!-- Modern UI/UX Enhancements V2 -->
     <link href="{{ asset('/css/ui-enhancements-v2.css') }}" rel="stylesheet" type="text/css" />
+    <!-- Enterprise Design System -->
+    <link href="{{ asset('/css/enterprise-design-system.css') }}" rel="stylesheet" type="text/css" />
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap.min.css">

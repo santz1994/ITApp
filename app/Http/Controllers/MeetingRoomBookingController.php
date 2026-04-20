@@ -46,12 +46,12 @@ class MeetingRoomBookingController extends Controller
             $query->where('user_id', Auth::id());
         } elseif ($tab === 'pending') {
             // Show only pending bookings (for directors/admins)
-            if (Auth::user()->hasRole(['director', 'admin', 'super-admin'])) {
+            if (Auth::user()->hasRole(['director', 'administrator', 'developer'])) {
                 $query->where('status', 'pending');
             }
         } elseif ($tab === 'all') {
             // Show all bookings based on user role
-            if (!Auth::user()->hasRole(['admin', 'super-admin', 'director', 'receptionist'])) {
+            if (!Auth::user()->hasRole(['administrator', 'developer', 'director', 'receptionist'])) {
                 // Regular users only see their own bookings
                 $query->where('user_id', Auth::id());
             }
@@ -120,7 +120,7 @@ class MeetingRoomBookingController extends Controller
         ]);
 
         // Check if user can bypass BLOCKED rooms (Receptionist, Super-admin, or daniel@quty.co.id)
-        $canBypassBlocked = Auth::user()->hasRole(['receptionist', 'super-admin']) 
+        $canBypassBlocked = Auth::user()->hasRole(['receptionist', 'developer']) 
                             || Auth::user()->email === 'daniel@quty.co.id';
 
         // Rule 1: STRICT conflict detection - Room cannot be booked if ANY overlap exists
@@ -193,7 +193,7 @@ class MeetingRoomBookingController extends Controller
         $booking = MeetingRoomBooking::with(['user', 'approver'])->findOrFail($id);
 
         // Authorization check
-        if (!Auth::user()->hasRole(['admin', 'super-admin', 'director', 'receptionist']) 
+        if (!Auth::user()->hasRole(['administrator', 'developer', 'director', 'receptionist']) 
             && $booking->user_id != Auth::id()) {
             abort(403, 'Unauthorized access.');
         }
@@ -215,7 +215,7 @@ class MeetingRoomBookingController extends Controller
         // 4. Owner can edit ONLY if status is pending
         $isOwner = $booking->user_id == Auth::id();
         $isReceptionist = Auth::user()->hasRole(['receptionist']);
-        $isSuperAdmin = Auth::user()->hasRole('super-admin');
+        $isSuperAdmin = Auth::user()->hasRole('developer');
         $isDaniel = Auth::user()->email === 'daniel@quty.co.id';
         
         // Special users can edit approved bookings
@@ -265,7 +265,7 @@ class MeetingRoomBookingController extends Controller
         // 4. Owner can edit ONLY if status is pending
         $isOwner = $booking->user_id == Auth::id();
         $isReceptionist = Auth::user()->hasRole(['receptionist']);
-        $isSuperAdmin = Auth::user()->hasRole('super-admin');
+        $isSuperAdmin = Auth::user()->hasRole('developer');
         $isDaniel = Auth::user()->email === 'daniel@quty.co.id';
         
         // Special users can edit approved bookings
@@ -363,7 +363,7 @@ class MeetingRoomBookingController extends Controller
         $booking = MeetingRoomBooking::findOrFail($id);
 
         // Super-admin can delete any booking
-        $isSuperAdmin = Auth::user()->hasRole('super-admin');
+        $isSuperAdmin = Auth::user()->hasRole('developer');
         
         // Owner can delete only if pending and future
         $isOwnerAndCanEdit = ($booking->user_id == Auth::id() && $booking->canBeEdited());
@@ -384,7 +384,7 @@ class MeetingRoomBookingController extends Controller
      */
     public function approve(Request $request, $id)
     {
-        if (!Auth::user()->hasRole(['admin', 'super-admin', 'director'])) {
+        if (!Auth::user()->hasRole(['administrator', 'developer', 'director'])) {
             abort(403, 'Unauthorized');
         }
 
@@ -425,7 +425,7 @@ class MeetingRoomBookingController extends Controller
      */
     public function reject(Request $request, $id)
     {
-        if (!Auth::user()->hasRole(['admin', 'super-admin', 'director'])) {
+        if (!Auth::user()->hasRole(['administrator', 'developer', 'director'])) {
             abort(403, 'Unauthorized');
         }
 
@@ -466,7 +466,7 @@ class MeetingRoomBookingController extends Controller
      */
     public function cancel($id)
     {
-        if (!Auth::user()->hasRole(['admin', 'super-admin', 'receptionist'])) {
+        if (!Auth::user()->hasRole(['administrator', 'developer', 'receptionist'])) {
             abort(403, 'Only receptionist can cancel bookings');
         }
 
@@ -494,7 +494,7 @@ class MeetingRoomBookingController extends Controller
      */
     public function finish($id)
     {
-        if (!Auth::user()->hasRole(['super-admin', 'receptionist', 'director', 'management'])) {
+        if (!Auth::user()->hasRole(['developer', 'receptionist', 'director'])) {
             abort(403, 'Only receptionist, superadmin, director, or management can mark bookings as finished');
         }
 
@@ -524,7 +524,7 @@ class MeetingRoomBookingController extends Controller
      */
     public function forceCancel($id)
     {
-        if (!Auth::user()->hasRole(['super-admin', 'receptionist'])) {
+        if (!Auth::user()->hasRole(['developer', 'receptionist'])) {
             abort(403, 'Only receptionist and super-admin can force cancel bookings');
         }
 
@@ -569,7 +569,7 @@ class MeetingRoomBookingController extends Controller
         // Authorization check
         $isOwner = $booking->user_id == Auth::id();
         $isReceptionist = Auth::user()->hasRole(['receptionist']);
-        $isSuperAdmin = Auth::user()->hasRole('super-admin');
+        $isSuperAdmin = Auth::user()->hasRole('developer');
         $isDaniel = Auth::user()->email === 'daniel@quty.co.id';
         
         if (!$isOwner && !$isReceptionist && !$isSuperAdmin && !$isDaniel) {
@@ -663,7 +663,7 @@ class MeetingRoomBookingController extends Controller
         
         // Authorization check - Receptionist, Super-admin, or daniel@quty.co.id
         $isReceptionist = Auth::user()->hasRole(['receptionist']);
-        $isSuperAdmin = Auth::user()->hasRole('super-admin');
+        $isSuperAdmin = Auth::user()->hasRole('developer');
         $isDaniel = Auth::user()->email === 'daniel@quty.co.id';
         
         if (!$isReceptionist && !$isSuperAdmin && !$isDaniel) {
@@ -722,7 +722,7 @@ class MeetingRoomBookingController extends Controller
         
         // Authorization check - Receptionist, Super-admin, or daniel@quty.co.id
         $isReceptionist = Auth::user()->hasRole(['receptionist']);
-        $isSuperAdmin = Auth::user()->hasRole('super-admin');
+        $isSuperAdmin = Auth::user()->hasRole('developer');
         $isDaniel = Auth::user()->email === 'daniel@quty.co.id';
         
         if (!$isReceptionist && !$isSuperAdmin && !$isDaniel) {
@@ -838,7 +838,7 @@ class MeetingRoomBookingController extends Controller
     public function receptionistDashboard()
     {
         // Authorization check
-        if (!Auth::user()->hasRole(['super-admin', 'admin', 'receptionist'])) {
+        if (!Auth::user()->hasRole(['developer', 'administrator', 'receptionist'])) {
             abort(403, 'Access denied. Receptionist only.');
         }
 
@@ -905,7 +905,7 @@ class MeetingRoomBookingController extends Controller
     public function directorDashboard()
     {
         // Authorization check - Allow director, management, admin, and super-admin
-        if (!Auth::user()->hasRole(['super-admin', 'admin', 'director', 'management'])) {
+        if (!Auth::user()->hasRole(['developer', 'administrator', 'director'])) {
             abort(403, 'Access denied. Director or Management only.');
         }
 
@@ -967,7 +967,7 @@ class MeetingRoomBookingController extends Controller
     public function toggleRoomAvailability(Request $request)
     {
         // Authorization check
-        if (!Auth::user()->hasRole(['super-admin', 'receptionist'])) {
+        if (!Auth::user()->hasRole(['developer', 'receptionist'])) {
             return response()->json(['success' => false, 'message' => 'Access denied'], 403);
         }
 
@@ -1069,7 +1069,7 @@ class MeetingRoomBookingController extends Controller
     public function quickBooking(Request $request)
     {
         // Authorization check
-        if (!Auth::user()->hasRole(['super-admin', 'admin', 'receptionist'])) {
+        if (!Auth::user()->hasRole(['developer', 'administrator', 'receptionist'])) {
             return response()->json(['success' => false, 'message' => 'Access denied'], 403);
         }
 
@@ -1179,7 +1179,7 @@ class MeetingRoomBookingController extends Controller
     public function updateBookingTime(Request $request, $id)
     {
         // Authorization check
-        if (!Auth::user()->hasRole(['super-admin', 'admin', 'receptionist'])) {
+        if (!Auth::user()->hasRole(['developer', 'administrator', 'receptionist'])) {
             return response()->json(['success' => false, 'message' => 'Access denied'], 403);
         }
 
@@ -1277,7 +1277,7 @@ class MeetingRoomBookingController extends Controller
      */
     public function lcdSettings()
     {
-        if (!Auth::user()->hasRole(['super-admin', 'admin', 'receptionist'])) {
+        if (!Auth::user()->hasRole(['developer', 'administrator', 'receptionist'])) {
             abort(403, 'Access denied. Only receptionist/admin can manage LCD settings.');
         }
 
@@ -1298,7 +1298,7 @@ class MeetingRoomBookingController extends Controller
      */
     public function saveLcdSettings(Request $request)
     {
-        if (!Auth::user()->hasRole(['super-admin', 'admin', 'receptionist'])) {
+        if (!Auth::user()->hasRole(['developer', 'administrator', 'receptionist'])) {
             abort(403, 'Access denied. Only receptionist/admin can manage LCD settings.');
         }
 
@@ -1630,7 +1630,7 @@ class MeetingRoomBookingController extends Controller
         $booking = MeetingRoomBooking::with(['user', 'approver'])->findOrFail($id);
 
         // Authorization: receptionist, admin, or owner
-        if (!Auth::user()->hasRole(['admin', 'super-admin', 'receptionist']) 
+        if (!Auth::user()->hasRole(['administrator', 'developer', 'receptionist']) 
             && $booking->user_id != Auth::id()) {
             abort(403, 'Unauthorized');
         }
@@ -1644,7 +1644,7 @@ class MeetingRoomBookingController extends Controller
     public function monthlyExcelReport(Request $request)
     {
         // Authorization
-        if (!Auth::user()->hasRole(['admin', 'super-admin', 'receptionist'])) {
+        if (!Auth::user()->hasRole(['administrator', 'developer', 'receptionist'])) {
             abort(403, 'Unauthorized');
         }
 

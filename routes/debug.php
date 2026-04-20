@@ -137,15 +137,15 @@ Route::prefix('test')->group(function () {
     // UAC Test Routes
     Route::get('/super-admin-test', function() {
         return 'Super Admin Access Working!';
-    })->middleware(['auth', 'role:super-admin']);
+    })->middleware(['auth', 'role:developer']);
     
     Route::get('/admin-test', function() {
         return 'Admin Access Working!';
-    })->middleware(['auth', 'role:admin']);
+    })->middleware(['auth', 'role:administrator']);
     
     Route::get('/management-test', function() {
         return 'Management Access Working!';
-    })->middleware(['auth', 'role:management']);
+    })->middleware(['auth', 'role:director']);
     
     // Debug current user roles
     Route::get('/debug-my-roles', function() {
@@ -243,15 +243,15 @@ Route::group(['middleware' => ['web', 'auth']], function () {
     // Test routes with different role middleware requirements
     Route::get('/test-super-admin', function() {
         return "You have the super-admin role!";
-    })->middleware('role:super-admin');
+    })->middleware('role:developer');
     
     Route::get('/test-admin', function() {
         return "You have the admin role!";
-    })->middleware('role:admin');
+    })->middleware('role:administrator');
     
     Route::get('/test-management', function() {
         return "You have the management role!";
-    })->middleware('role:management');
+    })->middleware('role:director');
     
     Route::get('/test-user', function() {
         return "You have the user role!";
@@ -315,7 +315,7 @@ Route::get('/debug-roles', function () {
 // Test route protected by role middleware
 Route::get('/test-super-admin', function () {
     return '<h1>You have super-admin access!</h1>';
-})->middleware('role:super-admin');
+})->middleware('role:developer');
 
 // Debug menu - shows all available debug routes
 Route::get('/debug-menu', function() {
