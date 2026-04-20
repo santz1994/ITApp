@@ -17,7 +17,7 @@ class DailyActivityController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('role:admin|super-admin|management');
+        $this->middleware('role:administrator|developer|director');
     }
 
     /**
@@ -46,7 +46,7 @@ class DailyActivityController extends Controller
             return $q->whereDate('activity_date', '<=', $request->date_to);
         });
 
-        $query->when($request->filled('user_id') && $this->hasAnyRole(['admin', 'super-admin']), function ($q) use ($request) {
+        $query->when($request->filled('user_id') && $this->hasAnyRole(['administrator', 'developer']), function ($q) use ($request) {
             return $q->forUser($request->user_id);
         });
 
@@ -55,7 +55,7 @@ class DailyActivityController extends Controller
         });
 
         // If regular user, only show their activities
-        if (!$this->hasAnyRole(['admin', 'super-admin'])) {
+        if (!$this->hasAnyRole(['administrator', 'developer'])) {
             $query->where('user_id', Auth::id());
         }
 
@@ -63,7 +63,7 @@ class DailyActivityController extends Controller
 
         // Get users who have activities on resolved tickets
         $users = cache()->remember('daily_activities_users', 300, function () {
-            return $this->hasAnyRole(['admin', 'super-admin']) 
+            return $this->hasAnyRole(['administrator', 'developer']) 
                 ? User::select('id', 'name')
                       ->whereHas('dailyActivities.ticket', function ($q) {
                           $q->whereNotNull('resolved_at');

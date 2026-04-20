@@ -36,12 +36,12 @@ Route::middleware(['auth'])->group(function () {
     // LCD room list and display order settings page
     Route::get('meeting-room-lcd-settings', [MeetingRoomBookingController::class, 'lcdSettings'])
         ->name('meeting-room-bookings.lcd-settings')
-        ->middleware('role:receptionist|admin|super-admin');
+        ->middleware('role:receptionist|administrator|developer');
 
     // Save LCD room list and display order settings
     Route::post('meeting-room-lcd-settings', [MeetingRoomBookingController::class, 'saveLcdSettings'])
         ->name('meeting-room-bookings.lcd-settings.save')
-        ->middleware('role:receptionist|admin|super-admin');
+        ->middleware('role:receptionist|administrator|developer');
     
     // ========================================
     // MEETING ROOM BOOKING RESOURCE ROUTES
@@ -64,22 +64,22 @@ Route::middleware(['auth'])->group(function () {
     // Approve booking (Director/Admin only)
     Route::post('meeting-room-bookings/{id}/approve', [MeetingRoomBookingController::class, 'approve'])
         ->name('meeting-room-bookings.approve')
-        ->middleware('role:director|admin|super-admin');
+        ->middleware('role:director|administrator|developer');
     
     // Reject booking (Director/Admin only)
     Route::post('meeting-room-bookings/{id}/reject', [MeetingRoomBookingController::class, 'reject'])
         ->name('meeting-room-bookings.reject')
-        ->middleware('role:director|admin|super-admin');
+        ->middleware('role:director|administrator|developer');
     
     // Cancel booking (Receptionist/Admin only)
     Route::post('meeting-room-bookings/{id}/cancel', [MeetingRoomBookingController::class, 'cancel'])
         ->name('meeting-room-bookings.cancel')
-        ->middleware('role:receptionist|admin|super-admin');
+        ->middleware('role:receptionist|administrator|developer');
     
     // Finish booking (Receptionist/Admin only)
     Route::post('meeting-room-bookings/{id}/finish', [MeetingRoomBookingController::class, 'finish'])
         ->name('meeting-room-bookings.finish')
-        ->middleware('role:receptionist|admin|super-admin');
+        ->middleware('role:receptionist|administrator|developer');
     
     // Extend meeting time (User/Receptionist/Admin)
     Route::post('meeting-room-bookings/{id}/extend', [MeetingRoomBookingController::class, 'extendTime'])
@@ -152,5 +152,5 @@ Route::middleware(['auth'])->group(function () {
     // Monthly Report - Excel Export (Receptionist/Admin only)
     Route::get('meeting-room-bookings/report/monthly-excel', [MeetingRoomBookingController::class, 'monthlyExcelReport'])
         ->name('meeting-room-bookings.report.monthly-excel')
-        ->middleware('role:receptionist|admin|super-admin');
+        ->middleware('role:receptionist|administrator|developer');
 });

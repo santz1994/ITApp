@@ -15,7 +15,7 @@ class DatabaseController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('role:super-admin'); // Only super-admin can access database management
+        $this->middleware('role:developer'); // Only developer can access database management
     }
 
     /**

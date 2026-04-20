@@ -44,14 +44,14 @@ trait RoleBasedAccessTrait
         if (\user_has_role($user, 'user')) {
             // Users can only see their own records
             return $query->where('user_id', $user->id);
-        } elseif (\user_has_role($user, 'admin')) {
-            // Admins can see records assigned to them or unassigned
+        } elseif (\user_has_role($user, 'administrator')) {
+            // Administrators can see records assigned to them or unassigned
             return $query->where(function($q) use ($user) {
                 $q->where('assigned_to', $user->id)
                   ->orWhereNull('assigned_to');
             });
-        } elseif (\user_has_any_role($user, ['super-admin', 'management'])) {
-            // Super admins and management can see everything
+        } elseif (\user_has_any_role($user, ['developer', 'director'])) {
+            // Developers and directors can see everything
             return $query;
         }
 
@@ -71,29 +71,29 @@ trait RoleBasedAccessTrait
 
         switch ($action) {
             case 'create':
-                return \user_has_any_role($user, ['admin', 'super-admin', 'user']);
+                return \user_has_any_role($user, ['administrator', 'developer', 'user']);
             
             case 'view':
                 if ($resource && method_exists($resource, 'user_id')) {
-                    return \user_has_any_role($user, ['super-admin', 'management']) || 
-                           \user_has_role($user, 'admin') || 
+                      return \user_has_any_role($user, ['developer', 'director']) || 
+                          \user_has_role($user, 'administrator') || 
                            $resource->user_id === $user->id;
                 }
-                return \user_has_any_role($user, ['admin', 'super-admin', 'management', 'user']);
+                  return \user_has_any_role($user, ['administrator', 'developer', 'director', 'user']);
             
             case 'edit':
             case 'update':
                 if ($resource && method_exists($resource, 'user_id')) {
-                    return \user_has_any_role($user, ['super-admin', 'admin']) || 
+                    return \user_has_any_role($user, ['developer', 'administrator']) || 
                            (\user_has_role($user, 'user') && $resource->user_id === $user->id);
                 }
-                return \user_has_any_role($user, ['admin', 'super-admin']);
+                return \user_has_any_role($user, ['administrator', 'developer']);
             
             case 'delete':
-                return \user_has_any_role($user, ['super-admin', 'admin']);
+                return \user_has_any_role($user, ['developer', 'administrator']);
             
             case 'assign':
-                return \user_has_any_role($user, ['super-admin', 'admin']);
+                return \user_has_any_role($user, ['developer', 'administrator']);
             
             default:
                 return false;

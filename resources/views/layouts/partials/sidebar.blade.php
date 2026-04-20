@@ -81,6 +81,11 @@
     ? $requestedWorkspace
     : (in_array((string) $workspaceFromRoute, $validWorkspaces, true) ? $workspaceFromRoute : null);
 
+  // Prevent stale URL params from forcing Settings menu inside KPI workspace pages.
+  if ($workspaceFromRoute === 'kpi') {
+    $sidebarWorkspace = 'kpi';
+  }
+
   if (in_array($routeName, ['home', 'portal.index'], true)) {
     $sidebarWorkspace = null;
   }
@@ -175,12 +180,12 @@
                     <li><a href="{{ route('meeting-room-bookings.create') }}"><i class="fa fa-plus-circle"></i> New Booking</a></li>
                     
                     {{-- Director Dashboard (Director, Management, Admin & Super-Admin) --}}
-                    @role(['director', 'super-admin', 'admin', 'management'])
+                    @role(['director', 'developer', 'administrator'])
                     <li><a href="{{ route('meeting-room-bookings.director-dashboard') }}"><i class="fa fa-dashboard text-purple"></i> Director Dashboard</a></li>
                     @endrole
                     
                     {{-- Receptionist Dashboard (Receptionist/Admin/Super-Admin) --}}
-                    @role(['receptionist', 'admin', 'super-admin'])
+                    @role(['receptionist', 'administrator', 'developer'])
                     <li><a href="{{ route('meeting-room-bookings.receptionist-dashboard') }}"><i class="fa fa-desktop text-green"></i> Receptionist Dashboard</a></li>
                     <li><a href="{{ route('meeting-room-bookings.lcd-settings') }}"><i class="fa fa-sliders text-orange"></i> LCD Settings</a></li>
                     <li><a href="javascript:void(0)" onclick="openMonthlyReportModal()"><i class="fa fa-file-excel-o text-success"></i> Laporan Bulanan (Excel)</a></li>
@@ -189,7 +194,7 @@
                     {{-- LCD Dashboard (Public - All users) --}}
                     <li><a href="{{ route('meeting-room-bookings.lcd-dashboard') }}" target="_blank"><i class="fa fa-tv text-blue"></i> LCD Dashboard</a></li>
                     
-                    @role(['director', 'admin', 'super-admin'])
+                    @role(['director', 'administrator', 'developer'])
                     <li><a href="{{ route('meeting-room-bookings.index', ['tab' => 'pending']) }}"><i class="fa fa-clock-o"></i> Pending Approval</a></li>
                     @endrole
                 </ul>
@@ -238,7 +243,7 @@
         <a href="javascript:void(0)"><i class='fa fa-bar-chart'></i> <span>Reports</span> <i class="fa fa-angle-left pull-right"></i></a>
         <ul class="treeview-menu">
           <li><a href="{{ route('kpi.dashboard', ['workspace' => 'kpi']) }}"><i class="fa fa-dashboard"></i> KPI Dashboard</a></li>
-          @hasrole('management|admin|super-admin')
+          @hasrole('director|administrator|developer')
           <li><a href="{{ url('/management/dashboard') }}{{ $sidebarWorkspace === 'kpi' ? '?workspace=kpi' : '' }}"><i class="fa fa-line-chart"></i> Management Dashboard</a></li>
           <li><a href="{{ url('/management/admin-performance') }}{{ $sidebarWorkspace === 'kpi' ? '?workspace=kpi' : '' }}"><i class="fa fa-users"></i> Admin Performance</a></li>
           @endhasrole
@@ -321,11 +326,11 @@
 
             <!-- ⚙️ Settings & AI (admin and super-admin) -->
               @if($showWorkspace(['settings']))
-              @role(['admin', 'super-admin'])
+              @role(['administrator', 'developer'])
               <li class="treeview">
                 <a href="javascript:void(0)"><i class='fa fa-cogs'></i> <span>Settings &amp; AI</span> <i class="fa fa-angle-left pull-right"></i></a>
                 <ul class="treeview-menu">
-                  @role('super-admin')
+                  @role('developer')
                   <li><a href="{{ route('system-settings.index') }}"><i class="fa fa-sliders"></i> System Settings</a></li>
                   <li><a href="{{ route('admin.menus.index') }}"><i class="fa fa-bars"></i> Menu Management</a></li>
                   <li><a href="{{ route('sla.index') }}"><i class="fa fa-clock-o"></i> SLA Policies</a></li>
@@ -343,7 +348,7 @@
                   <li><a href="{{ route('audit-logs.index') }}"><i class="fa fa-history"></i> Audit Logs</a></li>
                   <li><a href="{{ route('audit-logs.export') }}"><i class="fa fa-download"></i> Export Audit Logs</a></li>
 
-                  @role('super-admin')
+                  @role('developer')
                   <li class="divider" role="separator"></li>
                   <li><a href="{{ url('/admin/dashboard') }}"><i class="fa fa-dashboard"></i> Admin Dashboard</a></li>
                   <li><a href="{{ url('/admin/database') }}"><i class="fa fa-database"></i> Database Management</a></li>

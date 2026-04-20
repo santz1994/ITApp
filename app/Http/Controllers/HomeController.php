@@ -33,8 +33,8 @@ class HomeController extends Controller
   /** @var \App\User $user */
   $user = Auth::user();
 
-      // If the user is in the management role, show KPI Dashboard as their home
-      if ($this->hasRole('management')) {
+      // If the user is in the director role, show KPI Dashboard as their home
+      if ($this->hasRole('director')) {
           return redirect()->route('kpi.dashboard');
       }
 

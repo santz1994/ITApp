@@ -15,7 +15,7 @@ class StatusesController extends Controller
   public function __construct()
   {
       $this->middleware('auth');
-      $this->middleware('role:super-admin');
+      $this->middleware('role:developer');
   }
 
   public function index()

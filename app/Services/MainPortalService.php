@@ -396,7 +396,7 @@ class MainPortalService
     private function resolveWorkspaceKeyForModule(string $moduleKey): string
     {
         return match ($moduleKey) {
-            'kpi_dashboard' => 'settings',
+            'kpi_dashboard' => 'kpi',
             'lcd_screen' => 'meeting_room',
             default => $moduleKey,
         };

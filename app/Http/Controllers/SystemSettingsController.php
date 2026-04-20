@@ -18,7 +18,7 @@ class SystemSettingsController extends BaseController
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('role:super-admin'); // Only super-admin can access system settings
+        $this->middleware('role:developer'); // Only developer can access system settings
     }
 
     /**
