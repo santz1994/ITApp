@@ -34,6 +34,9 @@ class PurchaseRequestPortalTest extends TestCase
         $response->assertSee('ID');
         $response->assertSee('id="prLanguageEnglish"', false);
         $response->assertSee('id="prLanguageIndonesian"', false);
+        $response->assertSee('class="module-toolbar"', false);
+        $response->assertSee('module-toolbar-user-email', false);
+        $response->assertDontSee('margin-top: -52px');
         $response->assertSee('data-i18n="pr.title"', false);
         $response->assertSee('data-i18n="pr.quick_actions.title"', false);
         $response->assertSee('data-i18n="pr.table.title"', false);

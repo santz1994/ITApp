@@ -189,6 +189,9 @@ class MainPortalService
                 continue;
             }
 
+            $workspaceKey = $this->resolveWorkspaceKeyForModule((string) ($module['key'] ?? ''));
+            $module['url'] = $this->appendWorkspaceContext((string) $module['url'], $workspaceKey);
+
             $availableModules[] = $module;
         }
 
@@ -200,17 +203,26 @@ class MainPortalService
         $isStandardUser = $this->isStandardUser($user);
 
         return [
-            'tickets' => $this->routeFirstAvailable([
-                $isStandardUser ? 'tickets.user-index' : 'tickets.index',
-                'tickets.index',
-            ]),
-            'tickets_unassigned' => $this->resolveTicketQueueUrl($user),
-            'meeting_rooms' => $this->routeOrFallback('meeting-room-bookings.index'),
-            'purchase_requests' => $this->routeFirstAvailable(['purchase-requests.index', 'asset-requests.index']),
-            'assets' => $this->routeFirstAvailable([
-                $isStandardUser ? 'assets.user-index' : 'assets.index',
-                'assets.index',
-            ]),
+            'tickets' => $this->appendWorkspaceContext(
+                $this->routeFirstAvailable([
+                    $isStandardUser ? 'tickets.user-index' : 'tickets.index',
+                    'tickets.index',
+                ]),
+                'it_support'
+            ),
+            'tickets_unassigned' => $this->appendWorkspaceContext($this->resolveTicketQueueUrl($user), 'it_support'),
+            'meeting_rooms' => $this->appendWorkspaceContext($this->routeOrFallback('meeting-room-bookings.index'), 'meeting_room'),
+            'purchase_requests' => $this->appendWorkspaceContext(
+                $this->routeFirstAvailable(['purchase-requests.index', 'asset-requests.index']),
+                'purchase_request'
+            ),
+            'assets' => $this->appendWorkspaceContext(
+                $this->routeFirstAvailable([
+                    $isStandardUser ? 'assets.user-index' : 'assets.index',
+                    'assets.index',
+                ]),
+                'assets_management'
+            ),
         ];
     }
 
@@ -286,7 +298,7 @@ class MainPortalService
                 'label' => 'Ticket Action Queue',
                 'pending_count' => (int) ($metrics['approval_center_ticket_queue'] ?? $metrics['unassigned_open_tickets'] ?? 0),
                 'description' => 'Unassigned open tickets waiting for technician pickup.',
-                'url' => $this->resolveTicketQueueUrl($user),
+                'url' => $this->appendWorkspaceContext($this->resolveTicketQueueUrl($user), 'it_support'),
                 'action_label' => 'Review Tickets',
                 'theme' => 'aqua',
                 'icon' => 'fa-life-ring',
@@ -296,7 +308,10 @@ class MainPortalService
                 'label' => 'Meeting Approval Queue',
                 'pending_count' => (int) ($metrics['approval_center_meeting_queue'] ?? $metrics['pending_meeting_approvals'] ?? 0),
                 'description' => 'Meeting room bookings waiting for approval decisions.',
-                'url' => $this->routeWithQueryOrFallback(['meeting-room-bookings.index'], ['status' => 'pending']),
+                'url' => $this->appendWorkspaceContext(
+                    $this->routeWithQueryOrFallback(['meeting-room-bookings.index'], ['status' => 'pending']),
+                    'meeting_room'
+                ),
                 'action_label' => 'Review Bookings',
                 'theme' => 'orange',
                 'icon' => 'fa-calendar-check-o',
@@ -306,7 +321,10 @@ class MainPortalService
                 'label' => 'Purchase Approval Queue',
                 'pending_count' => (int) ($metrics['approval_center_purchase_queue'] ?? $metrics['pending_requests'] ?? 0),
                 'description' => 'Purchase requests pending validation and approval workflow.',
-                'url' => $this->routeWithQueryOrFallback(['purchase-requests.index', 'asset-requests.index'], ['status' => 'pending']),
+                'url' => $this->appendWorkspaceContext(
+                    $this->routeWithQueryOrFallback(['purchase-requests.index', 'asset-requests.index'], ['status' => 'pending']),
+                    'purchase_request'
+                ),
                 'action_label' => 'Review Requests',
                 'theme' => 'blue',
                 'icon' => 'fa-shopping-cart',
@@ -373,6 +391,30 @@ class MainPortalService
             'icon' => $icon,
             'theme' => $theme,
         ];
+    }
+
+    private function resolveWorkspaceKeyForModule(string $moduleKey): string
+    {
+        return match ($moduleKey) {
+            'kpi_dashboard' => 'settings',
+            'lcd_screen' => 'meeting_room',
+            default => $moduleKey,
+        };
+    }
+
+    private function appendWorkspaceContext(string $url, string $workspaceKey): string
+    {
+        if ($url === '#' || $workspaceKey === '') {
+            return $url;
+        }
+
+        if (str_contains($url, 'workspace=')) {
+            return $url;
+        }
+
+        $separator = str_contains($url, '?') ? '&' : '?';
+
+        return $url . $separator . http_build_query(['workspace' => $workspaceKey]);
     }
 
     private function routeOrFallback(string $routeName): string

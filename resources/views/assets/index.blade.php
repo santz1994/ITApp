@@ -2,6 +2,15 @@
 
 @section('main-content')
 
+@include('layouts.partials.module-toolbar-styles')
+
+@php
+  $moduleToolbarUser = auth()->user();
+  $moduleToolbarName = (string) ($moduleToolbarUser?->name ?? 'User');
+  $moduleToolbarEmail = (string) ($moduleToolbarUser?->email ?? '-');
+  $moduleToolbarInitial = strtoupper(substr($moduleToolbarName, 0, 1));
+@endphp
+
 {{-- All styles moved to public/css/ui-enhancements.css for better performance and maintainability --}}
 
 @include('components.page-header', [
@@ -26,13 +35,21 @@
     '
 ])
 
-<div class="pull-right" style="margin-top: -52px; margin-bottom: 16px; margin-right: 15px;">
-  <div class="btn-group btn-group-xs" role="group" aria-label="Asset Index Language Toggle">
+<div class="module-toolbar">
+  <div class="module-toolbar-user">
+    <span class="module-toolbar-avatar">{{ $moduleToolbarInitial !== '' ? $moduleToolbarInitial : 'U' }}</span>
+    <div class="module-toolbar-user-meta">
+      <div class="module-toolbar-user-name">{{ $moduleToolbarName }}</div>
+      <div class="module-toolbar-user-email">{{ $moduleToolbarEmail }}</div>
+    </div>
+  </div>
+  <div class="module-toolbar-controls">
+  <div class="btn-group btn-group-xs module-language-toggle" role="group" aria-label="Asset Index Language Toggle">
     <button type="button" class="btn btn-default" id="assetLanguageEnglish" data-lang="en">EN</button>
     <button type="button" class="btn btn-default" id="assetLanguageIndonesian" data-lang="id">ID</button>
   </div>
+  </div>
 </div>
-<div class="clearfix"></div>
 
   {{-- Flash Messages --}}
   @if(session('success'))

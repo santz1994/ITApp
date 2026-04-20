@@ -18,7 +18,7 @@ class MainPortalTest extends TestCase
         $response->assertRedirect('/login');
     }
 
-    public function test_authenticated_user_can_open_main_portal(): void
+    public function test_authenticated_user_can_open_main_portal_with_module_navigation_only(): void
     {
         $user = User::factory()->create();
         $this->assignRoleSafely($user, 'user');
@@ -26,21 +26,21 @@ class MainPortalTest extends TestCase
         $response = $this->actingAs($user)->get('/home');
 
         $response->assertStatus(200);
-        $response->assertSee('Main Portal Dashboard');
+        $response->assertSee('Main Portal');
+        $response->assertSee('Module Navigation');
         $response->assertSee('IT Support Module');
         $response->assertSee('Profile');
-        $response->assertSee('Quick Access');
-        $response->assertSee('Portal Personalization');
         $response->assertSee('EN');
         $response->assertSee('ID');
-        $response->assertSee('data-role-badge-key="user"', false);
-        $response->assertSee('data-role-badge-level="1"', false);
-        $response->assertSee('data-role-badge-label-en="User / The Operator"', false);
-        $response->assertSee('data-role-badge-label-id="Pengguna / The Operator"', false);
-        $response->assertSee('data-role-set-badge-key="user"', false);
+        $response->assertSee('id="portal-utility-bar"', false);
+        $response->assertSee('id="portal-logout-action"', false);
+        $response->assertDontSee('Quick Access');
+        $response->assertDontSee('Portal Personalization');
+        $response->assertDontSee('Approval Center');
+        $response->assertDontSee('data-role-badge-key=', false);
     }
 
-    public function test_admin_user_sees_lv9_role_badge_visual_markers(): void
+    public function test_admin_user_still_sees_module_navigation_without_dashboard_widgets(): void
     {
         $user = User::factory()->create();
         $this->assignRoleSafely($user, 'admin');
@@ -48,10 +48,58 @@ class MainPortalTest extends TestCase
         $response = $this->actingAs($user)->get('/home');
 
         $response->assertStatus(200);
-        $response->assertSee('data-role-badge-key="admin"', false);
-        $response->assertSee('data-role-badge-level="9"', false);
-        $response->assertSee('data-role-badge-effect="warning-glow"', false);
-        $response->assertSee('role-badge-lv9', false);
+        $response->assertSee('Module Navigation');
+        $response->assertSee('User Management');
+        $response->assertSee('Settings');
+        $response->assertSee('id="portal-utility-bar"', false);
+        $response->assertDontSee('Quick Access');
+        $response->assertDontSee('Approval Center');
+        $response->assertDontSee('data-role-badge-key=', false);
+    }
+
+    public function test_main_portal_uses_hub_layout_without_global_sidebar(): void
+    {
+        $user = User::factory()->create();
+        $this->assignRoleSafely($user, 'user');
+
+        $response = $this->actingAs($user)->get('/home');
+
+        $response->assertStatus(200);
+        $response->assertSee('portal-hub-wrapper', false);
+        $response->assertSee('portal-hub-layout', false);
+        $response->assertDontSee('<aside class="main-sidebar">', false);
+        $response->assertDontSee('<header class="main-header">', false);
+        $response->assertDontSee('<section class="content-header">', false);
+        $response->assertDontSee('control-sidebar', false);
+    }
+
+    public function test_main_portal_module_links_include_workspace_spoke_context(): void
+    {
+        $user = User::factory()->create();
+        $this->assignRoleSafely($user, 'user');
+
+        $response = $this->actingAs($user)->get('/home');
+
+        $response->assertStatus(200);
+        $response->assertSee('workspace=it_support', false);
+        $response->assertSee('workspace=meeting_room', false);
+        $response->assertSee('workspace=assets_management', false);
+        $response->assertSee('workspace=purchase_request', false);
+        $response->assertSee('workspace=profile', false);
+    }
+
+    public function test_main_portal_includes_dynamic_viewport_hooks_for_responsive_layout(): void
+    {
+        $user = User::factory()->create();
+        $this->assignRoleSafely($user, 'user');
+
+        $response = $this->actingAs($user)->get('/home');
+
+        $response->assertStatus(200);
+        $response->assertSee('setupDynamicViewport();', false);
+        $response->assertSee('data-portal-screen', false);
+        $response->assertSee('ResizeObserver', false);
+        $response->assertSee('--portal-grid-min-card', false);
     }
 
     private function assignRoleSafely(User $user, string $roleName): void

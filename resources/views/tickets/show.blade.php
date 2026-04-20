@@ -14,13 +14,11 @@
     ]
 ])
 
-  <div class="pull-right" style="margin-top: -52px; margin-bottom: 16px; margin-right: 15px;">
-    <div class="btn-group btn-group-xs" role="group" aria-label="Ticket Show Language Toggle">
-      <button type="button" class="btn btn-default" id="ticketShowLanguageEnglish" data-lang="en">EN</button>
-      <button type="button" class="btn btn-default" id="ticketShowLanguageIndonesian" data-lang="id">ID</button>
-    </div>
-  </div>
-  <div class="clearfix"></div>
+  @include('layouts.partials.module-toolbar', [
+    'englishButtonId' => 'ticketShowLanguageEnglish',
+    'indonesianButtonId' => 'ticketShowLanguageIndonesian',
+    'ariaLabel' => 'Ticket Show Language Toggle',
+  ])
 
 <div class="container-fluid">
     {{-- Flash Messages --}}

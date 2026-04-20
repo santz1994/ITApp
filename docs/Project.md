@@ -23,7 +23,7 @@
 - Repaired database governance to follow Project.md as source of truth (LV hierarchy + modular forms + LCD readiness):
     - Added migration `2026_04_17_111000_align_role_levels_and_add_meeting_overlap_index.php`.
     - Role hierarchy alignment now enforces Project LV mapping in `roles.access_level`:
-        - `guest=0`, `user=1`, `receptionist=2`, `human resources=3`, `director/management=8`, `administrator/admin=9`, `developer/super-admin=10`.
+        - `guest=0`, `user=1`, `receptionist=2`, `human resources=3`, `director=8`, `administrator=9`, `developer=10`.
     - Updated MySQL column comment for `roles.access_level` to LV-based mapping (`0/1/2/3/8/9/10`) to remove legacy 1..5 interpretation.
     - Added explicit LCD overlap index for real-time room-status polling:
         - `idx_meeting_room_lcd_overlap` on `meeting_room_bookings` (`room_id`, `status`, `start_datetime`, `end_datetime`) with safe fallback to `room_name` when needed.
@@ -56,6 +56,57 @@
     - Added `data-i18n` markers for create/edit section headers and action labels, plus localized runtime feedback for password strength, password matching, and submit-loading states.
     - Expanded `UserManagementBilingualTest` coverage for create/edit marker presence and language-switch behavior hooks.
     - Focused execution confirmed green: `UserManagementBilingualTest` (`5 tests, 47 assertions`).
+- Expanded bilingual coverage to System Roles page (`/system/roles`):
+    - Added EN/ID toggle controls (`systemRolesLanguageEnglish`, `systemRolesLanguageIndonesian`) and per-user language persistence via shared portal preference storage key.
+    - Added `data-i18n`, `data-i18n-placeholder`, and `data-i18n-title` markers across KPI cards, section headers, table labels, quick actions, and create/edit role modals.
+    - Implemented runtime localization dictionary + behavior hooks (`window.systemRolesLabel`, `window.systemRolesDataTableLanguage`, `window.systemRolesRefreshRuntimeText`) including localized confirm/error prompts and DataTable runtime labels.
+    - Added focused feature test suite `SystemRolesBilingualTest` with marker and language-switch behavior-hook coverage.
+    - Focused execution confirmed green: `SystemRolesBilingualTest` (`2 tests, 17 assertions`) and regression `UserManagementBilingualTest` (`7 tests, 64 assertions`).
+- Hardened Main Portal Hub-and-Spoke implementation to match architecture intent:
+    - Added dedicated hub layout `layouts.portal` and switched `portal/index` to use it, removing the global sidebar from the Main Portal hub surface.
+    - Added spoke context query wiring (`workspace`) in `MainPortalService` for module cards, quick links, and approval-center action links.
+    - Enhanced sidebar rendering to be workspace-aware (query + route-name fallback), so module pages render focused sidebar groups while preserving role/permission gates.
+    - Added focused portal regression coverage for no-sidebar hub layout and spoke-context module links.
+    - Focused execution confirmed green: `MainPortalTest` (`5 tests, 30 assertions`) and `MainPortalApprovalCenterScopeTest` (`2 tests, 10 assertions`).
+- Expanded Hub-and-Spoke sidebar UX with workspace bilingual persistence:
+    - `resources/views/layouts/partials/sidebar.blade.php` now resolves active language from authenticated user `portal_preferences.language` and renders sidebar header labels in EN/ID accordingly.
+    - Added `data-i18n` markers for sidebar header/runtime keys (`sidebar.navigation`, `sidebar.workspace`, `sidebar.main_portal`, and workspace label keys) to keep runtime localization hooks consistent with existing bilingual pages.
+    - Workspace labels now provide bilingual dictionaries for all supported workspace keys (`it_support`, `meeting_room`, `assets_management`, `purchase_request`, `user_management`, `settings`, `profile`).
+- Added focused sidebar workspace regression suite:
+    - New `SidebarWorkspaceContextTest` verifies workspace-specific sidebar focus for IT Support and Meeting Room spokes and validates Indonesian header rendering via `portal_preferences.language=id`.
+    - Sidebar URL assertions are now host-agnostic using route helpers (no hardcoded `localhost` in feature assertions).
+    - Focused execution confirmed green: `SidebarWorkspaceContextTest` (`3 tests, 24 assertions`) and regression `MainPortalTest` (`5 tests, 30 assertions`).
+- Simplified Main Portal UI to enforce module-picker-only behavior:
+    - `portal/index` now renders only module navigation cards plus EN/ID language toggle; dashboard widgets/summaries/approval-center/personalization surfaces are removed from the hub screen.
+    - Maintained bilingual runtime behavior for module title/subtitle and portal labels using `portal_preferences.language` persistence via portal preference API.
+    - Updated portal regression assertions to validate "module navigation only" semantics for both standard users and admins.
+    - Focused execution confirmed green: `MainPortalTest` (`5 tests, 30 assertions`).
+- Refined Main Portal visual language with Cyber-Industrial hub styling while preserving module-only navigation intent:
+    - Updated hub surface to dark cyber-industrial card system (`cyber-card`) with module accent hovers (`mod-it`, `mod-assets`, `mod-meeting`, `mod-admin`) and admin-card edge marker.
+    - Added dedicated bilingual portal dictionary (`portalTranslations`) with ID/EN keys for welcome copy and module titles/descriptions.
+    - Added language toggle behavior using local storage key `portal_lang` with API sync to `portal_preferences.language` for persistence consistency.
+    - Added live WIB clock (`Asia/Jakarta`) on the hub header (`#wib-clock`) to keep timezone visibility explicit in portal UI.
+    - Focused execution confirmed green: `MainPortalTest` (`5 tests, 30 assertions`), `SidebarWorkspaceContextTest` (`3 tests, 24 assertions`), and `MainPortalApprovalCenterScopeTest` (`2 tests, 10 assertions`).
+- Cleaned Main Portal visual residue from legacy AdminLTE scaffolding:
+    - `layouts.portal` no longer renders global `mainheader`, `contentheader`, `controlsidebar`, or footer blocks, so hub screen is now a standalone module-picker canvas.
+    - Removed duplicated in-page page-header component from `portal/index`; replaced with compact in-canvas kicker label (`Main Portal`) + welcome/subtitle section.
+    - Added focused layout assertions to guarantee hub HTML excludes legacy top header/content header/control-sidebar markers.
+    - Focused execution confirmed green: `MainPortalTest` (`5 tests, 33 assertions`).
+- Enhanced standalone Main Portal UX while keeping module-picker scope:
+    - Added compact utility strip on top of hub canvas with user identity, LV role badge, and sign-out action (`#portal-utility-bar`, `#portal-logout-action`) without restoring global header/sidebar.
+    - Reused service-provided `primaryRoleBadge` metadata for runtime EN/ID role label switching in portal language toggle flow.
+    - Refined module grid rendering with staggered card reveal animation and improved mobile spacing/stacking for utility strip and module cards.
+    - Focused execution confirmed green: `MainPortalTest` (`5 tests, 36 assertions`), `SidebarWorkspaceContextTest` (`3 tests, 24 assertions`), and `MainPortalApprovalCenterScopeTest` (`2 tests, 10 assertions`).
+- Added dynamic viewport adaptation for Main Portal across device sizes:
+    - Module grid now uses adaptive CSS Grid (`auto-fit` + `minmax`) with runtime card-width/gap tuning via viewport presets (`compact`, `mobile`, `tablet`, `wide`, `ultra-wide`).
+    - Implemented runtime viewport hook `setupDynamicViewport()` with `ResizeObserver` fallback handling, writing active preset to `data-portal-screen` for deterministic responsive styling.
+    - Added focused regression coverage to ensure dynamic viewport hooks are present in rendered portal HTML.
+    - Focused execution confirmed green: `MainPortalTest` (`6 tests, 41 assertions`), `SidebarWorkspaceContextTest` (`3 tests, 24 assertions`), and `MainPortalApprovalCenterScopeTest` (`2 tests, 10 assertions`).
+- Refined Main Portal module grid so cards render rata (aligned/equalized):
+    - Enforced equal-height row behavior using `grid-auto-rows: 1fr` and `display:flex` on each grid item wrapper.
+    - Standardized card internals (`box-header`, title/icon row, body flow, action anchoring) so CTA button stays aligned at bottom across all module cards.
+    - Applied controlled description clamp and spacing normalization to prevent uneven card growth from variable copy length.
+    - Browser validation confirms row-level height parity (`diff: 0` on every row) with focused suite still green: `MainPortalTest` (`6 tests, 41 assertions`).
 
 ## Progress Update (2026-04-16)
 

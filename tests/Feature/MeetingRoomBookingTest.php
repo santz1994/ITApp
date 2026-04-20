@@ -85,6 +85,9 @@ class MeetingRoomBookingTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('EN');
         $response->assertSee('ID');
+        $response->assertSee('class="module-toolbar"', false);
+        $response->assertSee('module-toolbar-user-name', false);
+        $response->assertDontSee('margin-top: -52px');
     }
 
     /** @test */

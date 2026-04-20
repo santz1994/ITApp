@@ -30,22 +30,24 @@
         letter-spacing: .25px;
     }
 
-        .pr-top-controls {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-
-        .pr-language-toggle .btn.active {
-            background: #1b6ca8;
-            border-color: #1b6ca8;
-            color: #fff;
-        }
+    .pr-language-toggle .btn.active {
+        background: #1b6ca8;
+        border-color: #1b6ca8;
+        color: #fff;
+    }
 </style>
 @endpush
 
 @section('main-content')
+
+@include('layouts.partials.module-toolbar-styles')
+
+@php
+    $moduleToolbarUser = auth()->user();
+    $moduleToolbarName = (string) ($moduleToolbarUser?->name ?? 'User');
+    $moduleToolbarEmail = (string) ($moduleToolbarUser?->email ?? '-');
+    $moduleToolbarInitial = strtoupper(substr($moduleToolbarName, 0, 1));
+@endphp
 
 @component('components.page-header')
     @slot('icon') fa-shopping-cart @endslot
@@ -53,13 +55,21 @@
     @slot('subtitle') {{ $subtitle ?? 'Dedicated procurement workspace for request tracking and approvals.' }} @endslot
 @endcomponent
 
-<div class="pr-top-controls pull-right" style="margin-top: -52px; margin-bottom: 16px;">
-    <div class="btn-group btn-group-xs pr-language-toggle" role="group" aria-label="Purchase Request Language Toggle">
+<div class="module-toolbar">
+    <div class="module-toolbar-user">
+        <span class="module-toolbar-avatar">{{ $moduleToolbarInitial !== '' ? $moduleToolbarInitial : 'U' }}</span>
+        <div class="module-toolbar-user-meta">
+            <div class="module-toolbar-user-name">{{ $moduleToolbarName }}</div>
+            <div class="module-toolbar-user-email">{{ $moduleToolbarEmail }}</div>
+        </div>
+    </div>
+    <div class="module-toolbar-controls">
+    <div class="btn-group btn-group-xs pr-language-toggle module-language-toggle" role="group" aria-label="Purchase Request Language Toggle">
         <button type="button" class="btn btn-default" id="prLanguageEnglish" data-lang="en">EN</button>
         <button type="button" class="btn btn-default" id="prLanguageIndonesian" data-lang="id">ID</button>
     </div>
+    </div>
 </div>
-<div class="clearfix"></div>
 
 <div class="row">
     <div class="col-lg-3 col-sm-6 pr-summary-card">

@@ -25,13 +25,11 @@
     '
 ])
 
-<div class="pull-right" style="margin-top: -52px; margin-bottom: 16px; margin-right: 15px;">
-  <div class="btn-group btn-group-xs" role="group" aria-label="Asset Edit Language Toggle">
-    <button type="button" class="btn btn-default" id="assetEditLanguageEnglish" data-lang="en">EN</button>
-    <button type="button" class="btn btn-default" id="assetEditLanguageIndonesian" data-lang="id">ID</button>
-  </div>
-</div>
-<div class="clearfix"></div>
+@include('layouts.partials.module-toolbar', [
+  'englishButtonId' => 'assetEditLanguageEnglish',
+  'indonesianButtonId' => 'assetEditLanguageIndonesian',
+  'ariaLabel' => 'Asset Edit Language Toggle',
+])
 
   <div class="row">
     <div class="col-md-6 col-md-offset-3">

@@ -66,6 +66,9 @@ class AssetManagementTest extends TestCase
         $response->assertSee('ID');
         $response->assertSee('id="assetLanguageEnglish"', false);
         $response->assertSee('id="assetLanguageIndonesian"', false);
+        $response->assertSee('class="module-toolbar"', false);
+        $response->assertSee('module-toolbar-user-email', false);
+        $response->assertDontSee('margin-top: -52px');
         $response->assertSee('data-i18n="assets.summary.total_assets"', false);
         $response->assertSee('data-i18n="assets.filters.title"', false);
         $response->assertSee('data-i18n="assets.table.title"', false);

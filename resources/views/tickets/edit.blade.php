@@ -24,13 +24,11 @@
     '
 ])
 
-<div class="pull-right" style="margin-top: -52px; margin-bottom: 16px; margin-right: 15px;">
-    <div class="btn-group btn-group-xs" role="group" aria-label="Ticket Edit Language Toggle">
-        <button type="button" class="btn btn-default" id="ticketEditLanguageEnglish" data-lang="en">EN</button>
-        <button type="button" class="btn btn-default" id="ticketEditLanguageIndonesian" data-lang="id">ID</button>
-    </div>
-</div>
-<div class="clearfix"></div>
+@include('layouts.partials.module-toolbar', [
+    'englishButtonId' => 'ticketEditLanguageEnglish',
+    'indonesianButtonId' => 'ticketEditLanguageIndonesian',
+    'ariaLabel' => 'Ticket Edit Language Toggle',
+])
 
 <div class="row">
     <div class="col-xs-12 col-sm-8 col-md-8">

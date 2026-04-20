@@ -2,6 +2,9 @@
 node_modules/
 vendor/
 
+# folders
+docs/
+
 # Environment & Config
 .env
 .env.backup
