@@ -17,14 +17,35 @@
     --itapp-radius-sm: 10px;
     --itapp-radius-md: 14px;
     --itapp-radius-lg: 18px;
+    --itapp-overlay-1: rgba(13, 102, 194, 0.08);
+    --itapp-overlay-2: rgba(210, 140, 0, 0.08);
+}
+
+body[data-itapp-theme='dark'] {
+    --itapp-bg: #0f172a;
+    --itapp-surface: #111827;
+    --itapp-surface-soft: #1e293b;
+    --itapp-text: #e2e8f0;
+    --itapp-text-muted: #94a3b8;
+    --itapp-border: #334155;
+    --itapp-primary: #3b82f6;
+    --itapp-primary-strong: #2563eb;
+    --itapp-success: #10b981;
+    --itapp-warning: #f59e0b;
+    --itapp-danger: #ef4444;
+    --itapp-info: #06b6d4;
+    --itapp-shadow-sm: 0 8px 18px rgba(2, 6, 23, 0.42);
+    --itapp-shadow-md: 0 18px 34px rgba(2, 6, 23, 0.52);
+    --itapp-overlay-1: rgba(59, 130, 246, 0.12);
+    --itapp-overlay-2: rgba(245, 158, 11, 0.1);
 }
 
 body.skin-blue,
 body.hold-transition {
     color: var(--itapp-text);
     background:
-        radial-gradient(circle at 12% 8%, rgba(13, 102, 194, 0.08), transparent 28%),
-        radial-gradient(circle at 86% 4%, rgba(210, 140, 0, 0.08), transparent 26%),
+        radial-gradient(circle at 12% 8%, var(--itapp-overlay-1), transparent 28%),
+        radial-gradient(circle at 86% 4%, var(--itapp-overlay-2), transparent 26%),
         var(--itapp-bg);
     font-family: "Space Grotesk", "IBM Plex Sans", "Segoe UI", Tahoma, sans-serif;
 }

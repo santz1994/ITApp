@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\User;
-use Spatie\Permission\Models\Role;
+use App\Role;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;

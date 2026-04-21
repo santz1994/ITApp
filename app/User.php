@@ -430,8 +430,21 @@ class User extends Authenticatable
       return strtolower(trim((string) $role));
     }
 
-    if (is_object($role) && property_exists($role, 'name')) {
-      return strtolower(trim((string) $role->name));
+    if (is_object($role)) {
+      if (method_exists($role, 'getAttribute')) {
+        $attributeName = $role->getAttribute('name');
+        if (is_string($attributeName) || is_numeric($attributeName)) {
+          return strtolower(trim((string) $attributeName));
+        }
+      }
+
+      if (isset($role->name) && (is_string($role->name) || is_numeric($role->name))) {
+        return strtolower(trim((string) $role->name));
+      }
+
+      if (property_exists($role, 'name') && (is_string($role->name) || is_numeric($role->name))) {
+        return strtolower(trim((string) $role->name));
+      }
     }
 
     return null;

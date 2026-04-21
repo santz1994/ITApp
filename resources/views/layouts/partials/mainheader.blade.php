@@ -33,6 +33,15 @@
                 @auth
                 @endauth
 
+                @auth
+                    <li class="nav-theme-item" style="padding: 10px 6px;">
+                        <button type="button" class="btn btn-default btn-sm" data-theme-toggle aria-label="Theme Toggle">
+                            <i class="fa fa-moon-o" data-theme-icon></i>
+                            <span data-theme-label>Dark Mode</span>
+                        </button>
+                    </li>
+                @endauth
+
                 @if (Auth::guest())
                     <li><a href="{{ url('/login') }}">Login</a></li>
                 @else

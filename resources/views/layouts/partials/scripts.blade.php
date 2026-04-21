@@ -27,6 +27,14 @@
 <!-- Critical action confirmation and submit-guard -->
 <script src="{{ asset('/js/critical-action-modal.js') }}" type="text/javascript"></script>
 
+<!-- Frontend Core (theme + shared UI behaviors) -->
+<script type="text/javascript">
+window.ITAPP_FRONTEND_CONFIG = {
+    preferenceUpdateUrlTemplate: '{{ route("api.portal-preferences.update", ["key" => "__KEY__"]) }}'
+};
+</script>
+<script src="{{ asset('/js/frontend-core.js') }}" type="text/javascript"></script>
+
 <!-- AdminLTE Initialization Script -->
 <script type="text/javascript">
 $(document).ready(function() {
@@ -103,72 +111,6 @@ $(document).ready(function() {
         $('.content-wrapper').click(function() {
             if ($(window).width() <= 767 && $('body').hasClass('sidebar-open')) {
                 $('body').removeClass('sidebar-open');
-            }
-        });
-        
-        // Fix treeview menu auto-cascade issue
-        // Remove existing AdminLTE tree handlers first
-        $('.sidebar-menu').off('click', 'li a');
-        
-        // Add custom treeview handler
-        $('.sidebar-menu').on('click', '.treeview > a', function(e) {
-            var $this = $(this);
-            var $parent = $this.parent();
-            var $menu = $this.next('.treeview-menu');
-            
-            // If this link has a real URL (not just #), allow normal navigation
-            if ($this.attr('href') && $this.attr('href') !== '#' && $this.attr('href').indexOf('javascript:') !== 0) {
-                return true;
-            }
-            
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Check if sidebar is collapsed
-            var isCollapsed = $('body').hasClass('sidebar-collapse');
-            
-            if (!isCollapsed) {
-                // Normal sidebar behavior
-                if ($menu.is(':visible')) {
-                    // Close this menu
-                    $menu.slideUp(300, function() {
-                        $menu.removeClass('menu-open');
-                    });
-                    $parent.removeClass('active');
-                } else {
-                    // Close all other menus first
-                    var $siblings = $parent.siblings('.treeview');
-                    $siblings.find('.treeview-menu:visible').slideUp(300);
-                    $siblings.find('.treeview-menu').removeClass('menu-open');
-                    $siblings.removeClass('active');
-                    
-                    // Open this menu
-                    $menu.slideDown(300, function() {
-                        $menu.addClass('menu-open');
-                    });
-                    $parent.addClass('active');
-                }
-            } else {
-                // Collapsed sidebar - show menu as overlay
-                if ($parent.hasClass('active')) {
-                    $parent.removeClass('active');
-                    $menu.hide();
-                } else {
-                    $('.sidebar-menu .treeview').removeClass('active');
-                    $('.sidebar-menu .treeview-menu').hide();
-                    $parent.addClass('active');
-                    $menu.show();
-                }
-            }
-        });
-        
-        // Handle clicks outside to close overlay menus in collapsed mode
-        $(document).on('click', function(e) {
-            if ($('body').hasClass('sidebar-collapse')) {
-                if (!$(e.target).closest('.treeview').length) {
-                    $('.sidebar-menu .treeview').removeClass('active');
-                    $('.sidebar-menu .treeview-menu').hide();
-                }
             }
         });
     }

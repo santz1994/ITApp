@@ -1,0 +1,99 @@
+/* ITApp Frontend Core Styles */
+
+.itapp-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.itapp-summary-card {
+    border: 1px solid var(--itapp-border, #d6deea);
+    border-radius: var(--itapp-radius-md, 14px);
+    background: var(--itapp-surface, #ffffff);
+    box-shadow: var(--itapp-shadow-sm, 0 6px 14px rgba(16, 42, 67, 0.08));
+    padding: 12px;
+    min-height: 108px;
+}
+
+.itapp-summary-card-label {
+    color: var(--itapp-text-muted, #627187);
+    font-size: 12px;
+    margin-bottom: 6px;
+}
+
+.itapp-summary-card-value {
+    color: var(--itapp-text, #1a2b42);
+    font-size: 28px;
+    line-height: 1;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.itapp-summary-card-meta {
+    color: var(--itapp-text-muted, #627187);
+    font-size: 11px;
+}
+
+.itapp-table-wrap {
+    border: 1px solid var(--itapp-border, #d6deea);
+    border-radius: var(--itapp-radius-md, 14px);
+    background: var(--itapp-surface, #ffffff);
+    box-shadow: var(--itapp-shadow-sm, 0 6px 14px rgba(16, 42, 67, 0.08));
+    overflow: hidden;
+}
+
+.itapp-table-wrap .table {
+    margin-bottom: 0;
+}
+
+.itapp-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.itapp-btn-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.itapp-modal-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.pagination>li>a,
+.pagination>li>span {
+    border-radius: 8px !important;
+    margin: 0 2px;
+}
+
+body[data-itapp-theme='dark'] .itapp-summary-card,
+body[data-itapp-theme='dark'] .itapp-table-wrap {
+    background: var(--itapp-surface, #111827);
+    border-color: var(--itapp-border, #334155);
+}
+
+@media (max-width: 992px) {
+    .itapp-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .itapp-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .itapp-modal-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

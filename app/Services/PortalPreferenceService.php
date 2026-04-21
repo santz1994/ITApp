@@ -10,6 +10,7 @@ class PortalPreferenceService
 {
     private const DEFAULT_PREFERENCES = [
         'language' => 'en',
+        'theme' => 'light',
         'moduleOrder' => [],
         'hiddenModules' => [],
         'quickLinkKeys' => [],
@@ -78,6 +79,11 @@ class PortalPreferenceService
         $merged['language'] = in_array($merged['language'], ['en', 'id'], true) 
             ? $merged['language'] 
             : 'en';
+
+        // Validate theme
+        $merged['theme'] = in_array($merged['theme'], ['light', 'dark'], true)
+            ? $merged['theme']
+            : 'light';
 
         // Ensure arrays are properly typed
         $merged['moduleOrder'] = is_array($merged['moduleOrder']) ? $merged['moduleOrder'] : [];

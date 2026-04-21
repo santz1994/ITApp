@@ -5,7 +5,15 @@
     @include('layouts.partials.htmlheader')
 @show
 
-<body class="hold-transition portal-hub-layout portal-hub">
+@php
+    $portalLayoutRawPreferences = auth()->check() ? (auth()->user()->portal_preferences ?? []) : [];
+    $portalLayoutPreferences = is_array($portalLayoutRawPreferences)
+        ? $portalLayoutRawPreferences
+        : (json_decode((string) $portalLayoutRawPreferences, true) ?: []);
+    $portalLayoutTheme = (($portalLayoutPreferences['theme'] ?? 'light') === 'dark') ? 'dark' : 'light';
+@endphp
+
+<body class="hold-transition portal-hub-layout portal-hub" data-itapp-theme="{{ $portalLayoutTheme }}">
 <div class="portal-hub-wrapper">
     <main class="portal-hub-canvas" role="main">
         @include('partials.loading-spinner')

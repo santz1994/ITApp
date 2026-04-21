@@ -39,6 +39,7 @@ class PortalPreferenceController extends Controller
     {
         $request->validate([
             'language' => 'nullable|in:en,id',
+            'theme' => 'nullable|in:light,dark',
             'moduleOrder' => 'nullable|array',
             'moduleOrder.*' => 'string',
             'hiddenModules' => 'nullable|array',
@@ -50,6 +51,7 @@ class PortalPreferenceController extends Controller
         $user = Auth::user();
         $preferences = $request->only([
             'language',
+            'theme',
             'moduleOrder',
             'hiddenModules',
             'quickLinkKeys',

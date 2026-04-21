@@ -35,6 +35,8 @@
     <link href="{{ asset('/css/ui-enhancements-v2.css') }}" rel="stylesheet" type="text/css" />
     <!-- Enterprise Design System -->
     <link href="{{ asset('/css/enterprise-design-system.css') }}" rel="stylesheet" type="text/css" />
+    <!-- Frontend Core (shared component primitives) -->
+    <link href="{{ asset('/css/frontend-core.css') }}" rel="stylesheet" type="text/css" />
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap.min.css">

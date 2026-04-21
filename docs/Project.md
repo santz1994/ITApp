@@ -1,5 +1,25 @@
 ## Tasks :
 
+### TODO Backlog (2026-04-21)
+
+- Undo Main Portal dashboard expansion and keep Main Portal as module-navigation-only hub (no KPI widgets, approval center cards, or role snapshot panels on hub canvas).
+- UI/UX & Frontend improvements:
+    - Redesign the user interface to align with the new modular structure of the application, ensuring that it is intuitive and user-friendly.
+    - Ensure that the design is responsive and accessible across different devices and screen sizes.
+    - Use modern design principles and a consistent visual language to enhance the overall user experience and make the application more visually appealing.
+    - Use modal dialogs for critical actions (e.g., ticket resolution, meeting cancellation, purchase request approval) to provide clear confirmation prompts and prevent accidental actions.
+    - Implement a consistent design language and style guide across all modules to enhance the overall user experience and maintain a cohesive look and feel throughout the application.
+    - Button and link updates to ensure that all navigation paths are functional and lead to the correct pages, especially with the new modular structure in place.
+    - Update the sidebar and navigation menus to reflect the new structure and provide easy access to all modules and features based on user roles and permissions.
+        a. Implement a user context panel on the main portal to display relevant information about the logged-in user, such as their role, last login time, and account status.
+        b. Add role-focused operational snapshots on the main portal to provide users with quick access to key metrics and actions relevant to their role (e.g., open tickets for IT support staff, upcoming meetings for receptionists, pending approvals for administrators).
+    - Theme and styling updates to enhance the visual appeal of the application, including color schemes, typography, and layout adjustments to improve readability and user engagement.
+    - Dark and light mode toggle to allow users to switch between different themes based on their preferences and improve accessibility for users with different visual needs.
+    - Standardize the design of summary cards, tables, buttons, modals, and pagination across all modules to create a cohesive user experience and make it easier for users to understand and interact with the data presented.
+    - Use standardized icons and visual cues to enhance usability and provide clear indications of actions, statuses, and important information.
+    - Refactor all CSS and JavaScript code to match the new design and structure of the application, ensuring that frontend code is organized and maintainable. Use modular JavaScript, CSS preprocessors, and an asset build optimization process. Standardize frontend libraries and frameworks to reduce technical debt and support future scalability.
+    - No CSS or JavaScript inline in Blade templates; all styles and scripts should be organized in separate files and properly linked to views for better maintainability, readability, caching, and asset optimization.
+
 ## Progress Update (2026-04-20)
 
 ### Newly Implemented in Code
@@ -471,7 +491,6 @@
     - Change the database structure to match the new modular design of the application, ensuring that all necessary tables and relationships are properly defined to support the new features and functionalities. But modification the backup file to match the new structure of the database, and then import it to the local MySQL database.
 7. UI/UX & Frontend improvements:
     - Redesign the user interface to align with the new modular structure of the application, ensuring that it is intuitive and user-friendly.
-    - Implement a dashboard on the main portal to display key metrics and user information, providing users with a quick overview of their activities and relevant data.
     - Ensure that the design is responsive and accessible across different devices and screen sizes.
     - Using modern design principles and a consistent visual language to enhance the overall user experience and make the application more visually appealing.
     - Use modal dialogs for critical actions (e.g., ticket resolution, meeting cancellation, purchase request approval) to provide clear confirmation prompts and prevent accidental actions.
@@ -482,6 +501,10 @@
         b. Add role-focused operational snapshots on the main portal to provide users with quick access to key metrics and actions relevant to their role (e.g., open tickets for IT support staff, upcoming meetings for receptionists, pending approvals for administrators).
     - Theme and styling updates to enhance the visual appeal of the application, including color schemes, typography, and layout adjustments to improve readability and user engagement.
     - Dark and light mode toggle to allow users to switch between different themes based on their preferences and improve accessibility for users with different visual needs.
+    - Standardize the design of summary cards, tables, buttons, modals, and pagination across all modules to create a cohesive user experience and make it easier for users to understand and interact with the data presented.
+    - Use standardized icons and visual cues to enhance the usability of the application and provide clear indications of actions, statuses, and important information.
+    - Refractor all css and javascript code to match the new design and structure of the application, ensuring that all frontend code is organized and maintainable. Use modern frontend development practices and tools to enhance the performance and maintainability of the frontend codebase. This includes using modular JavaScript, leveraging CSS preprocessors, and implementing a build process for optimizing assets. Standardize the use of frontend libraries and frameworks to ensure consistency and reduce technical debt in the codebase. So that the frontend code is clean, efficient, and maintainable, providing a solid foundation for future enhancements and scalability of the application.
+    - No CSS or JavaScript inline in Blade templates; all styles and scripts should be organized in separate files and properly linked to the views. This will improve the maintainability and readability of the codebase, as well as enhance the performance of the application by allowing for better caching and optimization of assets.
 8. Implement additional features based on user feedback and requirements, such as:
     - A compact "Portal Personalization" setting to allow users to customize their portal experience by rearranging module order and adding quick links to frequently used features.
     - A bilingual toggle indicator (Indonesian/English) in the portal header to allow users to switch between languages easily.
@@ -496,6 +519,11 @@
 10. Codebase cleanup:
     - Remove any unused or redundant code, files, and assets to improve maintainability and reduce clutter in the codebase.
     - Ensure that all remaining code is well-documented and follows consistent coding standards for better readability and collaboration among developers.
+    - Remove any temporary or development-only code and files.
+    - Remove any code that is no longer relevant or has been replaced by new implementations, ensuring that the codebase remains clean and efficient.
+        - Ensure that all code is properly organized and structured according to the new modular design of the application, making it easier for developers to navigate and understand the codebase.
+        - Conduct a thorough review of the codebase to identify and remove any dead code, unused variables, or unnecessary comments that may have accumulated during development.
+        - Use automated tools and linters to help identify and clean up any code quality issues, ensuring that the codebase remains maintainable and scalable for future development.
 11. Ticketing:
     - Ticket auto-assignment based on asset category and technician expertise to streamline the support process and ensure that tickets are handled by the most qualified staff.
     - Implement a ticket escalation process for unresolved tickets to ensure timely resolution and customer satisfaction.

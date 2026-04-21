@@ -5,7 +5,15 @@
     @include('layouts.partials.htmlheader')
 @show
 
-<body class="skin-blue sidebar-mini">
+@php
+    $appLayoutRawPreferences = auth()->check() ? (auth()->user()->portal_preferences ?? []) : [];
+    $appLayoutPreferences = is_array($appLayoutRawPreferences)
+        ? $appLayoutRawPreferences
+        : (json_decode((string) $appLayoutRawPreferences, true) ?: []);
+    $appLayoutTheme = (($appLayoutPreferences['theme'] ?? 'light') === 'dark') ? 'dark' : 'light';
+@endphp
+
+<body class="skin-blue sidebar-mini" data-itapp-theme="{{ $appLayoutTheme }}">
 <div class="wrapper">
 
     @include('layouts.partials.mainheader')

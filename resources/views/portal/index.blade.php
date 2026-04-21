@@ -213,6 +213,19 @@
         color: #f8fafc;
     }
 
+    .portal-theme-toggle {
+        border-color: #334155;
+        color: #cbd5e1;
+        background: #1e293b;
+    }
+
+    .portal-theme-toggle:hover,
+    .portal-theme-toggle:focus {
+        color: #ffffff;
+        border-color: #60a5fa;
+        background: #111827;
+    }
+
     .portal-clock {
         font-size: 12px;
         color: #94a3b8;
@@ -566,6 +579,10 @@
                 <button type="button" class="btn btn-default" id="lang-id">ID</button>
                 <button type="button" class="btn btn-default" id="lang-en">EN</button>
             </div>
+            <button type="button" class="btn btn-xs portal-theme-toggle" data-theme-toggle aria-label="Theme Toggle">
+                <i class="fa fa-moon-o" data-theme-icon></i>
+                <span data-theme-label>Dark Mode</span>
+            </button>
             <div class="portal-clock" id="wib-clock">--:--:-- WIB</div>
             @auth
                 <form method="POST" action="{{ route('logout') }}">

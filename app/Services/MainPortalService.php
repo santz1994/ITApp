@@ -28,6 +28,7 @@ class MainPortalService
      */
     public function buildPortalData(User $user): array
     {
+        $portalPreferences = $this->preferenceService->loadPreferences($user);
         $metrics = $this->portalRepository->getMetricsForUser($user);
         $isStandardUser = $this->isStandardUser($user);
         $modules = $this->resolveModules($user, $metrics);
@@ -50,6 +51,7 @@ class MainPortalService
             'roleHighlights' => $this->buildRoleHighlights($user, $metrics),
             'primaryRoleBadge' => $primaryRoleBadge,
             'roleSetBadges' => $roleSetBadges,
+            'portalPreferences' => $portalPreferences,
             'userRoleNames' => user_get_role_names($user)->values()->all(),
             'primaryRoleLabel' => $primaryRoleBadge['label_en'] ?? $this->formatPrimaryRole($user),
             'jakartaNow' => now('Asia/Jakarta'),
