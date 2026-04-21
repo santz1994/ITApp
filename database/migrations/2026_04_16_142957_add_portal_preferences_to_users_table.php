@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (!Schema::hasTable('users') || Schema::hasColumn('users', 'portal_preferences')) {
+            return;
+        }
+
         Schema::table('users', function (Blueprint $table) {
             // Add JSON column for portal personalization preferences
             $table->json('portal_preferences')->nullable()->after('notify_meeting_rejected');
@@ -22,6 +26,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (!Schema::hasTable('users') || !Schema::hasColumn('users', 'portal_preferences')) {
+            return;
+        }
+
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('portal_preferences');
         });

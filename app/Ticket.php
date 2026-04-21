@@ -652,11 +652,6 @@ class Ticket extends Model implements HasMedia
                ->get();
   }
 
-  public function ticket_entries()
-  {
-    return $this->hasMany(TicketsEntry::class);
-  }
-
   public function daily_activities()
   {
     return $this->hasMany(DailyActivity::class);

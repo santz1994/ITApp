@@ -7,7 +7,7 @@ use App\DailyActivity;
 use App\User;
 use App\TicketsStatus;
 use App\TicketsType;
-use App\TicketsEntry;
+use App\TicketComment;
 use App\AdminOnlineStatus;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -442,15 +442,15 @@ class TicketService
     }
 
     /**
-     * Add ticket entry for logging activities
+     * Add ticket entry for logging activities (using TicketComment)
      */
     public function addTicketEntry(Ticket $ticket, $userId, $message, $isPublic = true)
     {
-        return TicketsEntry::create([
+        return TicketComment::create([
             'ticket_id' => $ticket->id,
             'user_id' => $userId,
-            'body' => $message,
-            'is_public' => $isPublic,
+            'comment' => $message,
+            'is_internal' => !$isPublic, // is_public = true means external comment
             'created_at' => now(),
             'updated_at' => now()
         ]);

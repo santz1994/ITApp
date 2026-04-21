@@ -532,7 +532,7 @@
             <span class="info-box-icon"><i class="fa fa-comments"></i></span>
             <div class="info-box-content">
               <span class="info-box-text">Total Notes</span>
-              <span class="info-box-number">{{ $ticket->ticket_entries->count() ?? 0 }}</span>
+               <span class="info-box-number">{{ $ticket->comments->count() ?? 0 }}</span>
             </div>
           </div>
 

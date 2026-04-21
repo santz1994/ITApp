@@ -91,4 +91,13 @@ class TicketComment extends Model
         $type = $this->is_internal ? '<span class="badge badge-warning">Internal</span>' : '';
         return $this->user->name . ' ' . $type;
     }
+
+    /**
+     * Get note attribute for backward compatibility with old tickets_entries system
+     * Maps 'comment' field to 'note' to maintain compatibility with existing views
+     */
+    public function getNoteAttribute()
+    {
+        return $this->comment;
+    }
 }

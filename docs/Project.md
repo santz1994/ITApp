@@ -22,7 +22,33 @@
 
 ## Progress Update (2026-04-21)
 
+### Phase 1: Database Operations & Cleanup (COMPLETED)
+- Executed comprehensive database table cleanup to remove legacy and unused tables:
+    - Dropped 7 redundant tables: `permission_role`, `role_user`, `role_permissions` (legacy Entrust, replaced by Spatie), `tickets_entries`, `pcspecs`, `push_subscriptions`, `meeting_room_lcd_settings`
+    - Created pre-cleanup safety backup: `database/pre_phase1_cleanup_20260421_131623.sql`
+    - Verified data migration safety: confirmed 154 permission records migrated from `role_permissions` to `role_has_permissions` before drop
+    - Migration executed successfully: `2026_04_21_131700_cleanup_redundant_legacy_tables.php` (batch 110, 118ms)
+    - Database reduced from 72 to 65 tables while preserving all core module functionality
+- Identified unused code artifacts for future cleanup (pending user approval):
+    - Models: `Pcspec.php`, `TicketsEntry.php`, `MeetingRoomLcdSetting.php`
+    - Controllers: `PcspecsController.php`, `TicketsEntriesController.php`
+    - Views: `resources/views/pcspecs/`
+    - API references to `TicketsEntry` full-text search (refactor to use `Ticket` model directly)
+- Created comprehensive cleanup documentation: `docs/Phase1-Cleanup-Recommendations.md`
+
 ### Newly Implemented in Code
+- Stabilized pending migration execution on restored `itapp` database by hardening non-idempotent user-column migrations:
+    - Updated `2025_12_05_070838_add_location_id_to_users_table` to skip when `users.location_id` already exists.
+    - Updated `2026_04_16_142957_add_portal_preferences_to_users_table` to skip when `users.portal_preferences` already exists.
+    - Added safe down-guards so rollback paths only drop columns when present.
+- Completed pending migration backlog execution (7 migrations) after backup gate verification:
+    - `2025_12_05_070838_add_location_id_to_users_table`
+    - `2026_04_16_142957_add_portal_preferences_to_users_table`
+    - `2026_04_16_160000_align_core_tables_with_project_structure`
+    - `2026_04_16_170000_extend_modular_database_structure`
+    - `2026_04_17_100000_create_normalized_asset_forms_tables`
+    - `2026_04_17_111000_align_role_levels_and_add_meeting_overlap_index`
+    - `2026_04_20_130000_normalize_roles_to_project_hierarchy`
 - Hardened frontend modularization baseline to reduce inline implementation debt in shared layouts:
     - Replaced inline style usage in `mainheader` theme-toggle/user-menu area with reusable CSS classes (`nav-theme-item-compact`, `nav-user-chevron`, `inline-logout-form`) in `public/css/frontend-core.css`.
     - Replaced sidebar inline section-header styles with reusable classes (`sidebar-section-header`, `sidebar-section-subheader`) to align with no-inline-CSS directive.
@@ -34,6 +60,11 @@
     - Added `bindActionTriggers()` in frontend core script so critical UI actions can be bound without inline JavaScript in Blade templates.
 
 ### Validation
+- Database safety gate validation completed before migration mutation:
+    - Fresh backup artifact created and verified: `database/pre_migrate_pending_20260421_130602.sql`.
+- Migration status validation completed:
+    - `php artisan migrate` -> all 7 pending migrations applied successfully.
+    - `php artisan migrate:status` -> `PENDING_COUNT=0`.
 - Syntax/diagnostics validation completed for edited files:
     - `php -l resources/views/layouts/partials/mainheader.blade.php` -> `No syntax errors detected`.
     - `php -l resources/views/layouts/partials/sidebar.blade.php` -> `No syntax errors detected`.

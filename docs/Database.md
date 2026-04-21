@@ -4,7 +4,9 @@
 > **Compliance:** ISO 27001 · GDPR · SOC 2
 > **Language:** Indonesian & English (bilingual)
 
-> **Update 2026-04-21:** Frontend refactor batch only (layout/sidebar modular CSS/JS cleanup). No database schema/data mutation in this batch.
+> **Update 2026-04-21 (Phase 1 Cleanup):** Executed comprehensive database cleanup to remove 7 redundant legacy tables after Spatie Permission migration verification. Safety backup created at `database/pre_phase1_cleanup_20260421_131623.sql`. Migration `2026_04_21_131700_cleanup_redundant_legacy_tables.php` successfully dropped: `permission_role`, `role_user`, `role_permissions` (legacy Entrust), `tickets_entries`, `pcspecs`, `push_subscriptions`, `meeting_room_lcd_settings`. Database reduced from 72 to 65 tables while preserving all core functionality.
+
+> **Update 2026-04-21:** Applied pending migration backlog on restored `itapp` database (7 migrations, pending=0) after verified pre-migration backup (`database/pre_migrate_pending_20260421_130602.sql`). Hardened non-idempotent user-column migrations to skip already-existing columns (`users.location_id`, `users.portal_preferences`) for safe re-runs.
 
 ---
 

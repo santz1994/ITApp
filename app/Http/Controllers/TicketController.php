@@ -207,13 +207,13 @@ class TicketController extends BaseController
             'assets.location',
             'assets.movement.location',
             'assets.assignedTo',
-            'ticket_entries.user',
+            'comments.user',
             'history.changedByUser'
         ]);
         $pageTitle = 'Ticket Details - ' . $ticket->ticket_code;
 
         // Get ticket entries for the view (the view expects this variable)
-        $ticketEntries = $ticket->ticket_entries;
+        $ticketEntries = $ticket->comments;
 
         // Dropdown data is provided by TicketFormComposer
         return view('tickets.show', compact('ticket', 'pageTitle', 'ticketEntries'));

@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (!Schema::hasTable('users') || Schema::hasColumn('users', 'location_id')) {
+            return;
+        }
+
         Schema::table('users', function (Blueprint $table) {
-            $table->integer('location_id')->unsigned()->nullable()->after('division_id');
+            $table->unsignedInteger('location_id')->nullable()->after('division_id');
         });
     }
 
@@ -21,6 +25,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (!Schema::hasTable('users') || !Schema::hasColumn('users', 'location_id')) {
+            return;
+        }
+
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('location_id');
         });
