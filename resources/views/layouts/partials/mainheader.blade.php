@@ -34,7 +34,7 @@
                 @endauth
 
                 @auth
-                    <li class="nav-theme-item" style="padding: 10px 6px;">
+                    <li class="nav-theme-item nav-theme-item-compact">
                         <button type="button" class="btn btn-default btn-sm" data-theme-toggle aria-label="Theme Toggle">
                             <i class="fa fa-moon-o" data-theme-icon></i>
                             <span data-theme-label>Dark Mode</span>
@@ -53,7 +53,7 @@
                                 <img src="{{ asset('img/default-avatar.png') }}" class="user-image" alt="User Image">
                             @endif
                             <span class="hidden-xs">{{ Auth::user()->name }}</span>
-                            <i class="fa fa-angle-down" style="margin-left: 5px;"></i>
+                            <i class="fa fa-angle-down nav-user-chevron"></i>
                         </a>
                         <ul class="dropdown-menu">
                             <!-- User image -->
@@ -87,7 +87,7 @@
                                     </a>
                                 </div>
                                 <div class="pull-right">
-                                    <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                                    <form method="POST" action="{{ route('logout') }}" class="inline-logout-form">
                                         @csrf
                                         <button type="submit" class="btn btn-default btn-flat">
                                             <i class="fa fa-sign-out"></i> Sign out

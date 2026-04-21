@@ -22,7 +22,7 @@
 
         {{-- Testing-only: expose flash and validation messages in page HTML so legacy BrowserKit-style tests can assert on them --}}
         @if (app()->environment('testing'))
-            <div id="__test_helpers__" style="display:none">
+            <div id="__test_helpers__" class="itapp-test-helpers-hidden">
                 <div id="__flash_status">{{ session('status') }}</div>
                 <div id="__flash_title">{{ session('title') }}</div>
                 <div id="__flash_message">{{ session('message') }}</div>
@@ -45,35 +45,7 @@
 @section('scripts')
 @show
 
-<style>
-    html,
-    body.portal-hub-layout {
-        min-height: 100%;
-    }
-
-    body.portal-hub-layout {
-        margin: 0;
-        background: radial-gradient(circle at 15% 10%, rgba(14, 165, 233, 0.16), transparent 36%),
-            radial-gradient(circle at 85% 5%, rgba(245, 158, 11, 0.12), transparent 32%),
-            #0f172a;
-    }
-
-    .portal-hub-wrapper {
-        min-height: 100vh;
-    }
-
-    .portal-hub-canvas {
-        max-width: 1320px;
-        margin: 0 auto;
-        padding: 24px 20px 32px;
-    }
-
-    @media (max-width: 767px) {
-        .portal-hub-canvas {
-            padding: 14px 12px 20px;
-        }
-    }
-</style>
+<link href="{{ asset('/css/portal-layout.css') }}" rel="stylesheet" type="text/css" />
 
 @stack('styles')
 @stack('scripts')

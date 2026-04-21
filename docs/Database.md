@@ -4,6 +4,8 @@
 > **Compliance:** ISO 27001 · GDPR · SOC 2
 > **Language:** Indonesian & English (bilingual)
 
+> **Update 2026-04-21:** Frontend refactor batch only (layout/sidebar modular CSS/JS cleanup). No database schema/data mutation in this batch.
+
 ---
 
 ## Table of Contents

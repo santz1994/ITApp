@@ -136,9 +136,31 @@
         }, true);
     }
 
+    function bindActionTriggers() {
+        document.addEventListener('click', function (event) {
+            var actionTrigger = event.target.closest('[data-action]');
+
+            if (!actionTrigger) {
+                return;
+            }
+
+            var actionName = actionTrigger.getAttribute('data-action');
+            if (actionName !== 'open-monthly-report-modal') {
+                return;
+            }
+
+            event.preventDefault();
+
+            if (typeof window.openMonthlyReportModal === 'function') {
+                window.openMonthlyReportModal();
+            }
+        });
+    }
+
     FrontendCore.init = function () {
         bindThemeToggle();
         bindDisableOnSubmit();
+        bindActionTriggers();
     };
 
     window.ITAppFrontend = FrontendCore;

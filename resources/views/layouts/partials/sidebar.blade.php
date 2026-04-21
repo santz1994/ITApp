@@ -135,7 +135,7 @@
             <!-- 🏷️ Assets (Admin=2, SuperAdmin=3, Management=4 view-only) -->
             @if($showWorkspace(['assets_management']))
             @can('view-assets')
-              <li class="header" style="color:#9aa4af; font-size:11px; padding-left:12px;">Assets</li>
+              <li class="header sidebar-section-header">Assets</li>
               <li><a href="{{ url('/assets')}}"><i class="fa fa-tags"></i> All Assets</a></li>
               <li><a href="{{ route('assets.my-assets') }}"><i class="fa fa-user"></i> My Assets</a></li>
               @can('create-assets')
@@ -155,7 +155,7 @@
             <!-- 📦 Asset Requests (All authenticated users) -->
             @if($showWorkspace(['purchase_request']))
             @auth
-              <li class="header" style="color:#9aa4af; font-size:11px; padding-left:12px;">Asset Requests</li>
+              <li class="header sidebar-section-header">Asset Requests</li>
               <li><a href="{{ route('asset-requests.index') }}"><i class="fa fa-inbox"></i> All Requests</a></li>
               <li><a href="{{ route('asset-requests.create') }}"><i class="fa fa-plus-circle"></i> New Request</a></li>
             @endauth
@@ -164,7 +164,7 @@
             <!-- 📅 Meeting Room Booking (All authenticated users) -->
             @if($showWorkspace(['meeting_room']))
             @auth
-              <li class="header" style="color:#9aa4af; font-size:11px; padding-left:12px;">Meeting Room Booking</li>
+              <li class="header sidebar-section-header">Meeting Room Booking</li>
               <li><a href="{{ route('meeting-room-bookings.index') }}"><i class="fa fa-calendar-check-o"></i> All Bookings</a></li>
               <li><a href="{{ route('meeting-room-bookings.calendar') }}"><i class="fa fa-calendar"></i> Calendar View</a></li>
               <li><a href="{{ route('meeting-room-bookings.create') }}"><i class="fa fa-plus-circle"></i> New Booking</a></li>
@@ -178,7 +178,7 @@
               @role(['receptionist', 'administrator', 'developer'])
               <li><a href="{{ route('meeting-room-bookings.receptionist-dashboard') }}"><i class="fa fa-desktop text-green"></i> Receptionist Dashboard</a></li>
               <li><a href="{{ route('meeting-room-bookings.lcd-settings') }}"><i class="fa fa-sliders text-orange"></i> LCD Settings</a></li>
-              <li><a href="javascript:void(0)" onclick="openMonthlyReportModal()"><i class="fa fa-file-excel-o text-success"></i> Laporan Bulanan (Excel)</a></li>
+              <li><a href="#" data-action="open-monthly-report-modal"><i class="fa fa-file-excel-o text-success"></i> Laporan Bulanan (Excel)</a></li>
               @endrole
 
               {{-- LCD Dashboard (Public - All users) --}}
@@ -193,7 +193,7 @@
             <!-- 🎫 Tickets (visible to any authenticated user; admin subitems still guarded) -->
             @if($showWorkspace(['it_support']))
             @auth
-              <li class="header" style="color:#9aa4af; font-size:11px; padding-left:12px;">Tickets</li>
+              <li class="header sidebar-section-header">Tickets</li>
               <li><a href="{{ url('/tickets')}}"><i class="fa fa-ticket"></i> All Tickets</a></li>
               @can('assign-tickets')
               <li><a href="{{ url('/tickets/unassigned')}}"><i class="fa fa-inbox"></i> Unassigned Tickets</a></li>
@@ -208,7 +208,7 @@
             <!-- 📅 Daily Activity (Admin=2/SuperAdmin=3 full, Management=4 view-only) -->
             @if($showWorkspace(['kpi']))
             @can('view-daily-activities')
-              <li class="header" style="color:#9aa4af; font-size:11px; padding-left:12px;">Daily Activity</li>
+              <li class="header sidebar-section-header">Daily Activity</li>
               <li><a href="{{ url('/daily-activities') }}{{ $sidebarWorkspace === 'kpi' ? '?workspace=kpi' : '' }}"><i class="fa fa-calendar"></i> Activity List</a></li>
               <li><a href="{{ url('/daily-activities/calendar') }}{{ $sidebarWorkspace === 'kpi' ? '?workspace=kpi' : '' }}"><i class="fa fa-calendar-o"></i> Calendar View</a></li>
               @can('create-daily-activities')
@@ -220,7 +220,7 @@
             <!-- 📋 Reports (management, admin, super-admin) -->
             @if($showWorkspace(['kpi']))
             @can('view-reports')
-              <li class="header" style="color:#9aa4af; font-size:11px; padding-left:12px;">Reports</li>
+              <li class="header sidebar-section-header">Reports</li>
               <li><a href="{{ route('kpi.dashboard', ['workspace' => 'kpi']) }}"><i class="fa fa-bar-chart"></i> KPI Dashboard</a></li>
               @hasrole('director|administrator|developer')
               <li><a href="{{ url('/management/dashboard') }}{{ $sidebarWorkspace === 'kpi' ? '?workspace=kpi' : '' }}"><i class="fa fa-line-chart"></i> Management Dashboard</a></li>
@@ -232,7 +232,7 @@
             <!-- 💻 Models & Master Data (SuperAdmin=3 only) -->
             @if($showWorkspace(['assets_management']))
             @can('view-models')
-              <li class="header" style="color:#9aa4af; font-size:11px; padding-left:12px;">Models &amp; Master Data</li>
+              <li class="header sidebar-section-header">Models &amp; Master Data</li>
               <li><a href="{{ url('/models')}}"><i class="fa fa-laptop"></i> Models</a></li>
               <li><a href="{{ url('/pcspecs')}}"><i class="fa fa-microchip"></i> PC Specifications</a></li>
               <li><a href="{{ url('/manufacturers')}}"><i class="fa fa-industry"></i> Manufacturers</a></li>
@@ -252,7 +252,7 @@
             <!-- 💰 Invoices and Budgets (SuperAdmin=3 only) -->
             @if($showWorkspace(['assets_management']))
             @can('view-invoices')
-              <li class="header" style="color:#9aa4af; font-size:11px; padding-left:12px;">Invoices and Budgets</li>
+              <li class="header sidebar-section-header">Invoices and Budgets</li>
               <li><a href="{{ url('/invoices')}}"><i class="fa fa-file-text-o"></i> Invoices</a></li>
               <li><a href="{{ url('/budgets')}}"><i class="fa fa-money"></i> Budgets</a></li>
             @endcan
@@ -261,7 +261,7 @@
             <!-- 📥📤 Import/Export (admin & super-admin) -->
             @if($showWorkspace(['assets_management']))
             @can('export-data')
-              <li class="header" style="color:#9aa4af; font-size:11px; padding-left:12px;">Import/Export</li>
+              <li class="header sidebar-section-header">Import/Export</li>
               @can('export-data')
               <li><a href="{{ route('masterdata.index') }}"><i class="fa fa-download"></i> Export Data</a></li>
               @endcan
@@ -275,7 +275,7 @@
             <!-- 👥 User Management (admin & super-admin) -->
             @if($showWorkspace(['user_management']))
             @can('view-users')
-              <li class="header" style="color:#9aa4af; font-size:11px; padding-left:12px;">User Management</li>
+              <li class="header sidebar-section-header">User Management</li>
               <li><a href="{{ url('/users')}}"><i class="fa fa-users"></i> All Users</a></li>
               @can('create-users')
               <li><a href="{{ url('/users/create')}}"><i class="fa fa-user-plus"></i> Add User</a></li>
@@ -289,16 +289,16 @@
             <!-- ⚙️ Settings & AI (admin and super-admin) -->
             @if($showWorkspace(['settings']))
             @role(['administrator', 'developer'])
-              <li class="header" style="color:#9aa4af; font-size:11px; padding-left:12px;">Settings &amp; AI</li>
+              <li class="header sidebar-section-header">Settings &amp; AI</li>
 
-              <li class="header" style="color:#9aa4af; font-size:11px; padding-left:24px;">Application &amp; AI</li>
+              <li class="header sidebar-section-header sidebar-section-subheader">Application &amp; AI</li>
               <li><a href="{{ route('system-settings.index', ['workspace' => 'settings']) }}"><i class="fa fa-cog"></i> System Settings</a></li>
               <li><a href="{{ route('sla.index', ['workspace' => 'settings']) }}"><i class="fa fa-clock-o"></i> SLA Policies</a></li>
               <li><a href="{{ route('sla.dashboard', ['workspace' => 'settings']) }}"><i class="fa fa-line-chart"></i> SLA Dashboard</a></li>
               <li><a href="{{ route('sla.learning.dashboard', ['workspace' => 'settings']) }}"><i class="fa fa-graduation-cap"></i> AI Management</a></li>
 
               @can('view-users')
-              <li class="header" style="color:#9aa4af; font-size:11px; padding-left:24px;">User Control</li>
+              <li class="header sidebar-section-header sidebar-section-subheader">User Control</li>
               <li><a href="{{ route('users.index', ['workspace' => 'settings']) }}"><i class="fa fa-users"></i> User Accounts</a></li>
               @can('create-users')
               <li><a href="{{ route('users.create', ['workspace' => 'settings']) }}"><i class="fa fa-user-plus"></i> Add User</a></li>
@@ -306,7 +306,7 @@
               <li><a href="{{ route('users.roles', ['workspace' => 'settings']) }}"><i class="fa fa-id-badge"></i> User Roles &amp; Permissions</a></li>
               @endcan
 
-              <li class="header" style="color:#9aa4af; font-size:11px; padding-left:24px;">Governance</li>
+              <li class="header sidebar-section-header sidebar-section-subheader">Governance</li>
               <li><a href="{{ route('system.settings', ['workspace' => 'settings']) }}"><i class="fa fa-server"></i> System Info</a></li>
               <li><a href="{{ route('system.permissions', ['workspace' => 'settings']) }}"><i class="fa fa-key"></i> Permissions</a></li>
               <li><a href="{{ route('system.roles', ['workspace' => 'settings']) }}"><i class="fa fa-users"></i> Roles</a></li>
@@ -315,7 +315,7 @@
               <li><a href="{{ route('audit-logs.index', ['workspace' => 'settings']) }}"><i class="fa fa-history"></i> Audit Logs</a></li>
               <li><a href="{{ route('audit-logs.export', ['workspace' => 'settings']) }}"><i class="fa fa-download"></i> Export Audit Logs</a></li>
 
-              <li class="header" style="color:#9aa4af; font-size:11px; padding-left:24px;">Admin Tools</li>
+              <li class="header sidebar-section-header sidebar-section-subheader">Admin Tools</li>
               <li><a href="{{ route('admin.dashboard', ['workspace' => 'settings']) }}"><i class="fa fa-dashboard"></i> Admin Dashboard</a></li>
               <li><a href="{{ route('admin.database.index', ['workspace' => 'settings']) }}"><i class="fa fa-database"></i> Database Management</a></li>
               <li><a href="{{ route('admin.cache', ['workspace' => 'settings']) }}"><i class="fa fa-hdd-o"></i> Cache Management</a></li>

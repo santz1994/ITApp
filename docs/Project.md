@@ -20,6 +20,31 @@
     - Refactor all CSS and JavaScript code to match the new design and structure of the application, ensuring that frontend code is organized and maintainable. Use modular JavaScript, CSS preprocessors, and an asset build optimization process. Standardize frontend libraries and frameworks to reduce technical debt and support future scalability.
     - No CSS or JavaScript inline in Blade templates; all styles and scripts should be organized in separate files and properly linked to views for better maintainability, readability, caching, and asset optimization.
 
+## Progress Update (2026-04-21)
+
+### Newly Implemented in Code
+- Hardened frontend modularization baseline to reduce inline implementation debt in shared layouts:
+    - Replaced inline style usage in `mainheader` theme-toggle/user-menu area with reusable CSS classes (`nav-theme-item-compact`, `nav-user-chevron`, `inline-logout-form`) in `public/css/frontend-core.css`.
+    - Replaced sidebar inline section-header styles with reusable classes (`sidebar-section-header`, `sidebar-section-subheader`) to align with no-inline-CSS directive.
+    - Replaced inline monthly-report click handler in sidebar (`onclick`) with declarative action hook (`data-action="open-monthly-report-modal"`) and centralized JS binding in `public/js/frontend-core.js`.
+- Moved portal layout shell styling into dedicated stylesheet:
+    - Added `public/css/portal-layout.css` and linked it from `layouts/portal`.
+    - Removed inline `<style>` block from `layouts/portal` and replaced hidden test-helper inline style with utility class (`itapp-test-helpers-hidden`).
+- Enforced clean separation for behavior wiring:
+    - Added `bindActionTriggers()` in frontend core script so critical UI actions can be bound without inline JavaScript in Blade templates.
+
+### Validation
+- Syntax/diagnostics validation completed for edited files:
+    - `php -l resources/views/layouts/partials/mainheader.blade.php` -> `No syntax errors detected`.
+    - `php -l resources/views/layouts/partials/sidebar.blade.php` -> `No syntax errors detected`.
+    - `php -l resources/views/layouts/portal.blade.php` -> `No syntax errors detected`.
+- Focused regression validation completed:
+    - `./vendor/bin/phpunit tests/Feature/MainPortalTest.php` -> `OK (6 tests, 41 assertions)`.
+    - `./vendor/bin/phpunit tests/Feature/SidebarWorkspaceContextTest.php` -> `OK (3 tests, 24 assertions)`.
+
+### In Progress / Next Batch
+- Continue migrating remaining inline CSS/JS from module-specific Blade surfaces into modular asset files (`public/css/*`, `public/js/*`) to fully satisfy the no-inline rule across all modules.
+
 ## Progress Update (2026-04-20)
 
 ### Newly Implemented in Code

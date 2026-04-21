@@ -81,6 +81,30 @@ body[data-itapp-theme='dark'] .itapp-table-wrap {
     border-color: var(--itapp-border, #334155);
 }
 
+.nav-theme-item-compact {
+    padding: 10px 6px;
+}
+
+.nav-user-chevron {
+    margin-left: 5px;
+}
+
+.inline-logout-form {
+    display: inline;
+}
+
+.sidebar-section-header {
+    color: #9aa4af !important;
+    font-size: 11px !important;
+    padding-left: 12px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.sidebar-section-header.sidebar-section-subheader {
+    padding-left: 24px !important;
+}
+
 @media (max-width: 992px) {
     .itapp-summary-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
