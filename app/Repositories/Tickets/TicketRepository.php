@@ -225,6 +225,27 @@ class TicketRepository implements TicketRepositoryInterface
         return $query->orderBy('created_at', 'desc')->get();
     }
 
+    public function getTodayTicketCount()
+    {
+        return $this->model->whereDate('created_at', \Carbon\Carbon::today())->count();
+    }
+
+    public function getTicketsNearDeadline($hours = 2)
+    {
+        return $this->model->nearDeadline($hours)
+                    ->with(['user', 'assignedTo', 'ticket_priority'])
+                    ->orderBy('sla_due', 'asc')
+                    ->get();
+    }
+
+    public function getOverdueTickets()
+    {
+        return $this->model->overdue()
+                    ->with(['user', 'assignedTo', 'ticket_priority'])
+                    ->orderBy('sla_due', 'asc')
+                    ->get();
+    }
+
     protected function applyRoleBasedFilters(Builder $query, $user)
     {
         if (!$user) {

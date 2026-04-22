@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Repositories\Tickets\TicketRepositoryInterface;
 use App\Ticket;
 use App\DailyActivity;
 use App\User;
@@ -19,6 +20,15 @@ use App\Notifications\TicketUpdated;
 
 class TicketService
 {
+    protected $ticketRepository;
+
+    /**
+     * Constructor
+     */
+    public function __construct(TicketRepositoryInterface $ticketRepository)
+    {
+        $this->ticketRepository = $ticketRepository;
+    }
     /**
      * Generate unique ticket code: Prefix-Date-SequentialNumber
      */
@@ -27,7 +37,7 @@ class TicketService
         $date = Carbon::now()->format('Ymd');
         
         // Get today's ticket count for sequential number
-        $todayTicketCount = Ticket::whereDate('created_at', Carbon::today())->count();
+        $todayTicketCount = $this->ticketRepository->getTodayTicketCount();
         $sequentialNumber = str_pad($todayTicketCount + 1, 3, '0', STR_PAD_LEFT);
         
         return "{$prefix}-{$date}-{$sequentialNumber}";
@@ -137,7 +147,7 @@ class TicketService
             }
 
             // Create ticket with SLA and assignment already set
-            $ticket = Ticket::create($data);
+            $ticket = $this->ticketRepository->create($data);
             
             // Send notification to assigned agent if assigned
             if ($ticket->assigned_to) {
@@ -305,10 +315,7 @@ class TicketService
      */
     public function getTicketsNearDeadline($hours = 2)
     {
-        return Ticket::nearDeadline($hours)
-                    ->with(['user', 'assignedTo', 'ticket_priority'])
-                    ->orderBy('sla_due', 'asc')
-                    ->get();
+        return $this->ticketRepository->getTicketsNearDeadline($hours);
     }
 
     /**
@@ -316,10 +323,7 @@ class TicketService
      */
     public function getOverdueTickets()
     {
-        return Ticket::overdue()
-                    ->with(['user', 'assignedTo', 'ticket_priority'])
-                    ->orderBy('sla_due', 'asc')
-                    ->get();
+        return $this->ticketRepository->getOverdueTickets();
     }
 
     /**
@@ -327,10 +331,7 @@ class TicketService
      */
     public function getUnassignedTickets()
     {
-        return Ticket::unassigned()
-                    ->with(['user', 'ticket_priority', 'ticket_type'])
-                    ->orderBy('created_at', 'asc')
-                    ->get();
+        return $this->ticketRepository->getUnassigned();
     }
 
     /**

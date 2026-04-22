@@ -24,4 +24,7 @@ interface TicketRepositoryInterface
     public function updateStatus($ticketId, $statusId);
     public function addNote($ticketId, $note, $userId);
     public function search($searchTerm, $user = null);
+    public function getTodayTicketCount();
+    public function getTicketsNearDeadline($hours = 2);
+    public function getOverdueTickets();
 }
