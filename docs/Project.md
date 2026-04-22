@@ -78,6 +78,26 @@
 
 ## Progress Update (2026-04-20)
 
+## Progress Update (2026-04-22)
+
+### Newly Implemented in Code
+- Continued no-inline frontend modularization on Main Portal hub surface:
+    - Removed inline `<style>` block and inline `<script>` block from `resources/views/portal/index.blade.php`.
+    - Added dedicated portal hub assets: `public/css/portal-index.css` and `public/js/portal-index.js`.
+    - Replaced inline module card CSS-variable style (`style="--card-index: ..."`) with declarative hook (`data-card-index`) and runtime assignment in external JS.
+    - Added declarative portal preferences endpoint hook (`data-portal-preferences-url`) consumed by external portal JS.
+- Preserved visible portal context labels in server-rendered HTML after script extraction:
+    - Added heading block with `data-i18n` markers for `portal_label`, `modules_title`, and `portal_subtitle`.
+
+### Validation
+- Syntax/diagnostics validation completed:
+    - `php -l resources/views/portal/index.blade.php` -> `No syntax errors detected`.
+- Focused regression validation completed:
+    - `./vendor/bin/phpunit tests/Feature/MainPortalTest.php` -> `OK (6 tests, 41 assertions)`.
+    - `./vendor/bin/phpunit tests/Feature/SidebarWorkspaceContextTest.php` -> `OK (3 tests, 24 assertions)`.
+- No-inline verification on portal hub view completed:
+    - `resources/views/portal/index.blade.php` no longer contains inline `style=` attributes or inline `<style>/<script>` blocks.
+
 ### Newly Implemented in Code
 - **SQL Roles Hierarchy Alignment**: Aligned `roles` table to exact LV 0-10 hierarchy mapping as required by Project.md:
     - Executed pending migration `2026_04_17_111000_align_role_levels_and_add_meeting_overlap_index.php` to set `access_level` values.

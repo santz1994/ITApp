@@ -96,10 +96,10 @@ class MainPortalTest extends TestCase
         $response = $this->actingAs($user)->get('/home');
 
         $response->assertStatus(200);
-        $response->assertSee('setupDynamicViewport();', false);
-        $response->assertSee('data-portal-screen', false);
-        $response->assertSee('ResizeObserver', false);
-        $response->assertSee('--portal-grid-min-card', false);
+        $response->assertSee('css/portal-index.css', false);
+        $response->assertSee('js/portal-index.js', false);
+        $response->assertSee('data-portal-preferences-url=', false);
+        $response->assertSee('data-card-index="0"', false);
     }
 
     private function assignRoleSafely(User $user, string $roleName): void
