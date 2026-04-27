@@ -8,6 +8,8 @@
 
 > **Update 2026-04-21:** Applied pending migration backlog on restored `itapp` database (7 migrations, pending=0) after verified pre-migration backup (`database/pre_migrate_pending_20260421_130602.sql`). Hardened non-idempotent user-column migrations to skip already-existing columns (`users.location_id`, `users.portal_preferences`) for safe re-runs.
 
+> **Update 2026-04-27 (Phase 2 Backend Architecture):** Dashboard read flow was refactored to strict `Controller -> Service -> Repository` layering with short-lived cache keys for ticket stats and recent tickets. This batch introduced **no database schema changes** and required **no migration execution**.
+
 ---
 
 ## Table of Contents

@@ -1,7 +1,7 @@
 # ITApp Modularization Project - Master Checklist
 
 ## Status Overview
-**Last Updated:** 2026-04-22  
+**Last Updated:** 2026-04-27  
 **Phase 1:** ✅ COMPLETED (Database Operations & Cleanup)  
 **Current Focus:** Phase 2-3 (Backend Architecture & Frontend UI/UX)
 
@@ -23,6 +23,7 @@
 - [ ] Refactor any remaining inline database logic in controllers
 - [ ] Implement dedicated workflow service for Purchase Request approvals (Partially done: `PurchaseRequestApprovalWorkflowService` exists)
 - [ ] Add comprehensive test coverage for all new features
+- [x] Refactor Dashboard flow to strict architecture (`DashboardController` → `DashboardService` → `DashboardRepository`)
 
 ### 2.2 Security Enhancements
 - [ ] Enforce strict Role-Based Access Control (RBAC) across all modules
@@ -36,12 +37,27 @@
 - [ ] Implement server-side pagination for data-heavy views
 - [ ] Set up asynchronous processing for long-running tasks (report generation)
 - [ ] Configure queue workers for background jobs
+- [x] Add short-lived dashboard caching for ticket stats and recent tickets read models
 
 ### 2.4 Testing & Quality Assurance
 - [ ] Add comprehensive unit tests for all services
 - [ ] Implement integration tests for API endpoints
 - [ ] Add feature tests for critical user flows
 - [ ] Set up continuous integration pipeline
+- [x] Add focused dashboard architecture regression tests (unit + feature)
+
+## Progress Update (2026-04-27)
+- Started Phase 2 backend architecture refinement on dashboard module.
+- Implemented strict layering for dashboard read flow:
+  - `DashboardController` now delegates to `DashboardService` only.
+  - New `DashboardRepository` centralizes ticket query logic.
+- Added short-lived cache strategy for integrated dashboard read models:
+  - `dashboard.ticket-stats.v1`
+  - `dashboard.recent-tickets.v1.limit-10`
+- Added focused test coverage:
+  - `tests/Unit/DashboardRepositoryTest.php`
+  - `tests/Unit/DashboardServiceTest.php`
+  - updated `tests/Feature/DashboardTest.php` to accept current portal landing behavior.
 
 ## Phase 3: Frontend, UI/UX & Gamification
 ### 3.1 Responsive Design & Modern Frameworks

@@ -58,7 +58,11 @@
 
 @section('main-content')
 
-<div class="portal-shell" data-portal-preferences-url="{{ route('api.portal-preferences.index') }}">
+<div
+    class="portal-shell"
+    data-portal-preferences-url="{{ route('api.portal-preferences.index') }}"
+    data-portal-user-id="{{ (int) auth()->id() }}"
+>
     <div class="portal-utility-bar" id="portal-utility-bar">
         <div class="portal-identity-group">
             <span class="portal-avatar">{{ $portalInitials }}</span>
@@ -82,9 +86,15 @@
                 <button type="button" class="btn btn-default" id="lang-id">ID</button>
                 <button type="button" class="btn btn-default" id="lang-en">EN</button>
             </div>
-            <button type="button" class="btn btn-xs portal-theme-toggle" data-theme-toggle aria-label="Theme Toggle">
+            <button
+                type="button"
+                class="btn btn-xs portal-theme-toggle"
+                data-theme-toggle
+                aria-label="Theme Toggle"
+                data-theme-toggle-aria-label="Theme Toggle"
+            >
                 <i class="fa fa-moon-o" data-theme-icon></i>
-                <span data-theme-label>Dark Mode</span>
+                <span data-theme-label data-i18n="theme_mode_dark">Dark Mode</span>
             </button>
             <div class="portal-clock" id="wib-clock">--:--:-- WIB</div>
             @auth

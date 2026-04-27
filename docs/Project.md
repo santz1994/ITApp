@@ -20,6 +20,35 @@
     - Refactor all CSS and JavaScript code to match the new design and structure of the application, ensuring that frontend code is organized and maintainable. Use modular JavaScript, CSS preprocessors, and an asset build optimization process. Standardize frontend libraries and frameworks to reduce technical debt and support future scalability.
     - No CSS or JavaScript inline in Blade templates; all styles and scripts should be organized in separate files and properly linked to views for better maintainability, readability, caching, and asset optimization.
 
+## Progress Update (2026-04-27)
+
+### Newly Implemented in Code
+- Started Phase 2 backend architecture refinement with a focused dashboard modularization batch:
+    - Refactored `DashboardController` into thin orchestration only; query/business logic removed from controller.
+    - Added `App\Repositories\Dashboard\DashboardRepository` to centralize integrated dashboard ticket query logic.
+    - Added `App\Services\DashboardService` to orchestrate dashboard payload (`stats`, `recentTickets`, `assetStats`, `maintenanceDue`) and enforce service-layer composition.
+- Added read-optimized caching for dashboard hot paths (performance baseline):
+    - `dashboard.ticket-stats.v1` (ticket counters cache)
+    - `dashboard.recent-tickets.v1.limit-10` (recent ticket list cache)
+    - Cache windows are intentionally short-lived (1-2 minutes) to balance freshness and query load.
+- Added focused test coverage for the new architecture layer and regression safety:
+    - `DashboardRepositoryTest` validates ticket stats query rules and eager-loaded recent-ticket ordering.
+    - `DashboardServiceTest` validates payload composition and maintenance/stat aggregation behavior.
+    - Updated `DashboardTest` expected landing-view set to include current portal landing behavior (`portal.index`) so CI reflects actual runtime flow.
+
+### Validation
+- `./vendor/bin/phpunit tests/Unit/DashboardRepositoryTest.php` -> `OK (2 tests, 9 assertions)`.
+- `./vendor/bin/phpunit tests/Unit/DashboardServiceTest.php` -> `OK (1 test, 9 assertions)`.
+- `./vendor/bin/phpunit tests/Feature/DashboardTest.php` -> `OK (1 test, 2 assertions)`.
+
+### Database Notes
+- No schema changes were made in this batch.
+- No migration execution required for this Phase 2 dashboard refactor.
+
+### In Progress / Next Batch
+- Continue Phase 2.1 by refactoring additional controllers with direct query/business logic into strict `Controller -> Service -> Repository` layering.
+- Continue Phase 2.2 by auditing RBAC/auth flows per module and hardening authorization policies where gaps remain.
+
 ## Progress Update (2026-04-21)
 
 ### Phase 1: Database Operations & Cleanup (COMPLETED)
@@ -581,6 +610,7 @@
     - Use standardized icons and visual cues to enhance the usability of the application and provide clear indications of actions, statuses, and important information.
     - Refractor all css and javascript code to match the new design and structure of the application, ensuring that all frontend code is organized and maintainable. Use modern frontend development practices and tools to enhance the performance and maintainability of the frontend codebase. This includes using modular JavaScript, leveraging CSS preprocessors, and implementing a build process for optimizing assets. Standardize the use of frontend libraries and frameworks to ensure consistency and reduce technical debt in the codebase. So that the frontend code is clean, efficient, and maintainable, providing a solid foundation for future enhancements and scalability of the application.
     - No CSS or JavaScript inline in Blade templates; all styles and scripts should be organized in separate files and properly linked to the views. This will improve the maintainability and readability of the codebase, as well as enhance the performance of the application by allowing for better caching and optimization of assets.
+    - Update login, forgot password, and registration pages to align with the new design and provide a seamless user experience from the moment users access the application. This includes updating the layout, styling, and any relevant messaging to ensure that it is consistent with the overall design language of the application.
 8. Implement additional features based on user feedback and requirements, such as:
     - A compact "Portal Personalization" setting to allow users to customize their portal experience by rearranging module order and adding quick links to frequently used features.
     - A bilingual toggle indicator (Indonesian/English) in the portal header to allow users to switch between languages easily.

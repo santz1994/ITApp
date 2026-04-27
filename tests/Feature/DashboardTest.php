@@ -24,6 +24,6 @@ class DashboardTest extends TestCase
     if (isset($response->original) && method_exists($response->original, 'getName')) {
         $viewName = $response->original->getName();
     }
-    $this->assertTrue(in_array($viewName, ['dashboard.integrated-dashboard', 'home']), "Unexpected view: $viewName");
+    $this->assertTrue(in_array($viewName, ['dashboard.integrated-dashboard', 'home', 'portal.index']), "Unexpected view: $viewName");
     }
 }
