@@ -9,7 +9,7 @@ class PagesController extends Controller
       $this->middleware('auth');
   }
 
-  public function getTicketConfig()
+  public function index()
   {
     $pageTitle = 'Admin Configurations';
     return view('admin.admin', compact('pageTitle'));

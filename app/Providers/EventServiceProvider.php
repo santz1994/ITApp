@@ -34,10 +34,5 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         parent::boot();
-
-        // Register model observers
-        \App\Ticket::observe(\App\Observers\TicketObserver::class);
-        // Ensure Asset observer is registered so status change events are fired
-        \App\Asset::observe(\App\Observers\AssetObserver::class);
     }
 }

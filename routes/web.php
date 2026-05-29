@@ -52,17 +52,8 @@ require __DIR__ . '/api/web-api.php';
 // ========================================
 // MODULE ROUTES
 // ========================================
-require __DIR__ . '/modules/tickets.php';
-require __DIR__ . '/modules/assets.php';
 require __DIR__ . '/modules/admin.php';
-require __DIR__ . '/modules/user-portal.php';
-// Master data import/export landing
-require __DIR__ . '/modules/masterdata.php';
-// Conflict resolution for imports
-require __DIR__ . '/modules/imports.php';
-// Meeting room booking requests
 require __DIR__ . '/modules/meeting-rooms.php';
-// User profile management
 require __DIR__ . '/modules/profile.php';
 
 // ========================================

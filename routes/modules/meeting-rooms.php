@@ -4,12 +4,26 @@
  * Meeting Room Booking Routes
  * 
  * Handles meeting room booking requests, approvals, and printing.
+ * Uses permission-based middleware for database-driven RBAC.
  * 
- * Features:
- * - Users can create booking requests
- * - Directors can approve/reject requests
- * - Receptionists can view and print bookings
- * - Conflict detection prevents double-booking
+ * Permission tags used:
+ * - view_meeting_room_lcd: View LCD dashboard (public)
+ * - manage_meeting_room_lcd_settings: Configure LCD display settings
+ * - create_booking: Create meeting room bookings
+ * - view_bookings: View meeting room bookings
+ * - approve_booking: Approve/reject meeting room bookings
+ * - cancel_booking: Cancel meeting room bookings
+ * - finish_booking: Finish/complete meeting room bookings
+ * - extend_booking: Extend meeting room booking time
+ * - quick_edit_booking: Quick edit booking subject/time
+ * - view_director_dashboard: View director dashboard for meeting rooms
+ * - view_receptionist_dashboard: View receptionist dashboard
+ * - manage_room_availability: Toggle room availability
+ * - quick_booking: Create quick bookings from dashboard
+ * - update_booking_time: Drag & drop booking time
+ * - view_booking_calendar: View booking calendar
+ * - print_booking: Print booking details
+ * - export_booking_report: Export booking reports
  */
 
 use Illuminate\Support\Facades\Route;
@@ -18,30 +32,23 @@ use App\Http\Controllers\MeetingRoomBookingController;
 // ========================================
 // PUBLIC ROUTE - LCD DASHBOARD (No Auth)
 // ========================================
-// LCD Dashboard for displaying real-time booking schedule
-// Can be accessed via specific IP or public URL for display purposes
 Route::get('meeting-room-lcd-dashboard', [MeetingRoomBookingController::class, 'lcdDashboard'])
     ->name('meeting-room-bookings.lcd-dashboard');
 
-// LCD Dashboard 2 - Display for 5 meeting rooms
 Route::get('meeting-room-lcd-dashboard2', [MeetingRoomBookingController::class, 'lcdDashboard2'])
     ->name('meeting-room-bookings.lcd-dashboard2');
 
 Route::middleware(['auth'])->group(function () {
 
     // ========================================
-    // LCD DASHBOARD SETTINGS (Receptionist/Admin)
+    // LCD DASHBOARD SETTINGS
     // ========================================
-
-    // LCD room list and display order settings page
-    Route::get('meeting-room-lcd-settings', [MeetingRoomBookingController::class, 'lcdSettings'])
-        ->name('meeting-room-bookings.lcd-settings')
-        ->middleware('role:receptionist|administrator|developer');
-
-    // Save LCD room list and display order settings
-    Route::post('meeting-room-lcd-settings', [MeetingRoomBookingController::class, 'saveLcdSettings'])
-        ->name('meeting-room-bookings.lcd-settings.save')
-        ->middleware('role:receptionist|administrator|developer');
+    Route::middleware(['permission:manage_meeting_room_lcd_settings'])->group(function () {
+        Route::get('meeting-room-lcd-settings', [MeetingRoomBookingController::class, 'lcdSettings'])
+            ->name('meeting-room-bookings.lcd-settings');
+        Route::post('meeting-room-lcd-settings', [MeetingRoomBookingController::class, 'saveLcdSettings'])
+            ->name('meeting-room-bookings.lcd-settings.save');
+    });
     
     // ========================================
     // MEETING ROOM BOOKING RESOURCE ROUTES
@@ -58,99 +65,85 @@ Route::middleware(['auth'])->group(function () {
         ]);
     
     // ========================================
-    // CUSTOM ACTIONS
+    // APPROVAL ACTIONS
     // ========================================
+    Route::middleware(['permission:approve_booking'])->group(function () {
+        Route::post('meeting-room-bookings/{id}/approve', [MeetingRoomBookingController::class, 'approve'])
+            ->name('meeting-room-bookings.approve');
+        Route::post('meeting-room-bookings/{id}/reject', [MeetingRoomBookingController::class, 'reject'])
+            ->name('meeting-room-bookings.reject');
+    });
     
-    // Approve booking (Director/Admin only)
-    Route::post('meeting-room-bookings/{id}/approve', [MeetingRoomBookingController::class, 'approve'])
-        ->name('meeting-room-bookings.approve')
-        ->middleware('role:director|administrator|developer');
+    // ========================================
+    // CANCEL & FINISH ACTIONS
+    // ========================================
+    Route::middleware(['permission:cancel_booking'])->group(function () {
+        Route::post('meeting-room-bookings/{id}/cancel', [MeetingRoomBookingController::class, 'cancel'])
+            ->name('meeting-room-bookings.cancel');
+    });
     
-    // Reject booking (Director/Admin only)
-    Route::post('meeting-room-bookings/{id}/reject', [MeetingRoomBookingController::class, 'reject'])
-        ->name('meeting-room-bookings.reject')
-        ->middleware('role:director|administrator|developer');
+    Route::middleware(['permission:finish_booking'])->group(function () {
+        Route::post('meeting-room-bookings/{id}/finish', [MeetingRoomBookingController::class, 'finish'])
+            ->name('meeting-room-bookings.finish');
+    });
     
-    // Cancel booking (Receptionist/Admin only)
-    Route::post('meeting-room-bookings/{id}/cancel', [MeetingRoomBookingController::class, 'cancel'])
-        ->name('meeting-room-bookings.cancel')
-        ->middleware('role:receptionist|administrator|developer');
+    // ========================================
+    // EXTEND & QUICK EDIT ACTIONS
+    // ========================================
+    Route::middleware(['permission:extend_booking'])->group(function () {
+        Route::post('meeting-room-bookings/{id}/extend', [MeetingRoomBookingController::class, 'extendTime'])
+            ->name('meeting-room-bookings.extend');
+    });
     
-    // Finish booking (Receptionist/Admin only)
-    Route::post('meeting-room-bookings/{id}/finish', [MeetingRoomBookingController::class, 'finish'])
-        ->name('meeting-room-bookings.finish')
-        ->middleware('role:receptionist|administrator|developer');
-    
-    // Extend meeting time (User/Receptionist/Admin)
-    Route::post('meeting-room-bookings/{id}/extend', [MeetingRoomBookingController::class, 'extendTime'])
-        ->name('meeting-room-bookings.extend')
-        ->middleware('auth');
-    
-    // Quick edit meeting subject (Receptionist/Admin only)
-    Route::put('meeting-room-bookings/{id}/quick-edit-subject', [MeetingRoomBookingController::class, 'quickEditSubject'])
-        ->name('meeting-room-bookings.quick-edit-subject')
-        ->middleware('role:receptionist|administrator|developer');
-    
-    // Quick edit meeting time (Receptionist/Admin only)
-    Route::put('meeting-room-bookings/{id}/quick-edit-time', [MeetingRoomBookingController::class, 'quickEditTime'])
-        ->name('meeting-room-bookings.quick-edit-time')
-        ->middleware('role:receptionist|administrator|developer');
+    Route::middleware(['permission:quick_edit_booking'])->group(function () {
+        Route::put('meeting-room-bookings/{id}/quick-edit-subject', [MeetingRoomBookingController::class, 'quickEditSubject'])
+            ->name('meeting-room-bookings.quick-edit-subject');
+        Route::put('meeting-room-bookings/{id}/quick-edit-time', [MeetingRoomBookingController::class, 'quickEditTime'])
+            ->name('meeting-room-bookings.quick-edit-time');
+    });
     
     // ========================================
     // DIRECTOR DASHBOARD
     // ========================================
-    
-    // Director Dashboard (Director/Management/Admin only)
-    Route::get('meeting-room-director-dashboard', [MeetingRoomBookingController::class, 'directorDashboard'])
-        ->name('meeting-room-bookings.director-dashboard')
-        ->middleware('role:director|administrator|developer');
+    Route::middleware(['permission:view_director_dashboard'])->group(function () {
+        Route::get('meeting-room-director-dashboard', [MeetingRoomBookingController::class, 'directorDashboard'])
+            ->name('meeting-room-bookings.director-dashboard');
+    });
     
     // ========================================
-    // RECEPTIONIST DASHBOARD
+    // RECEPTIONIST DASHBOARD & ACTIONS
     // ========================================
-    
-    // Receptionist Dashboard (Receptionist/Admin only)
-    Route::get('meeting-room-receptionist-dashboard', [MeetingRoomBookingController::class, 'receptionistDashboard'])
-        ->name('meeting-room-bookings.receptionist-dashboard')
-        ->middleware('role:receptionist|administrator|developer');
-    
-    // Toggle Room Availability (AJAX)
-    Route::post('meeting-room-bookings/toggle-availability', [MeetingRoomBookingController::class, 'toggleRoomAvailability'])
-        ->name('meeting-room-bookings.toggle-availability')
-        ->middleware('role:receptionist|administrator|developer');
-    
-    // Quick Booking from Dashboard (AJAX)
-    Route::post('meeting-room-bookings/quick-booking', [MeetingRoomBookingController::class, 'quickBooking'])
-        ->name('meeting-room-bookings.quick-booking')
-        ->middleware('role:receptionist|administrator|developer');
-    
-    // Update Booking Time (Drag & Drop) (AJAX)
-    Route::put('meeting-room-bookings/{id}/update-time', [MeetingRoomBookingController::class, 'updateBookingTime'])
-        ->name('meeting-room-bookings.update-time')
-        ->middleware('role:receptionist|administrator|developer');
+    Route::middleware(['permission:view_receptionist_dashboard'])->group(function () {
+        Route::get('meeting-room-receptionist-dashboard', [MeetingRoomBookingController::class, 'receptionistDashboard'])
+            ->name('meeting-room-bookings.receptionist-dashboard');
+        Route::post('meeting-room-bookings/toggle-availability', [MeetingRoomBookingController::class, 'toggleRoomAvailability'])
+            ->name('meeting-room-bookings.toggle-availability');
+        Route::post('meeting-room-bookings/quick-booking', [MeetingRoomBookingController::class, 'quickBooking'])
+            ->name('meeting-room-bookings.quick-booking');
+        Route::put('meeting-room-bookings/{id}/update-time', [MeetingRoomBookingController::class, 'updateBookingTime'])
+            ->name('meeting-room-bookings.update-time');
+    });
     
     // ========================================
     // CALENDAR & DISPLAY VIEWS
     // ========================================
-    
-    // Calendar view
-    Route::get('meeting-room-bookings-calendar', [MeetingRoomBookingController::class, 'calendar'])
-        ->name('meeting-room-bookings.calendar');
-    
-    // Calendar data (JSON for FullCalendar)
-    Route::get('meeting-room-bookings-calendar/data', [MeetingRoomBookingController::class, 'calendarData'])
-        ->name('meeting-room-bookings.calendar.data');
-    
-    // Print booking (Receptionist/Admin/Owner)
-    Route::get('meeting-room-bookings/{id}/print', [MeetingRoomBookingController::class, 'print'])
-        ->name('meeting-room-bookings.print');
+    Route::middleware(['permission:view_booking_calendar'])->group(function () {
+        Route::get('meeting-room-bookings-calendar', [MeetingRoomBookingController::class, 'calendar'])
+            ->name('meeting-room-bookings.calendar');
+        Route::get('meeting-room-bookings-calendar/data', [MeetingRoomBookingController::class, 'calendarData'])
+            ->name('meeting-room-bookings.calendar.data');
+    });
     
     // ========================================
-    // REPORTS
+    // PRINT & REPORTS
     // ========================================
+    Route::middleware(['permission:print_booking'])->group(function () {
+        Route::get('meeting-room-bookings/{id}/print', [MeetingRoomBookingController::class, 'print'])
+            ->name('meeting-room-bookings.print');
+    });
     
-    // Monthly Report - Excel Export (Receptionist/Admin only)
-    Route::get('meeting-room-bookings/report/monthly-excel', [MeetingRoomBookingController::class, 'monthlyExcelReport'])
-        ->name('meeting-room-bookings.report.monthly-excel')
-        ->middleware('role:receptionist|administrator|developer');
+    Route::middleware(['permission:export_booking_report'])->group(function () {
+        Route::get('meeting-room-bookings/report/monthly-excel', [MeetingRoomBookingController::class, 'monthlyExcelReport'])
+            ->name('meeting-room-bookings.report.monthly-excel');
+    });
 });
