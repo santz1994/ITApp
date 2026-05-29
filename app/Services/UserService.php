@@ -256,4 +256,80 @@ class UserService
             'pending_requests' => 0,
         ];
     }
+
+    /**
+     * Get users with roles mapping for index page.
+     * Returns ['users' => Collection, 'usersRoles' => Collection]
+     */
+    public function getUsersForIndex(): array
+    {
+        $users = User::with(['roles', 'division'])->get();
+        $usersRoles = DB::table('model_has_roles')
+            ->where('model_type', User::class)
+            ->get()
+            ->map(function ($r) { $r->user_id = $r->model_id; return $r; });
+
+        return ['users' => $users, 'usersRoles' => $usersRoles];
+    }
+
+    /**
+     * Get assignable roles and divisions for create/edit forms.
+     */
+    public function getFormData(): array
+    {
+        $roles = Role::query()->assignable()->orderBy('name')->get()
+            ->filter(fn($r) => is_object($r) && isset($r->name));
+        $divisions = \App\Division::whereNotNull('name')->orderBy('name')->get()
+            ->filter(fn($d) => is_object($d) && isset($d->name));
+
+        return ['roles' => $roles, 'divisions' => $divisions];
+    }
+
+    /**
+     * Delete a user with protected-role safety check.
+     *
+     * @throws \Exception if deleting last super-admin
+     */
+    public function deleteUser(User $user, int $currentUserId): void
+    {
+        if ($user->id == $currentUserId) {
+            throw new \Exception('You cannot delete your own account');
+        }
+
+        // Prevent deleting the last highest-privilege role holder
+        $protectedRoleName = Role::normalizeName('super-admin');
+        $protectedRole = Role::where('name', $protectedRoleName)->first();
+        if ($protectedRole) {
+            $usersRole = DB::table('model_has_roles')
+                ->where('model_id', $user->id)
+                ->where('model_type', User::class)
+                ->first();
+            $protectedRoleCount = DB::table('model_has_roles')
+                ->where('role_id', $protectedRole->id)
+                ->count();
+
+            if ($usersRole && $usersRole->role_id == $protectedRole->id && $protectedRoleCount <= 1) {
+                throw new \Exception(
+                    'Cannot delete user as there must be one (1) or more users with the role of '
+                    . ($protectedRole->display_name ?? ucfirst($protectedRoleName)) . '.'
+                );
+            }
+        }
+
+        $user->delete();
+    }
+
+    /**
+     * Bulk-delete users, excluding the current user.
+     *
+     * @return array List of deleted IDs
+     */
+    public function bulkDeleteUsers(array $ids, int $currentUserId): array
+    {
+        $toDelete = array_values(array_filter($ids, fn($id) => intval($id) !== $currentUserId));
+
+        DB::table('users')->whereIn('id', $toDelete)->delete();
+
+        return $toDelete;
+    }
 }

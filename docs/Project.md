@@ -58,6 +58,49 @@ Dengan pendekatan ini, jika suatu saat PT Quty Karunia ingin menambahkan peran b
 ## Delete unused code
 Hapus kode yang tidak lagi digunakan, seperti fungsi getTicketConfig() di PagesController, atau rute yang sudah tidak relevan di routes/modules/meeting-rooms.php. Ini akan membantu menjaga kebersihan kode dan memudahkan pemeliharaan di masa depan. View yang tidak lagi digunakan, seperti resources/views/meeting-rooms/old-booking.blade.php, juga harus dihapus untuk menghindari kebingungan.
 
+### ✅ Cleanup Completed (2026-05-29)
+Marker: `DONE-CLEANUP-01`. All removals below have been executed; meeting room module is **untouched**.
+
+**Deleted Controllers (7):**
+- `AdminController.php` — dangerous DB/cache/backup operations, no routes
+- `DatabaseController.php` — dangerous database management, no routes
+- `AdminAuthController.php` — admin authentication for deleted pages, no routes
+- `SystemController.php` — orphaned (no routes defined for `system.settings`, `system.permissions`, etc.)
+- `DashboardController.php` — references nonexistent `dashboard.integrated-dashboard` view
+- `UserController.php` (web) — duplicate of `UsersController`; all routes use `UsersController`
+- `PagesController::getTicketConfig()` — already removed
+
+**Deleted Middleware (1):** `AdminSecurityMiddleware.php` — referenced deleted `admin.authenticate` route, never used in any route definition
+
+**Deleted Services / Repositories (2):** `DashboardService.php`, `Repositories/Dashboard/DashboardRepository.php` — orphaned after DashboardController deletion
+
+**Deleted Trait (1):** `Traits/DatabaseInspector.php` — only used by deleted AdminController and DatabaseController
+
+**Deleted Views (14):**
+- `admin/backup.blade.php`, `admin/backup-details.blade.php`, `admin/cache.blade.php`, `admin/database.blade.php`, `admin/dashboard.blade.php`, `admin/authenticate.blade.php` — dangerous admin tooling
+- `system/settings.blade.php`, `system/permissions.blade.php`, `system/roles.blade.php`, `system/maintenance.blade.php`, `system/logs.blade.php` — orphaned (SystemController has no routes)
+- `admin/users/edit.blade.php.backup` — stale backup file
+- `cache.blade.php` (root views) — orphaned, references deleted routes
+
+**Deleted Seeders (2):** `PermissionsAndRolesSeeder.php`, `ReceptionistRoleSeeder.php` — not called by DatabaseSeeder, contain legacy asset/ticket permissions
+
+**Deleted Config (2):** `config/backup.php`, `config/backup_settings.php` — for removed backup feature
+
+**Deleted Tests (2):** `SystemRolesBilingualTest.php` — tests deleted view; `StoreroomDebugTest.php` — references nonexistent `admin.storeroom.*` routes
+
+**Fixed Broken Route References (11 files):**
+- `sidebar.blade.php` — removed 9 broken links (`admin.dashboard`, `admin.database.*`, `admin.cache`, `admin.backup`, `system.*`)
+- `admin/admin.blade.php` — replaced broken System/Database boxes with `system-settings.index`
+- `admin/users/edit.blade.php`, `admin/users/create.blade.php` — `admin.dashboard` → `url('/home')`
+- `users/index.blade.php` — `admin.dashboard` → `url('/home')`
+- `users/roles.blade.php` — 4× `system.roles` → `url('/users/roles')`
+- `users/create.blade.php` — updated role descriptions (removed "tickets" references)
+- `users/edit.blade.php` — removed legacy ticket comment blocks
+- `MenuSeeder.php` — `system.roles` → `users.roles`
+- `MainPortalService.php` — `dashboard.index` → `home`
+- `BackendServiceProvider.php` — removed broken DashboardRepository binding
+- `Kernel.php` — removed `admin.security` alias
+
 ## Approval workflow
 
 - User mengajukan request (booking ruang rapat, kendaraan, atau permintaan ATK/sparepart).
@@ -266,27 +309,32 @@ Ringkasan: fokus pertama adalah menyelesaikan dan merapikan modul inti yang dise
 
 Milestones (high-level):
 
-1. Stabilize backend bootstrap
-  - Tambah stub minimal services/repositories yang hilang untuk menghindari DI runtime errors.
-2. Safe removal of legacy modules
-  - Cari semua referensi `tickets.*`, `old-booking`, dan file terkait; simpan patch terpisah untuk penghapusan setelah review.
+1. ✅ Stabilize backend bootstrap — DONE
+  - Stub for `DashboardService`/`MainPortalRepository` restored from commit; later orphaned controllers deleted so bootstrap is clean.
+2. ✅ Safe removal of legacy modules — DONE
+  - All `tickets.*`, `old-booking`, `getTicketConfig()` references removed. Dangerous admin tooling (AdminController, DatabaseController, SystemController, AdminAuthController) and orphaned views/seeders/tests deleted. Full changelog: see cleanup section above.
 3. Refactor core modules to Controller-Service-Repository
   - Pastikan setiap controller tipis; bisnis logika di `app/Services`; DB akses di `app/Repositories`.
-4. Seeders & Menu cleanup
-  - Perbarui `database/seeders/MenuSeeder.php` dan `resources/views/layouts/partials/sidebar.blade.php` untuk mencerminkan scope baru.
+4. ✅ Seeders & Menu cleanup — PARTIAL
+  - `MenuSeeder.php` and `sidebar.blade.php` updated. Unused seeders (`PermissionsAndRolesSeeder`, `ReceptionistRoleSeeder`) deleted.
 5. Infrastructure (local)
   - Tambah `docker-compose.yml` untuk PHP-FPM, MySQL, Redis, RabbitMQ; pastikan artisan commands berjalan di container.
-6. Frontend scaffolding
-  - Scaffold React app (`frontend/`) with TypeScript + Redux and a minimal Portal page consuming API endpoints.
+6. ✅ Frontend scaffolding — DONE (stub)
+  - `frontend/` folder exists with React 18, Redux Toolkit, Axios, Router v6, configured `proxy: http://localhost:8000`.
 7. Tests & CI
   - Tambah feature tests untuk booking flow, approval flow, and inventory request; run with `phpunit` and headless JS tests for frontend.
 
 First sprint (2 weeks) — immediate next steps:
 
-- Run repository-wide search for `tickets`, `old-booking`, `getTicketConfig()` and list all files for removal review.
-- Create a safety branch and apply removal patches in a single PR with a clear changelog entry.
-- Implement missing minimal stubs discovered during bootstrap (already done for `DashboardService`/`MainPortalRepository`); convert stubs to real implementations.
-- Update `docs/Project.md` (this section) and add a short README for local dev in the repo root.
+- ✅ ~~Run repository-wide search for `tickets`, `old-booking`, `getTicketConfig()` and list all files for removal review.~~ DONE
+- ✅ ~~Create a safety branch and apply removal patches in a single PR with a clear changelog entry.~~ DONE
+- Convert remaining stubs to real implementations (services/repositories).
+- 🎯 **Next priority: Controller-Service-Repository refactor (Milestone 3)**
+  - Verify every controller is thin; move business logic into `app/Services`; DB queries into `app/Repositories`.
+  - Add feature tests for vehicle booking, inventory request, and approval flows.
+- 🎯 **Next priority: Docker Compose setup (Milestone 5)**
+  - Create `docker-compose.yml` with PHP-FPM, MySQL 8, Redis, RabbitMQ containers.
+- Add a short README for local dev in the repo root.
 
 Approval: before deleting any legacy code, create a review PR and keep the removed files archived in a branch or a zip to allow easy rollback.
 
