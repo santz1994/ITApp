@@ -7,12 +7,13 @@
  * Routes are organized into modular files for better maintainability:
  * 
  * - auth.php: Authentication routes (login, logout, password reset)
- * - api/web-api.php: AJAX endpoints (search, validation, SLA)
- * - modules/tickets.php: Ticket management routes
- * - modules/assets.php: Asset management routes
- * - modules/admin.php: Admin & super-admin routes
- * - modules/user-portal.php: User self-service portal
- * - debug.php: Debug/test routes (local environment only)
+ * - api/web-api.php: AJAX endpoints (search, audit logs, portal preferences)
+ * - modules/admin.php: Admin, system management, user & role management (permission-based RBAC)
+ * - modules/meeting-rooms.php: Meeting room booking management
+ * - modules/vehicles.php: Vehicle/car booking management
+ * - modules/inventory.php: ATK & Sparepart inventory management
+ * - modules/approvals.php: Multi-tier approval workflow
+ * - modules/profile.php: User profile management
  */
 
 use Illuminate\Support\Facades\Route;
@@ -54,12 +55,8 @@ require __DIR__ . '/api/web-api.php';
 // ========================================
 require __DIR__ . '/modules/admin.php';
 require __DIR__ . '/modules/meeting-rooms.php';
+require __DIR__ . '/modules/vehicles.php';
+require __DIR__ . '/modules/inventory.php';
+require __DIR__ . '/modules/approvals.php';
 require __DIR__ . '/modules/profile.php';
 
-// ========================================
-// DEBUG/TEST ROUTES (Local environment only)
-// ========================================
-if (app()->environment('local')) {
-    require __DIR__ . '/debug.php';
-    require __DIR__ . '/debug-assets.php';
-}

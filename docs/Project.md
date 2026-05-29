@@ -51,6 +51,17 @@ Untuk memastikan sistem ini benar-benar efisien di skala enterprise, ada beberap
     D. Logika "Delegasi" untuk Resepsionis
     Fitur override untuk resepsionis harus memiliki log audit yang sangat kuat. Jika resepsionis membatalkan jadwal staf demi tamu VVIP, sistem harus otomatis men-nol-kan state pesanan sebelumnya dan memicu job queue (bisa menggunakan Redis) untuk mengirim email permohonan maaf/penjadwalan ulang otomatis ke staf yang terdampak.
 
-RBAC & Page Access Control
+## RBAC & Page Access Control
 Dibuat bukan hardcode, melainkan berbasis database. Setiap halaman atau endpoint API akan memiliki tag permission tertentu (misalnya: "manage_inventory", "approve_booking"), dan setiap role akan memiliki daftar permission yang bisa diubah oleh admin tanpa perlu deploy ulang aplikasi.
 Dengan pendekatan ini, jika suatu saat PT Quty Karunia ingin menambahkan peran baru atau mengubah hak akses, mereka bisa melakukannya langsung melalui dashboard admin tanpa harus menyentuh kode sumber.
+
+## Delete unused code
+Hapus kode yang tidak lagi digunakan, seperti fungsi getTicketConfig() di PagesController, atau rute yang sudah tidak relevan di routes/modules/meeting-rooms.php. Ini akan membantu menjaga kebersihan kode dan memudahkan pemeliharaan di masa depan. View yang tidak lagi digunakan, seperti resources/views/meeting-rooms/old-booking.blade.php, juga harus dihapus untuk menghindari kebingungan.
+
+## Approval workflow
+
+- User mengajukan request (booking ruang rapat, kendaraan, atau permintaan ATK/sparepart).
+
+## Frontend
+
+Menggunakan React.js untuk web dan React Native untuk mobile, dengan state management menggunakan Redux. Komunikasi dengan backend dilakukan melalui Axios untuk memastikan respons yang cepat dan efisien.
