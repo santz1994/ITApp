@@ -151,7 +151,7 @@ class MainPortalService
                 'description' => 'View operational reporting and analytics for bookings and requests.',
                 'icon' => 'fa-line-chart',
                 'theme' => 'success',
-                'url' => $this->routeOrFallback('dashboard.index'),
+                'url' => $this->routeOrFallback('home'),
                 'stat' => $metrics['meetings_today'] ?? 0,
                 'stat_label' => 'Meetings Today',
                 'roles' => ['director', 'administrator', 'developer'],

@@ -189,18 +189,7 @@
               <li><a href="{{ route('users.roles', ['workspace' => 'settings']) }}"><i class="fa fa-id-badge"></i> User Roles &amp; Permissions</a></li>
               @endcan
 
-              <li><a href="{{ route('system.settings', ['workspace' => 'settings']) }}"><i class="fa fa-server"></i> System Info</a></li>
-              <li><a href="{{ route('system.permissions', ['workspace' => 'settings']) }}"><i class="fa fa-key"></i> Permissions</a></li>
-              <li><a href="{{ route('system.roles', ['workspace' => 'settings']) }}"><i class="fa fa-users"></i> Roles</a></li>
-              <li><a href="{{ route('system.maintenance', ['workspace' => 'settings']) }}"><i class="fa fa-wrench"></i> Maintenance</a></li>
-              <li><a href="{{ route('system.logs', ['workspace' => 'settings']) }}"><i class="fa fa-file-text"></i> System Logs</a></li>
               <li><a href="{{ route('audit-logs.index', ['workspace' => 'settings']) }}"><i class="fa fa-history"></i> Audit Logs</a></li>
-
-              <li class="header sidebar-section-header sidebar-section-subheader">Admin Tools</li>
-              <li><a href="{{ route('admin.dashboard', ['workspace' => 'settings']) }}"><i class="fa fa-dashboard"></i> Admin Dashboard</a></li>
-              <li><a href="{{ route('admin.database.index', ['workspace' => 'settings']) }}"><i class="fa fa-database"></i> Database Management</a></li>
-              <li><a href="{{ route('admin.cache', ['workspace' => 'settings']) }}"><i class="fa fa-hdd-o"></i> Cache Management</a></li>
-              <li><a href="{{ route('admin.backup', ['workspace' => 'settings']) }}"><i class="fa fa-cloud-download"></i> Backup &amp; Restore</a></li>
 
               @role('developer')
               <li><a href="{{ route('admin.menus.index', ['workspace' => 'settings']) }}"><i class="fa fa-bars"></i> Menu Management</a></li>

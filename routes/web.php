@@ -24,8 +24,6 @@ Route::get('/', function () {
     return redirect('/login');
 });
 
-Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard.index')->middleware('auth');
-
 require __DIR__ . '/auth.php';
 require __DIR__ . '/api/web-api.php';
 require __DIR__ . '/modules/admin.php';
