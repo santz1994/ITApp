@@ -44,7 +44,6 @@ class MainPortalService
             'approvalCenter' => $this->buildApprovalCenter($user, $metrics),
             'meetingStatusBreakdown' => $this->portalRepository->getMeetingStatusBreakdownForUser($user),
             'recentMeetingBookings' => $this->portalRepository->getRecentMeetingBookingsForUser($user),
-            'recentAssetRequests' => $this->portalRepository->getRecentAssetRequestsForUser($user),
             'workspaceContext' => $this->portalRepository->getUserWorkspaceContext($user),
             'roleHighlights' => $this->buildRoleHighlights($user, $metrics),
             'primaryRoleBadge' => $primaryRoleBadge,
@@ -54,7 +53,7 @@ class MainPortalService
             'primaryRoleLabel' => $primaryRoleBadge['label_en'] ?? $this->formatPrimaryRole($user),
             'jakartaNow' => now('Asia/Jakarta'),
             'subtitle' => $this->buildSubtitle($user),
-            'assetMetricLabel' => $isStandardUser ? 'My Assets' : 'Total Assets',
+            'assetMetricLabel' => 'Inventory',
         ];
     }
 
@@ -188,13 +187,7 @@ class MainPortalService
                 $this->routeFirstAvailable(['purchase-requests.index', 'asset-requests.index']),
                 'purchase_request'
             ),
-            'assets' => $this->appendWorkspaceContext(
-                $this->routeFirstAvailable([
-                    $isStandardUser ? 'assets.user-index' : 'assets.index',
-                    'assets.index',
-                ]),
-                'assets_management'
-            ),
+            // assets quicklink removed (assets module deleted)
         ];
     }
 
@@ -213,12 +206,7 @@ class MainPortalService
                 'label_id' => 'Permintaan Pengadaan',
                 'icon' => 'fa-shopping-cart',
             ],
-            [
-                'key' => 'assets',
-                'label' => 'Assets',
-                'label_id' => 'Aset',
-                'icon' => 'fa-cubes',
-            ],
+            // assets quicklink option removed (assets module deleted)
         ];
 
         $options = [];
@@ -304,7 +292,7 @@ class MainPortalService
                 $this->highlight('Meetings Today', $metrics['meetings_today'] ?? 0, 'fa-calendar-check-o', 'green'),
                 $this->highlight('Upcoming 7 Days', $metrics['upcoming_meetings_7d'] ?? 0, 'fa-calendar', 'aqua'),
                 $this->highlight('Pending Requests', $metrics['pending_requests'] ?? 0, 'fa-shopping-cart', 'blue'),
-                $this->highlight('My Assets', $metrics['total_assets'] ?? 0, 'fa-cubes', 'blue'),
+                $this->highlight('Inventory Items', $metrics['total_assets'] ?? 0, 'fa-cubes', 'blue'),
             ];
         }
 
@@ -313,7 +301,7 @@ class MainPortalService
                 $this->highlight('Pending Meeting Approvals', $metrics['pending_meeting_approvals'] ?? 0, 'fa-clock-o', 'orange'),
                 $this->highlight('Pending Requests', $metrics['pending_requests'] ?? 0, 'fa-shopping-cart', 'blue'),
                 $this->highlight('Meetings Today', $metrics['meetings_today'] ?? 0, 'fa-calendar-check-o', 'green'),
-                $this->highlight('My Assets', $metrics['total_assets'] ?? 0, 'fa-cubes', 'blue'),
+                $this->highlight('Inventory Items', $metrics['total_assets'] ?? 0, 'fa-cubes', 'blue'),
             ];
         }
 
@@ -322,7 +310,7 @@ class MainPortalService
                 $this->highlight('Pending Approvals', $metrics['pending_meeting_approvals'] ?? 0, 'fa-check-square-o', 'orange'),
                 $this->highlight('Meetings Today', $metrics['meetings_today'] ?? 0, 'fa-calendar-check-o', 'green'),
                 $this->highlight('Approved Requests (Month)', $metrics['approved_requests_month'] ?? 0, 'fa-check', 'blue'),
-                $this->highlight('My Assets', $metrics['total_assets'] ?? 0, 'fa-cubes', 'blue'),
+                $this->highlight('Inventory Items', $metrics['total_assets'] ?? 0, 'fa-cubes', 'blue'),
             ];
         }
 

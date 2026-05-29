@@ -109,18 +109,7 @@ class User extends Authenticatable
   /**
    * Assets assigned to this user
    */
-  public function assignedAssets()
-  {
-    return $this->hasMany(Asset::class, 'assigned_to');
-  }
-
-  // Legacy ticket relations removed (module deleted)
-
-  // Legacy alias for backward compatibility
-  public function assets()
-  {
-    return $this->assignedAssets();
-  }
+  // Asset relations removed (assets module deleted)
 
   public function dailyActivities()
   {

@@ -142,7 +142,6 @@ class UserService
     public function getUsersWithStats()
     {
         return User::with(['roles', 'division'])
-                   ->withCount(['assets', 'tickets'])
                    ->paginate(20);
     }
 
@@ -251,14 +250,10 @@ class UserService
     public function getUserDashboardStats(User $user)
     {
         return [
-            'total_assets' => $user->assets()->count(),
-            'active_tickets' => $user->tickets()->whereHas('ticket_status', function($q) {
-                $q->whereNotIn('name', ['Closed', 'Resolved']);
-            })->count(),
-            'completed_tickets' => $user->tickets()->whereHas('ticket_status', function($q) {
-                $q->whereIn('name', ['Closed', 'Resolved']);
-            })->count(),
-            'pending_requests' => $user->assetRequests()->where('status', 'pending')->count(),
+            'total_assets' => 0,
+            'active_tickets' => 0,
+            'completed_tickets' => 0,
+            'pending_requests' => 0,
         ];
     }
 }
