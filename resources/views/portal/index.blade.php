@@ -2,15 +2,14 @@
 
 @php
     $moduleI18nMap = [
-        'it_support' => ['title' => 'mod_it_support', 'desc' => 'mod_it_support_desc', 'accent' => 'mod-it'],
-        'assets_management' => ['title' => 'mod_assets', 'desc' => 'mod_assets_desc', 'accent' => 'mod-assets'],
         'meeting_room' => ['title' => 'mod_meeting', 'desc' => 'mod_meeting_desc', 'accent' => 'mod-meeting'],
+        'inventory' => ['title' => 'mod_inventory', 'desc' => 'mod_inventory_desc', 'accent' => 'mod-assets'],
+        'vehicle' => ['title' => 'mod_vehicle', 'desc' => 'mod_vehicle_desc', 'accent' => 'mod-it'],
+        'approvals' => ['title' => 'mod_approvals', 'desc' => 'mod_approvals_desc', 'accent' => 'mod-admin'],
         'user_management' => ['title' => 'mod_users', 'desc' => 'mod_users_desc', 'accent' => 'mod-admin'],
         'settings' => ['title' => 'mod_settings', 'desc' => 'mod_settings_desc', 'accent' => 'mod-admin'],
-        'purchase_request' => ['title' => 'mod_purchase', 'desc' => 'mod_purchase_desc', 'accent' => 'mod-assets'],
         'profile' => ['title' => 'mod_profile', 'desc' => 'mod_profile_desc', 'accent' => 'mod-it'],
-        'kpi_dashboard' => ['title' => 'mod_kpi', 'desc' => 'mod_kpi_desc', 'accent' => 'mod-admin'],
-        'lcd_screen' => ['title' => 'mod_lcd', 'desc' => 'mod_lcd_desc', 'accent' => 'mod-meeting'],
+        'reporting' => ['title' => 'mod_reporting', 'desc' => 'mod_reporting_desc', 'accent' => 'mod-admin'],
     ];
 
     $portalUser = auth()->user();

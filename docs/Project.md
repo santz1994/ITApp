@@ -65,3 +65,18 @@ Hapus kode yang tidak lagi digunakan, seperti fungsi getTicketConfig() di PagesC
 ## Frontend
 
 Menggunakan React.js untuk web dan React Native untuk mobile, dengan state management menggunakan Redux. Komunikasi dengan backend dilakukan melalui Axios untuk memastikan respons yang cepat dan efisien.
+
+## Menu
+
+Menampilkan menu utama yang terdiri dari beberapa modul, antara lain:
+
+- Main Portal
+    - Meeting Room Booking
+    - Vehicle Booking
+    - Inventory Management (ATK & Sparepart)
+    - Approvals
+    - User Management
+    - Settings
+    - Profile
+    - Reporting
+
