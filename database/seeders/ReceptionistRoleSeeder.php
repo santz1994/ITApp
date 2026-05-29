@@ -30,15 +30,7 @@ class ReceptionistRoleSeeder extends Seeder
 
         // Define permissions for Receptionist
         $permissions = [
-            // ============================================
-            // TICKETS - Create and View Own
-            // ============================================
-            'tickets.create',           // Create new tickets
-            'tickets.view',             // View tickets (will be filtered to own in controller)
-            'tickets.view-own',         // Explicitly view own tickets
-            'tickets.update-own',       // Update own tickets
-            'tickets.comment',          // Add comments to tickets
-            
+            // TICKETS - removed (legacy)
             // ============================================
             // MEETING ROOM BOOKINGS - Full Access
             // ============================================
@@ -97,8 +89,7 @@ class ReceptionistRoleSeeder extends Seeder
         $this->command->info('📊 Total permissions assigned: ' . count($permissions));
         $this->command->line('');
         $this->command->info('Receptionist can:');
-        $this->command->line('  ✓ Create and view own tickets');
-        $this->command->line('  ✓ Add comments to tickets');
+        // Ticket-related capabilities removed (legacy)
         $this->command->line('  ✓ Full access to meeting room bookings (CRUD)');
         $this->command->line('  ✓ Create and view own asset requests');
         $this->command->line('  ✓ View and create own daily activities');

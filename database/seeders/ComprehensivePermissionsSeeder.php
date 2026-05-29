@@ -26,21 +26,9 @@ class ComprehensivePermissionsSeeder extends Seeder
 
         // Define all permissions with their display names and descriptions
         $permissions = [
-            // Asset Permissions
-            ['name' => 'view-assets', 'display_name' => 'View Assets', 'description' => 'View asset list and details'],
-            ['name' => 'create-assets', 'display_name' => 'Create Assets', 'description' => 'Create new assets'],
-            ['name' => 'edit-assets', 'display_name' => 'Edit Assets', 'description' => 'Edit existing assets'],
-            ['name' => 'delete-assets', 'display_name' => 'Delete Assets', 'description' => 'Delete assets'],
-            ['name' => 'export-assets', 'display_name' => 'Export Assets', 'description' => 'Export assets to Excel/CSV'],
-            ['name' => 'import-assets', 'display_name' => 'Import Assets', 'description' => 'Import assets from Excel/CSV'],
+            // Asset & Spares permissions removed (legacy)
             
-            // Ticket Permissions
-            ['name' => 'view-tickets', 'display_name' => 'View Tickets', 'description' => 'View ticket list and details'],
-            ['name' => 'create-tickets', 'display_name' => 'Create Tickets', 'description' => 'Create new tickets'],
-            ['name' => 'edit-tickets', 'display_name' => 'Edit Tickets', 'description' => 'Edit existing tickets'],
-            ['name' => 'delete-tickets', 'display_name' => 'Delete Tickets', 'description' => 'Delete tickets'],
-            ['name' => 'assign-tickets', 'display_name' => 'Assign Tickets', 'description' => 'Assign tickets to users'],
-            ['name' => 'export-tickets', 'display_name' => 'Export Tickets', 'description' => 'Export tickets to Excel/CSV'],
+            // Ticket Permissions removed (legacy)
             
             // Daily Activity Permissions
             ['name' => 'view-daily-activities', 'display_name' => 'View Daily Activities', 'description' => 'View daily activities'],
@@ -104,8 +92,7 @@ class ComprehensivePermissionsSeeder extends Seeder
             ['name' => 'view-notifications', 'display_name' => 'View Notifications', 'description' => 'View notification admin panel and statistics'],
             ['name' => 'manage-notifications', 'display_name' => 'Manage Notifications', 'description' => 'Send notifications and run automatic checks'],
             
-            // Advanced Asset Management
-            ['name' => 'manage-assets', 'display_name' => 'Manage Assets', 'description' => 'Advanced asset management including bulk operations and QR codes'],
+            // Advanced Asset Management removed (legacy)
             
             // Meeting Room Booking Permissions
             ['name' => 'view-meeting-bookings', 'display_name' => 'View Meeting Bookings', 'description' => 'View meeting room booking list and calendar'],
@@ -151,9 +138,7 @@ class ComprehensivePermissionsSeeder extends Seeder
         echo "  ✓ Developer: " . Permission::count() . " permissions\n";
 
         // Administrator - operational full access except developer-only areas
-        $administratorPermissions = [
-            'view-assets', 'create-assets', 'edit-assets', 'delete-assets', 'export-assets', 'import-assets', 'manage-assets',
-            'view-tickets', 'create-tickets', 'edit-tickets', 'delete-tickets', 'assign-tickets', 'export-tickets',
+            $administratorPermissions = [
             'view-daily-activities', 'create-daily-activities', 'edit-daily-activities', 'delete-daily-activities',
             'view-kpi-dashboard', 'view-reports',
             'export-data', 'import-data',
@@ -166,8 +151,6 @@ class ComprehensivePermissionsSeeder extends Seeder
 
         // Director - View and report permissions (LV 8)
         $directorPermissions = [
-            'view-assets',
-            'view-tickets', 'create-tickets', 'edit-tickets',
             'view-daily-activities', 'create-daily-activities', 'edit-daily-activities',
             'view-kpi-dashboard', 'view-reports', 'view-management-dashboard',
             'view-meeting-bookings', 'create-meeting-bookings', 'approve-meeting-bookings', 'reject-meeting-bookings',
@@ -179,7 +162,6 @@ class ComprehensivePermissionsSeeder extends Seeder
         if ($humanResourcesRole) {
             $humanResourcesPermissions = [
                 'view-users', 'create-users', 'edit-users',
-                'view-tickets', 'create-tickets',
             ];
             $humanResourcesRole->syncPermissions($humanResourcesPermissions);
             echo "  ✓ Human Resources: " . count($humanResourcesPermissions) . " permissions\n";
@@ -187,7 +169,6 @@ class ComprehensivePermissionsSeeder extends Seeder
 
         // User - Limited permissions
         $userPermissions = [
-            'view-tickets', 'create-tickets',
             'view-meeting-bookings', 'create-meeting-bookings',
         ];
         $userRole->syncPermissions($userPermissions);

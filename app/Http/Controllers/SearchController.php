@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Ticket;
 use App\Asset;
 use App\User;
 use App\Location;
@@ -31,11 +30,7 @@ class SearchController extends Controller
 
         $results = [];
 
-        // Search Tickets
-        if ($type === 'ticket' || $type === 'all') {
-            $tickets = $this->searchTickets($query, $type === 'ticket' ? $perPage : 5);
-            $results['tickets'] = $tickets;
-        }
+        // Ticket search removed (legacy)
 
         // Search Assets
         if ($type === 'asset' || $type === 'all') {
@@ -70,37 +65,7 @@ class SearchController extends Controller
         ]);
     }
 
-    /**
-     * Search tickets
-     */
-    private function searchTickets($query, $limit = 10)
-    {
-        return Ticket::with(['user', 'ticket_status', 'ticket_priority'])
-            ->where(function ($q) use ($query) {
-                $q->where('ticket_code', 'like', "%{$query}%")
-                  ->orWhere('subject', 'like', "%{$query}%")
-                  ->orWhere('description', 'like', "%{$query}%");
-            })
-            ->orderBy('created_at', 'desc')
-            ->limit($limit)
-            ->get()
-            ->map(function ($ticket) {
-                return [
-                    'entity_type' => 'ticket',
-                    'id' => $ticket->id,
-                    'title' => $ticket->subject,
-                    'subtitle' => $ticket->ticket_code,
-                    'description' => \Illuminate\Support\Str::limit($ticket->description, 100),
-                    'url' => route('tickets.show', $ticket->id),
-                    'status' => $ticket->ticket_status->name ?? 'Unknown',
-                    'status_color' => $ticket->ticket_status->color ?? 'default',
-                    'priority' => $ticket->ticket_priority->name ?? 'Unknown',
-                    'created_by' => $ticket->user->name ?? 'Unknown',
-                    'created_at' => $ticket->created_at->format('Y-m-d H:i'),
-                    'icon' => 'fa-ticket',
-                ];
-            });
-    }
+    // Ticket search helper removed (legacy)
 
     /**
      * Search assets
@@ -251,20 +216,7 @@ class SearchController extends Controller
         $query = $request->input('q');
         $results = [];
 
-        // Quick ticket search (only ticket_code and subject)
-        $tickets = Ticket::select('id', 'ticket_code', 'subject')
-            ->where('ticket_code', 'like', "%{$query}%")
-            ->orWhere('subject', 'like', "%{$query}%")
-            ->limit(5)
-            ->get()
-            ->map(function ($ticket) {
-                return [
-                    'type' => 'ticket',
-                    'id' => $ticket->id,
-                    'label' => $ticket->ticket_code . ' - ' . $ticket->subject,
-                    'url' => route('tickets.show', $ticket->id),
-                ];
-            });
+        // Quick ticket search removed (legacy)
 
         // Quick asset search (only asset_tag and name)
         $assets = Asset::select('id', 'asset_tag', 'name')
@@ -297,7 +249,6 @@ class SearchController extends Controller
             });
 
         $results = array_merge(
-            $tickets->toArray(),
             $assets->toArray(),
             $users->toArray()
         );

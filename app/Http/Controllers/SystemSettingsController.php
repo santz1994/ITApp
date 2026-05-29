@@ -2,10 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\TicketsCannedField;
-use App\TicketsStatus;
-use App\TicketsType;
-use App\TicketsPriority;
 use App\Status;
 use App\Division;
 use App\Supplier;
@@ -29,12 +25,6 @@ class SystemSettingsController extends BaseController
         $pageTitle = 'System Settings';
         
         $stats = [
-            'ticket_configs' => [
-                'canned_fields' => TicketsCannedField::count(),
-                'statuses' => TicketsStatus::count(),
-                'types' => TicketsType::count(),
-                'priorities' => TicketsPriority::count(),
-            ],
             'asset_configs' => [
                 'asset_statuses' => Status::count(),
                 'divisions' => Division::count(),
@@ -47,61 +37,7 @@ class SystemSettingsController extends BaseController
         return view('system-settings.index', compact('pageTitle', 'stats'));
     }
 
-    // ========================================
-    // TICKET CONFIGURATIONS
-    // ========================================
-
-    /**
-     * Manage Canned Fields
-     */
-    public function cannedFields()
-    {
-        $pageTitle = 'Canned Fields Management';
-        $cannedFields = TicketsCannedField::orderBy('subject')->paginate(20);
-        
-        return view('system-settings.ticket-configs.canned-fields', compact('pageTitle', 'cannedFields'));
-    }
-
-    /**
-     * Manage Ticket Statuses
-     */
-    public function ticketStatuses()
-    {
-        $pageTitle = 'Ticket Statuses Management';
-        $statuses = TicketsStatus::orderBy('status')->paginate(20);
-        
-        return view('system-settings.ticket-configs.statuses', compact('pageTitle', 'statuses'));
-    }
-
-    /**
-     * Manage Ticket Types
-     */
-    public function ticketTypes()
-    {
-        $pageTitle = 'Ticket Types Management';
-        $types = TicketsType::orderBy('type')->paginate(20);
-        
-        return view('system-settings.ticket-configs.types', compact('pageTitle', 'types'));
-    }
-
-    /**
-     * Manage Ticket Priorities
-     */
-    public function ticketPriorities()
-    {
-        $pageTitle = 'Ticket Priorities Management';
-        $priorities = TicketsPriority::orderByRaw("
-            CASE priority 
-                WHEN 'Urgent' THEN 1
-                WHEN 'High' THEN 2
-                WHEN 'Normal' THEN 3
-                WHEN 'Low' THEN 4
-                ELSE 5
-            END
-        ")->paginate(20);
-        
-        return view('system-settings.ticket-configs.priorities', compact('pageTitle', 'priorities'));
-    }
+    // Ticket configuration pages removed (legacy)
 
     // ========================================
     // ASSET CONFIGURATIONS

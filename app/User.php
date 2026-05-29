@@ -62,9 +62,6 @@ class User extends Authenticatable
       'profile_picture',
       // Notification preferences
       'notify_email',
-      'notify_ticket_created',
-      'notify_ticket_assigned',
-      'notify_ticket_updated',
       'notify_meeting_approved',
       'notify_meeting_rejected',
   ];
@@ -108,21 +105,6 @@ class User extends Authenticatable
     return $this->hasOne(Movement::class);
   }
 
-  /**
-   * Tickets created by this user
-   */
-  public function createdTickets()
-  {
-    return $this->hasMany(Ticket::class, 'user_id');
-  }
-
-  /**
-   * Tickets assigned to this user
-   */
-  public function assignedTickets()
-  {
-    return $this->hasMany(Ticket::class, 'assigned_to');
-  }
 
   /**
    * Assets assigned to this user
@@ -132,11 +114,7 @@ class User extends Authenticatable
     return $this->hasMany(Asset::class, 'assigned_to');
   }
 
-  // Legacy alias for backward compatibility
-  public function ticket()
-  {
-    return $this->createdTickets();
-  }
+  // Legacy ticket relations removed (module deleted)
 
   // Legacy alias for backward compatibility
   public function assets()

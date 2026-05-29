@@ -388,18 +388,8 @@
                                 </span>
                             </td>
                         </tr>
-                        <tr>
-                            <td><strong>Tickets Created:</strong></td>
-                            <td>
-                                <span class="badge bg-blue">{{ $user->tickets()->count() ?? 0 }}</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Assets Assigned:</strong></td>
-                            <td>
-                                <span class="badge bg-green">{{ $user->assets()->count() ?? 0 }}</span>
-                            </td>
-                        </tr>
+                        {{-- Tickets metrics removed (legacy) --}}
+                        {{-- Assets metrics removed (legacy) --}}
                     </table>
                 </div>
             </div>
@@ -436,16 +426,8 @@
                     <a href="{{ route('users.index') }}" class="btn btn-default btn-block">
                         <i class="fa fa-list"></i> Back to Users List
                     </a>
-                    @if($user->tickets()->count() > 0)
-                    <a href="{{ route('tickets.index', ['user_id' => $user->id]) }}" class="btn btn-primary btn-block">
-                        <i class="fa fa-ticket-alt"></i> View User's Tickets ({{ $user->tickets()->count() }})
-                    </a>
-                    @endif
-                    @if($user->assets()->count() > 0)
-                    <a href="{{ route('assets.index', ['assigned_to' => $user->id]) }}" class="btn btn-success btn-block">
-                        <i class="fa fa-laptop"></i> View Assigned Assets ({{ $user->assets()->count() }})
-                    </a>
-                    @endif
+                    {{-- Ticket quick actions removed (legacy) --}}
+                    {{-- View Assigned Assets removed (legacy) --}}
                 </div>
             </div>
         </div>

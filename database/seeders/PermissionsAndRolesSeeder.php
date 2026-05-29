@@ -21,8 +21,7 @@ class PermissionsAndRolesSeeder extends Seeder
             // Asset Requests (granular)
             'view-asset-requests', 'view_asset_requests', 'create-asset-requests', 'create_asset_requests', 'approve-asset-requests', 'approve_asset_requests', 'reject-asset-requests', 'reject_asset_requests', 'fulfill-asset-requests', 'fulfill_asset_requests',
 
-            // Tickets
-            'create_tickets', 'create-tickets', 'view-tickets', 'view_ticket_reports', 'view-ticket-reports', 'edit-tickets', 'delete-tickets', 'assign-tickets', 'export-tickets',
+            // Tickets (removed - legacy)
 
             // Daily activities
             'view_daily_activities', 'view-daily-activities', 'create-daily-activities', 'edit-daily-activities', 'delete-daily-activities',
@@ -64,10 +63,10 @@ class PermissionsAndRolesSeeder extends Seeder
         }
 
         if (isset($roleByName['administrator'])) {
-            $administratorPermNames = [
-                'view_all_assets', 'view-assets', 'create-assets', 'edit-assets', 'view-tickets', 'create-tickets', 'edit-tickets', 'assign-tickets',
-                'view_ticket_reports', 'view_asset_reports', 'view_admin_performance', 'view_daily_activities', 'create-daily-activities',
-                'export-data', 'import-data', 'export-tickets',
+                $administratorPermNames = [
+                'view_all_assets', 'view-assets', 'create-assets', 'edit-assets',
+                'view_asset_reports', 'view_admin_performance', 'view_daily_activities', 'create-daily-activities',
+                'export-data', 'import-data',
                 // Asset request management
                 'view-asset-requests', 'create-asset-requests', 'approve-asset-requests', 'reject-asset-requests', 'fulfill-asset-requests',
                 'view-users', 'create-users', 'edit-users',
@@ -79,7 +78,7 @@ class PermissionsAndRolesSeeder extends Seeder
         if (isset($roleByName['director'])) {
             $directorPermNames = [
                 'view_kpi_dashboard', 'view-kpi-dashboard', 'view_admin_performance', 'view_reports', 'view-management-dashboard',
-                'view-assets', 'view-tickets', 'create-tickets', 'view-daily-activities',
+                'view-assets', 'view-daily-activities',
             ];
 
             $roleByName['director']->syncPermissions(Permission::whereIn('name', $directorPermNames)->get());
@@ -87,7 +86,7 @@ class PermissionsAndRolesSeeder extends Seeder
 
         if (isset($roleByName['receptionist'])) {
             $receptionistPermNames = [
-                'view-tickets', 'create-tickets', 'view-daily-activities',
+                'view-daily-activities',
             ];
 
             $roleByName['receptionist']->syncPermissions(Permission::whereIn('name', $receptionistPermNames)->get());
@@ -96,7 +95,6 @@ class PermissionsAndRolesSeeder extends Seeder
         if (isset($roleByName['human-resources'])) {
             $hrPermNames = [
                 'view-users', 'create-users', 'edit-users',
-                'view-tickets', 'create-tickets',
             ];
 
             $roleByName['human-resources']->syncPermissions(Permission::whereIn('name', $hrPermNames)->get());

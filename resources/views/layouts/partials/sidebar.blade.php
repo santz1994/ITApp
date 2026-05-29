@@ -29,9 +29,7 @@
 
   $workspaceFromRoute = null;
 
-  if (\Illuminate\Support\Str::startsWith($routeName, 'tickets.')) {
-    $workspaceFromRoute = 'it_support';
-  } elseif (\Illuminate\Support\Str::startsWith($routeName, 'meeting-room-bookings.')) {
+  if (\Illuminate\Support\Str::startsWith($routeName, 'meeting-room-bookings.')) {
     $workspaceFromRoute = 'meeting_room';
   } elseif (
     \Illuminate\Support\Str::startsWith($routeName, 'assets.')
@@ -133,24 +131,7 @@
             @endif
 
             <!-- 🏷️ Assets (Admin=2, SuperAdmin=3, Management=4 view-only) -->
-            @if($showWorkspace(['assets_management']))
-            @can('view-assets')
-              <li class="header sidebar-section-header">Assets</li>
-              <li><a href="{{ url('/assets')}}"><i class="fa fa-tags"></i> All Assets</a></li>
-              <li><a href="{{ route('assets.my-assets') }}"><i class="fa fa-user"></i> My Assets</a></li>
-              @can('create-assets')
-              <li><a href="{{ url('/asset-maintenance')}}"><i class="fa fa-wrench"></i> Asset Maintenance</a></li>
-              <li><a href="{{ url('/spares')}}"><i class="fa fa-cog"></i> Spares</a></li>
-              @endcan
-              <li><a href="{{ route('assets.scan-qr') }}"><i class="fa fa-qrcode"></i> Scan QR Code</a></li>
-              @can('export-assets')
-              <li><a href="{{ route('assets.export') }}"><i class="fa fa-download"></i> Export Assets</a></li>
-              @endcan
-              @can('import-assets')
-              <li><a href="{{ route('assets.import-form') }}"><i class="fa fa-upload"></i> Import Assets</a></li>
-              @endcan
-            @endcan
-            @endif
+            <!-- Assets & Spares removed (legacy) -->
 
             <!-- 📦 Asset Requests (All authenticated users) -->
             @if($showWorkspace(['purchase_request']))
@@ -190,20 +171,7 @@
             @endauth
             @endif
 
-            <!-- 🎫 Tickets (visible to any authenticated user; admin subitems still guarded) -->
-            @if($showWorkspace(['it_support']))
-            @auth
-              <li class="header sidebar-section-header">Tickets</li>
-              <li><a href="{{ url('/tickets')}}"><i class="fa fa-ticket"></i> All Tickets</a></li>
-              @can('assign-tickets')
-              <li><a href="{{ url('/tickets/unassigned')}}"><i class="fa fa-inbox"></i> Unassigned Tickets</a></li>
-              @endcan
-              <li><a href="{{ url('/tickets/create')}}"><i class="fa fa-plus-circle"></i> Create Ticket</a></li>
-              @can('export-tickets')
-              <li><a href="{{ route('tickets.export') }}"><i class="fa fa-download"></i> Export Tickets</a></li>
-              @endcan
-            @endauth
-            @endif
+            <!-- Tickets module removed (legacy) -->
 
             <!-- 📅 Daily Activity (Admin=2/SuperAdmin=3 full, Management=4 view-only) -->
             @if($showWorkspace(['kpi']))

@@ -317,7 +317,7 @@
                     </div>
                 </div>
                 <div class="box-body no-padding">
-                    @if(isset($recentAssets) && $recentAssets->count() > 0)
+                    @if(false && isset($recentAssets) && $recentAssets->count() > 0)
                         <table class="table table-striped">
                             <thead>
                                 <tr>
@@ -365,11 +365,7 @@
                         </div>
                     @endif
                 </div>
-                @if(isset($recentAssets) && $recentAssets->count() > 0)
-                <div class="box-footer text-center">
-                    <a href="{{ route('assets.index') }}" class="btn btn-success">View All Assets</a>
-                </div>
-                @endif
+                {{-- Assets section removed (legacy) --}}
             </div>
 
         </div>
@@ -383,18 +379,11 @@
                     <h3 class="box-title"><i class="fa fa-bolt"></i> Quick Actions</h3>
                 </div>
                 <div class="box-body">
-                    <a href="{{ route('assets.create') }}" class="btn btn-primary btn-block" style="margin-bottom: 10px;">
-                        <i class="fa fa-plus"></i> Add New Asset
-                    </a>
+                    {{-- Add New Asset removed (legacy) --}}
                     <a href="{{ route('tickets.create') }}" class="btn btn-warning btn-block" style="margin-bottom: 10px;">
                         <i class="fa fa-ticket"></i> Create Ticket
                     </a>
-                    <a href="{{ route('assets.scan-qr') }}" class="btn btn-info btn-block" style="margin-bottom: 10px;">
-                        <i class="fa fa-qrcode"></i> Scan QR Code
-                    </a>
-                    <a href="{{ route('assets.index') }}" class="btn btn-default btn-block">
-                        <i class="fa fa-list"></i> View All Assets
-                    </a>
+                    {{-- Asset quick actions removed (legacy) --}}
                 </div>
             </div>
 

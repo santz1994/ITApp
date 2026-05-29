@@ -12,9 +12,6 @@ use App\Supplier;
 use App\Status;
 use App\Manufacturer;
 use App\WarrantyType;
-use App\TicketsStatus;
-use App\TicketsPriority;
-use App\TicketsType;
 
 /**
  * Test Data Helper Trait
@@ -50,10 +47,7 @@ trait TestDataHelper
     protected $testSupplier;
     protected $testWarrantyType;
     protected $testAssetStatus;
-    protected $testTicketOpenStatus;
-    protected $testTicketClosedStatus;
-    protected $testTicketPriority;
-    protected $testTicketType;
+    
 
     /**
      * Setup all common test data
@@ -64,7 +58,6 @@ trait TestDataHelper
         $this->setupTestUsers();
         $this->setupMasterData();
         $this->setupAssetData();
-        $this->setupTicketData();
     }
 
     /**
@@ -148,33 +141,7 @@ trait TestDataHelper
         );
     }
 
-    /**
-     * Setup ticket-related data
-     */
-    protected function setupTicketData()
-    {
-        // Ticket Statuses (column is 'status' not 'name')
-        $this->testTicketOpenStatus = TicketsStatus::firstOrCreate(
-            ['status' => 'Open'],
-            ['color' => '#28a745']
-        );
 
-        $this->testTicketClosedStatus = TicketsStatus::firstOrCreate(
-            ['status' => 'Closed'],
-            ['color' => '#dc3545']
-        );
-
-        // Ticket Priority (column is 'priority' not 'name')
-        $this->testTicketPriority = TicketsPriority::firstOrCreate(
-            ['priority' => 'Medium'],
-            ['color' => '#ffc107']
-        );
-
-        // Ticket Type (column is 'type' not 'name')
-        $this->testTicketType = TicketsType::firstOrCreate(
-            ['type' => 'Hardware Issue']
-        );
-    }
 
     /**
      * Create a test asset with all required relationships

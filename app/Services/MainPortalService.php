@@ -42,8 +42,6 @@ class MainPortalService
             'quickLinks' => $quickLinks,
             'quickLinkOptions' => $this->buildQuickLinkOptions($quickLinks),
             'approvalCenter' => $this->buildApprovalCenter($user, $metrics),
-            'recentTickets' => $this->portalRepository->getRecentTicketsForUser($user),
-            'ticketStatusBreakdown' => $this->portalRepository->getTicketStatusBreakdownForUser($user),
             'meetingStatusBreakdown' => $this->portalRepository->getMeetingStatusBreakdownForUser($user),
             'recentMeetingBookings' => $this->portalRepository->getRecentMeetingBookingsForUser($user),
             'recentAssetRequests' => $this->portalRepository->getRecentAssetRequestsForUser($user),
@@ -185,14 +183,6 @@ class MainPortalService
         $isStandardUser = $this->isStandardUser($user);
 
         return [
-            'tickets' => $this->appendWorkspaceContext(
-                $this->routeFirstAvailable([
-                    $isStandardUser ? 'tickets.user-index' : 'tickets.index',
-                    'tickets.index',
-                ]),
-                'it_support'
-            ),
-            'tickets_unassigned' => $this->appendWorkspaceContext($this->resolveTicketQueueUrl($user), 'it_support'),
             'meeting_rooms' => $this->appendWorkspaceContext($this->routeOrFallback('meeting-room-bookings.index'), 'meeting_room'),
             'purchase_requests' => $this->appendWorkspaceContext(
                 $this->routeFirstAvailable(['purchase-requests.index', 'asset-requests.index']),
@@ -211,18 +201,6 @@ class MainPortalService
     private function buildQuickLinkOptions(array $quickLinks): array
     {
         $definitions = [
-            [
-                'key' => 'tickets',
-                'label' => 'Open Tickets',
-                'label_id' => 'Tiket Terbuka',
-                'icon' => 'fa-life-ring',
-            ],
-            [
-                'key' => 'tickets_unassigned',
-                'label' => 'Unassigned Tickets',
-                'label_id' => 'Tiket Belum Ditugaskan',
-                'icon' => 'fa-bolt',
-            ],
             [
                 'key' => 'meeting_rooms',
                 'label' => 'Meeting Rooms',
@@ -275,16 +253,7 @@ class MainPortalService
         }
 
         $items = [
-            [
-                'key' => 'tickets',
-                'label' => 'Ticket Action Queue',
-                'pending_count' => (int) ($metrics['approval_center_ticket_queue'] ?? $metrics['unassigned_open_tickets'] ?? 0),
-                'description' => 'Unassigned open tickets waiting for technician pickup.',
-                'url' => $this->appendWorkspaceContext($this->resolveTicketQueueUrl($user), 'it_support'),
-                'action_label' => 'Review Tickets',
-                'theme' => 'aqua',
-                'icon' => 'fa-life-ring',
-            ],
+            // Tickets approval queue removed (legacy)
             [
                 'key' => 'meeting',
                 'label' => 'Meeting Approval Queue',
@@ -334,34 +303,32 @@ class MainPortalService
             return [
                 $this->highlight('Meetings Today', $metrics['meetings_today'] ?? 0, 'fa-calendar-check-o', 'green'),
                 $this->highlight('Upcoming 7 Days', $metrics['upcoming_meetings_7d'] ?? 0, 'fa-calendar', 'aqua'),
-                $this->highlight('Open Tickets', $metrics['open_tickets'] ?? 0, 'fa-life-ring', 'yellow'),
                 $this->highlight('Pending Requests', $metrics['pending_requests'] ?? 0, 'fa-shopping-cart', 'blue'),
+                $this->highlight('My Assets', $metrics['total_assets'] ?? 0, 'fa-cubes', 'blue'),
             ];
         }
 
         if (user_has_any_role($user, ['administrator', 'developer'])) {
             return [
-                $this->highlight('Assigned Open Tickets', $metrics['assigned_open_tickets'] ?? 0, 'fa-user-circle', 'aqua'),
-                $this->highlight('Open Tickets', $metrics['open_tickets'] ?? 0, 'fa-life-ring', 'yellow'),
                 $this->highlight('Pending Meeting Approvals', $metrics['pending_meeting_approvals'] ?? 0, 'fa-clock-o', 'orange'),
                 $this->highlight('Pending Requests', $metrics['pending_requests'] ?? 0, 'fa-shopping-cart', 'blue'),
+                $this->highlight('Meetings Today', $metrics['meetings_today'] ?? 0, 'fa-calendar-check-o', 'green'),
+                $this->highlight('My Assets', $metrics['total_assets'] ?? 0, 'fa-cubes', 'blue'),
             ];
         }
 
         if (user_has_any_role($user, ['director'])) {
             return [
-                $this->highlight('Open Tickets', $metrics['open_tickets'] ?? 0, 'fa-line-chart', 'aqua'),
                 $this->highlight('Pending Approvals', $metrics['pending_meeting_approvals'] ?? 0, 'fa-check-square-o', 'orange'),
                 $this->highlight('Meetings Today', $metrics['meetings_today'] ?? 0, 'fa-calendar-check-o', 'green'),
                 $this->highlight('Approved Requests (Month)', $metrics['approved_requests_month'] ?? 0, 'fa-check', 'blue'),
+                $this->highlight('My Assets', $metrics['total_assets'] ?? 0, 'fa-cubes', 'blue'),
             ];
         }
 
         return [
-            $this->highlight('My Open Tickets', $metrics['open_tickets'] ?? 0, 'fa-ticket', 'aqua'),
             $this->highlight('My Pending Requests', $metrics['pending_requests'] ?? 0, 'fa-shopping-basket', 'yellow'),
             $this->highlight('Meetings Today', $metrics['meetings_today'] ?? 0, 'fa-calendar', 'green'),
-            $this->highlight('My Assets', $metrics['total_assets'] ?? 0, 'fa-cubes', 'blue'),
         ];
     }
 
@@ -442,17 +409,7 @@ class MainPortalService
         return '#';
     }
 
-    private function resolveTicketQueueUrl(User $user): string
-    {
-        if (user_has_any_role($user, ['administrator', 'developer'])) {
-            return $this->routeFirstAvailable(['tickets.unassigned', 'tickets.index']);
-        }
-
-        return $this->routeFirstAvailable([
-            user_has_role($user, 'user') ? 'tickets.user-index' : 'tickets.index',
-            'tickets.index',
-        ]);
-    }
+    // Ticket queue URL resolver removed (ticket module deleted)
 
     private function isStandardUser(User $user): bool
     {

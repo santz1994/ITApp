@@ -32,67 +32,9 @@ class MenuSeeder extends Seeder
                 'roles' => ['super-admin', 'admin', 'director', 'user', 'receptionist'],
             ],
 
-            // Assets Management
-            [
-                'label' => 'Assets',
-                'icon' => 'fa fa-desktop',
-                'order_index' => 2,
-                'roles' => ['super-admin', 'admin'],
-                'children' => [
-                    [
-                        'label' => 'All Assets',
-                        'route' => 'assets.index',
-                        'icon' => 'fa fa-list',
-                        'roles' => ['super-admin', 'admin'],
-                    ],
-                    [
-                        'label' => 'Add New Asset',
-                        'route' => 'assets.create',
-                        'icon' => 'fa fa-plus',
-                        'roles' => ['super-admin', 'admin'],
-                    ],
-                    [
-                        'label' => 'Asset Models',
-                        'route' => 'assetmodels.index',
-                        'icon' => 'fa fa-cubes',
-                        'roles' => ['super-admin', 'admin'],
-                    ],
-                    [
-                        'label' => 'Asset Maintenance',
-                        'route' => 'asset-maintenance.index',
-                        'icon' => 'fa fa-wrench',
-                        'roles' => ['super-admin', 'admin'],
-                    ],
-                ],
-            ],
+            // Assets Management removed (legacy)
 
-            // Tickets/Helpdesk
-            [
-                'label' => 'Tickets',
-                'icon' => 'fa fa-ticket',
-                'order_index' => 3,
-                'roles' => ['super-admin', 'admin', 'user'],
-                'children' => [
-                    [
-                        'label' => 'All Tickets',
-                        'route' => 'tickets.index',
-                        'icon' => 'fa fa-list',
-                        'roles' => ['super-admin', 'admin', 'user'],
-                    ],
-                    [
-                        'label' => 'Create Ticket',
-                        'route' => 'tickets.create',
-                        'icon' => 'fa fa-plus',
-                        'roles' => ['super-admin', 'admin', 'user'],
-                    ],
-                    [
-                        'label' => 'My Tickets',
-                        'route' => 'user.tickets.index',
-                        'icon' => 'fa fa-user',
-                        'roles' => ['user'],
-                    ],
-                ],
-            ],
+            // Tickets/Helpdesk removed - legacy module
 
             // Meeting Room Booking
             [
@@ -134,14 +76,7 @@ class MenuSeeder extends Seeder
                 ],
             ],
 
-            // Inventory/Spares
-            [
-                'label' => 'Inventory',
-                'route' => 'spares.index',
-                'icon' => 'fa fa-archive',
-                'order_index' => 5,
-                'roles' => ['super-admin', 'admin'],
-            ],
+            // Inventory/Spares removed (legacy)
 
             // Reports
             [
@@ -150,18 +85,8 @@ class MenuSeeder extends Seeder
                 'order_index' => 6,
                 'roles' => ['super-admin', 'admin', 'director'],
                 'children' => [
-                    [
-                        'label' => 'Asset Reports',
-                        'route' => 'assets.index',
-                        'icon' => 'fa fa-desktop',
-                        'roles' => ['super-admin', 'admin', 'director'],
-                    ],
-                    [
-                        'label' => 'Ticket Reports',
-                        'route' => 'tickets.index',
-                        'icon' => 'fa fa-ticket',
-                        'roles' => ['super-admin', 'admin', 'director'],
-                    ],
+                    // Asset Reports removed (legacy)
+                    // Ticket Reports removed (legacy)
                     [
                         'label' => 'SLA Dashboard',
                         'route' => 'sla.dashboard',
