@@ -335,15 +335,15 @@
                         </li>
                         <li style="margin-bottom: 12px;">
                             <span class="label label-warning">Admin</span>
-                            <p style="margin-top: 5px; font-size: 12px;">Can manage assets, tickets, and users but cannot modify system settings</p>
+                            <p style="margin-top: 5px; font-size: 12px;">Can manage inventory, vehicles, bookings, and users but cannot modify system settings</p>
                         </li>
                         <li style="margin-bottom: 12px;">
                             <span class="label label-info">Management</span>
-                            <p style="margin-top: 5px; font-size: 12px;">Can view reports, KPI dashboard, and has oversight capabilities</p>
+                            <p style="margin-top: 5px; font-size: 12px;">Can view reports, approve requests, and has oversight capabilities</p>
                         </li>
                         <li style="margin-bottom: 12px;">
                             <span class="label label-success">User</span>
-                            <p style="margin-top: 5px; font-size: 12px;">Basic access to view and create tickets, view assigned assets</p>
+                            <p style="margin-top: 5px; font-size: 12px;">Basic access to create bookings, make inventory requests, and view own records</p>
                         </li>
                     </ul>
                 </div>

@@ -184,7 +184,7 @@ class MenuSeeder extends Seeder
                     ],
                     [
                         'label' => 'Roles & Permissions',
-                        'route' => 'system.roles',
+                        'route' => 'users.roles',
                         'icon' => 'fa fa-lock',
                         'roles' => ['super-admin'],
                     ],

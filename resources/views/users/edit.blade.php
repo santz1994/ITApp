@@ -388,8 +388,7 @@
                                 </span>
                             </td>
                         </tr>
-                        {{-- Tickets metrics removed (legacy) --}}
-                        {{-- Assets metrics removed (legacy) --}}
+                        {{-- Asset metrics removed (legacy) --}}
                     </table>
                 </div>
             </div>
@@ -426,8 +425,6 @@
                     <a href="{{ route('users.index') }}" class="btn btn-default btn-block">
                         <i class="fa fa-list"></i> Back to Users List
                     </a>
-                    {{-- Ticket quick actions removed (legacy) --}}
-                    {{-- View Assigned Assets removed (legacy) --}}
                 </div>
             </div>
         </div>

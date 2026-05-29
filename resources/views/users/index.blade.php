@@ -6,7 +6,7 @@
     'title' => 'User Management',
     'subtitle' => 'Manage system users and their roles',
     'breadcrumbs' => [
-        ['label' => 'Home', 'url' => route('admin.dashboard'), 'icon' => 'home'],
+        ['label' => 'Home', 'url' => url('/home'), 'icon' => 'home'],
         ['label' => 'Users']
     ],
     'actions' => auth()->user()->can('create-users') ? 

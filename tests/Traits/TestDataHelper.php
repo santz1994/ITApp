@@ -82,45 +82,5 @@ trait TestDataHelper
         );
     }
 
-    /**
-     * Create a test ticket with all required relationships
-     * 
-     * @param array $overrides Override default values
-     * @return \App\Ticket
-     */
-    protected function createTestTicket(array $overrides = [])
-    {
-        $defaults = [
-            'subject' => 'Test Ticket ' . time(),
-            'description' => 'Test ticket description',
-            'priority_id' => $this->testTicketPriority->id,
-            'type_id' => $this->testTicketType->id,
-            'status_id' => $this->testTicketOpenStatus->id,
-            'user_id' => $this->testUser->id,
-        ];
-
-        return \App\Ticket::create(array_merge($defaults, $overrides));
-    }
-
     // Asset helpers removed (assets module deleted)
-
-    /**
-     * Create multiple test tickets
-     * 
-     * @param int $count Number of tickets to create
-     * @param array $overrides Override default values for all tickets
-     * @return \Illuminate\Support\Collection
-     */
-    protected function createTestTickets(int $count = 3, array $overrides = [])
-    {
-        $tickets = collect();
-        
-        for ($i = 1; $i <= $count; $i++) {
-            $tickets->push($this->createTestTicket(array_merge([
-                'subject' => "Test Ticket {$i} " . time(),
-            ], $overrides)));
-        }
-
-        return $tickets;
-    }
 }

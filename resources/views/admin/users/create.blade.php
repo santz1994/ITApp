@@ -39,7 +39,7 @@
         <div class="clearfix"></div>
         <ol class="breadcrumb">
             <li><a href="{{ url('/home') }}"><i class="fa fa-dashboard"></i> <span data-i18n="users.create.breadcrumb.home">Home</span></a></li>
-            <li><a href="{{ route('admin.dashboard') }}" data-i18n="users.create.breadcrumb.admin">Admin</a></li>
+            <li><a href="{{ url('/home') }}" data-i18n="users.create.breadcrumb.admin">Admin</a></li>
             <li><a href="{{ route('users.index') }}" data-i18n="users.create.breadcrumb.users">Users</a></li>
             <li class="active" data-i18n="users.create.breadcrumb.create">Create</li>
         </ol>

@@ -125,7 +125,7 @@
         <div class="clearfix"></div>
         <ol class="breadcrumb">
             <li><a href="{{ url('/home') }}"><i class="fa fa-dashboard"></i> <span data-i18n="users.edit.breadcrumb.home">Home</span></a></li>
-            <li><a href="{{ route('admin.dashboard') }}" data-i18n="users.edit.breadcrumb.admin">Admin</a></li>
+            <li><a href="{{ url('/home') }}" data-i18n="users.edit.breadcrumb.admin">Admin</a></li>
             <li><a href="{{ route('users.index') }}" data-i18n="users.edit.breadcrumb.users">Users</a></li>
             <li class="active"><span data-i18n="users.edit.breadcrumb.edit_prefix">Edit:</span> {{ optional($userSafe)->name ?? 'User' }}</li>
         </ol>

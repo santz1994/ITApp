@@ -117,7 +117,7 @@
                     </h3>
                     <div class="box-tools pull-right">
                         @can('manageRoles', App\User::class)
-                            <a href="{{ route('system.roles') }}" class="btn btn-primary btn-sm" data-i18n-title="users.roles.action.manage_roles_title" title="Manage roles and permissions">
+                            <a href="{{ url('/users/roles') }}" class="btn btn-primary btn-sm" data-i18n-title="users.roles.action.manage_roles_title" title="Manage roles and permissions">
                                 <i class="fa fa-cog"></i> <span data-i18n="users.roles.action.manage_roles">Manage Roles & Permissions</span>
                             </a>
                         @endcan
@@ -204,7 +204,7 @@
                                                 </a>
 
                                                 @can('manageRoles', App\User::class)
-                                                    <a href="{{ route('system.roles') }}"
+                                                    <a href="{{ url('/users/roles') }}"
                                                        class="btn btn-warning"
                                                        data-i18n-title="users.roles.action.manage_title"
                                                        title="Edit this role">
@@ -279,7 +279,7 @@
                                 <i class="fa fa-eye"></i> <span data-i18n="users.roles.action.details">Details</span>
                             </button>
                             @can('manageRoles', App\User::class)
-                                <a href="{{ route('system.roles') }}" class="btn btn-warning" style="flex: 1;">
+                                <a href="{{ url('/users/roles') }}" class="btn btn-warning" style="flex: 1;">
                                     <i class="fa fa-cog"></i> <span data-i18n="users.roles.action.manage">Manage</span>
                                 </a>
                             @endcan
@@ -337,7 +337,7 @@
             </div>
             <div class="modal-footer">
                 @can('manageRoles', App\User::class)
-                    <a href="{{ route('system.roles') }}" class="btn btn-warning">
+                    <a href="{{ url('/users/roles') }}" class="btn btn-warning">
                         <i class="fa fa-cog"></i> <span data-i18n="users.roles.modal.edit_role">Edit Role</span>
                     </a>
                 @endcan

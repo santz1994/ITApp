@@ -19,11 +19,6 @@ class BackendServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
-            'App\Repositories\Dashboard\DashboardRepositoryInterface',
-            'App\Repositories\Dashboard\DashboardRepository'
-        );
-
-        $this->app->bind(
             'App\Repositories\Portal\MainPortalRepositoryInterface',
             'App\Repositories\Portal\MainPortalRepository'
         );
