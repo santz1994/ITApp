@@ -3,60 +3,34 @@
 /**
  * Main Web Routes
  * 
- * This file serves as the entry point for all web routes.
- * Routes are organized into modular files for better maintainability:
- * 
- * - auth.php: Authentication routes (login, logout, password reset)
- * - api/web-api.php: AJAX endpoints (search, audit logs, portal preferences)
- * - modules/admin.php: Admin, system management, user & role management (permission-based RBAC)
- * - modules/meeting-rooms.php: Meeting room booking management
- * - modules/vehicles.php: Vehicle/car booking management
- * - modules/inventory.php: ATK & Sparepart inventory management
+ * Routes are organized into modular files:
+ * - auth.php: Authentication routes
+ * - api/web-api.php: AJAX endpoints
+ * - modules/admin.php: Admin, system, user & role management
+ * - modules/meeting-rooms.php: Meeting room booking
+ * - modules/vehicles.php: Vehicle booking
+ * - modules/inventory.php: Inventory management
  * - modules/approvals.php: Multi-tier approval workflow
- * - modules/profile.php: User profile management
+ * - modules/profile.php: User profile
  */
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
-// ========================================
-// LEGACY ROUTE LOADING
-// ========================================
-// Bridge for legacy apps: if the old app/Http/routes.php exists, load it
-$legacy = base_path('app/Http/routes.php');
-if (file_exists($legacy)) {
-    require $legacy;
-} else {
-    // Fallback: Define a minimal home route for tests
-    Route::get('/', function () {
-        if (Auth::check()) {
-            // Always redirect authenticated users to the main portal.
-            return redirect('/home');
-        }
-        return redirect('/login');
-    });
-    
-        // Dashboard
-        Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard.index')->middleware('auth');
-}
+Route::get('/', function () {
+    if (Auth::check()) {
+        return redirect('/home');
+    }
+    return redirect('/login');
+});
 
-// ========================================
-// AUTHENTICATION ROUTES
-// ========================================
+Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard.index')->middleware('auth');
+
 require __DIR__ . '/auth.php';
-
-// ========================================
-// WEB API ROUTES (AJAX endpoints)
-// ========================================
 require __DIR__ . '/api/web-api.php';
-
-// ========================================
-// MODULE ROUTES
-// ========================================
 require __DIR__ . '/modules/admin.php';
 require __DIR__ . '/modules/meeting-rooms.php';
 require __DIR__ . '/modules/vehicles.php';
 require __DIR__ . '/modules/inventory.php';
 require __DIR__ . '/modules/approvals.php';
 require __DIR__ . '/modules/profile.php';
-

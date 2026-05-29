@@ -4,13 +4,28 @@ namespace App\Repositories;
 
 use Illuminate\Support\ServiceProvider;
 
-class BackendServiceProvider extends ServiceProvider {
-  public function register()
-  {
-    // Vehicle Management Module
-    $this->app->bind(
-      'App\Repositories\Vehicles\VehicleRepositoryInterface',
-      'App\Repositories\Vehicles\VehicleRepository'
-    );
-  }
+class BackendServiceProvider extends ServiceProvider
+{
+    public function register()
+    {
+        $this->app->bind(
+            'App\Repositories\Vehicles\VehicleRepositoryInterface',
+            'App\Repositories\Vehicles\VehicleRepository'
+        );
+
+        $this->app->bind(
+            'App\Repositories\Users\UserRepositoryInterface',
+            'App\Repositories\Users\UserRepository'
+        );
+
+        $this->app->bind(
+            'App\Repositories\Dashboard\DashboardRepositoryInterface',
+            'App\Repositories\Dashboard\DashboardRepository'
+        );
+
+        $this->app->bind(
+            'App\Repositories\Portal\MainPortalRepositoryInterface',
+            'App\Repositories\Portal\MainPortalRepository'
+        );
+    }
 }

@@ -40,61 +40,45 @@
             </div>
 
             <div class="col-md-3 col-sm-6 col-xs-12">
-                <a href="#" style="text-decoration: none; color: inherit;">
+                <a href="{{ route('vehicles.index') }}" style="text-decoration: none; color: inherit;">
                     <div class="kpi-card">
                         <div class="kpi-icon bg-danger">
-                            <i class="fa fa-desktop"></i>
+                            <i class="fa fa-car"></i>
                         </div>
                         <div class="kpi-content">
-                            <h3 class="kpi-value">{{ $stats['total_assets'] ?? 0 }}</h3>
-                            <p class="kpi-label">Total Assets</p>
-                            @if(isset($stats['assets_growth']) && $stats['assets_growth'] > 0)
-                            <span class="kpi-trend positive">
-                                <i class="fa fa-arrow-up"></i> {{ $stats['assets_growth'] }}% this month
-                            </span>
-                            @endif
+                            <h3 class="kpi-value">{{ $stats['total_vehicles'] ?? 0 }}</h3>
+                            <p class="kpi-label">Total Vehicles</p>
                         </div>
                     </div>
                 </a>
             </div>
 
             <div class="col-md-3 col-sm-6 col-xs-12">
-                <a href="{{ route('tickets.index') }}" style="text-decoration: none; color: inherit;">
+                <a href="{{ route('inventory.index') }}" style="text-decoration: none; color: inherit;">
                     <div class="kpi-card">
                         <div class="kpi-icon bg-success">
-                            <i class="fa fa-ticket"></i>
+                            <i class="fa fa-cubes"></i>
                         </div>
                         <div class="kpi-content">
-                            <h3 class="kpi-value">{{ $stats['active_tickets'] ?? 0 }}</h3>
-                            <p class="kpi-label">Active Tickets</p>
-                            @if(isset($stats['tickets_trend']) && $stats['tickets_trend'] < 0)
-                            <span class="kpi-trend positive">
-                                <i class="fa fa-arrow-down"></i> {{ abs($stats['tickets_trend']) }}% from last week
-                            </span>
-                            @elseif(isset($stats['tickets_trend']) && $stats['tickets_trend'] > 0)
-                            <span class="kpi-trend negative">
-                                <i class="fa fa-arrow-up"></i> {{ $stats['tickets_trend'] }}% from last week
-                            </span>
-                            @endif
+                            <h3 class="kpi-value">{{ $stats['total_inventory_items'] ?? 0 }}</h3>
+                            <p class="kpi-label">Inventory Items</p>
                         </div>
                     </div>
                 </a>
             </div>
 
             <div class="col-md-3 col-sm-6 col-xs-12">
-                <a href="#" style="text-decoration: none; color: inherit;">
+                <a href="{{ route('approvals.pending') }}" style="text-decoration: none; color: inherit;">
                     <div class="kpi-card">
                         <div class="kpi-icon bg-warning">
-                            <i class="fa fa-exclamation-triangle"></i>
+                            <i class="fa fa-check-circle"></i>
                         </div>
                         <div class="kpi-content">
-                            <h3 class="kpi-value">{{ $stats['pending_requests'] ?? 0 }}</h3>
-                            <p class="kpi-label">Pending Requests</p>
-                            @if(isset($stats['requests_pending']))
+                            <h3 class="kpi-value">{{ $stats['pending_approvals'] ?? 0 }}</h3>
+                            <p class="kpi-label">Pending Approvals</p>
                             <span class="kpi-trend neutral">
                                 <i class="fa fa-clock-o"></i> Requires attention
                             </span>
-                            @endif
                         </div>
                     </div>
                 </a>

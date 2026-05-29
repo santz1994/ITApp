@@ -9,21 +9,13 @@ use Illuminate\Support\Facades\DB;
 
 class MenuSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
-        // Clear existing menus
         DB::table('menu_user')->truncate();
         DB::table('menu_role')->truncate();
         DB::table('menus')->truncate();
 
-        // Define menu structure
         $menus = [
-            // Dashboard
             [
                 'label' => 'Dashboard',
                 'route' => 'home',
@@ -32,15 +24,11 @@ class MenuSeeder extends Seeder
                 'roles' => ['super-admin', 'admin', 'director', 'user', 'receptionist'],
             ],
 
-            // Assets Management removed (legacy)
-
-            // Tickets/Helpdesk removed - legacy module
-
             // Meeting Room Booking
             [
                 'label' => 'Meeting Rooms',
                 'icon' => 'fa fa-calendar',
-                'order_index' => 4,
+                'order_index' => 2,
                 'roles' => ['super-admin', 'admin', 'director', 'user', 'receptionist'],
                 'children' => [
                     [
@@ -76,89 +64,106 @@ class MenuSeeder extends Seeder
                 ],
             ],
 
-            // Inventory/Spares removed (legacy)
-
-            // Reports
+            // Vehicle Booking
             [
-                'label' => 'Reports',
-                'icon' => 'fa fa-bar-chart',
-                'order_index' => 6,
+                'label' => 'Vehicles',
+                'icon' => 'fa fa-car',
+                'order_index' => 3,
+                'roles' => ['super-admin', 'admin', 'director', 'user'],
+                'children' => [
+                    [
+                        'label' => 'Vehicle List',
+                        'route' => 'vehicles.index',
+                        'icon' => 'fa fa-list',
+                        'roles' => ['super-admin', 'admin', 'director', 'user'],
+                    ],
+                    [
+                        'label' => 'New Booking',
+                        'route' => 'vehicles.booking.create',
+                        'icon' => 'fa fa-plus',
+                        'roles' => ['super-admin', 'admin', 'user'],
+                    ],
+                    [
+                        'label' => 'My Bookings',
+                        'route' => 'vehicles.my-bookings',
+                        'icon' => 'fa fa-history',
+                        'roles' => ['super-admin', 'admin', 'director', 'user'],
+                    ],
+                    [
+                        'label' => 'All Bookings',
+                        'route' => 'vehicles.bookings',
+                        'icon' => 'fa fa-list-alt',
+                        'roles' => ['super-admin', 'admin', 'director'],
+                    ],
+                ],
+            ],
+
+            // Inventory Management
+            [
+                'label' => 'Inventory',
+                'icon' => 'fa fa-cubes',
+                'order_index' => 4,
+                'roles' => ['super-admin', 'admin', 'director', 'user'],
+                'children' => [
+                    [
+                        'label' => 'Item List',
+                        'route' => 'inventory.index',
+                        'icon' => 'fa fa-list',
+                        'roles' => ['super-admin', 'admin', 'director', 'user'],
+                    ],
+                    [
+                        'label' => 'New Request',
+                        'route' => 'inventory.request.create',
+                        'icon' => 'fa fa-plus',
+                        'roles' => ['super-admin', 'admin', 'user'],
+                    ],
+                    [
+                        'label' => 'My Requests',
+                        'route' => 'inventory.requests',
+                        'icon' => 'fa fa-file-text-o',
+                        'roles' => ['super-admin', 'admin', 'director', 'user'],
+                    ],
+                    [
+                        'label' => 'Low Stock Alert',
+                        'route' => 'inventory.low-stock',
+                        'icon' => 'fa fa-exclamation-triangle',
+                        'roles' => ['super-admin', 'admin'],
+                    ],
+                ],
+            ],
+
+            // Approvals
+            [
+                'label' => 'Approvals',
+                'route' => 'approvals.pending',
+                'icon' => 'fa fa-check-circle',
+                'order_index' => 5,
                 'roles' => ['super-admin', 'admin', 'director'],
-                'children' => [
-                    // Asset Reports removed (legacy)
-                    // Ticket Reports removed (legacy)
-                    [
-                        'label' => 'SLA Dashboard',
-                        'route' => 'sla.dashboard',
-                        'icon' => 'fa fa-pie-chart',
-                        'roles' => ['super-admin', 'director'],
-                    ],
-                ],
             ],
 
-            // Management
+            // User Management
             [
-                'label' => 'Management',
-                'icon' => 'fa fa-briefcase',
-                'order_index' => 7,
-                'roles' => ['super-admin', 'director'],
-                'children' => [
-                    [
-                        'label' => 'Management Dashboard',
-                        'route' => 'management.dashboard',
-                        'icon' => 'fa fa-tachometer',
-                        'roles' => ['super-admin', 'director'],
-                    ],
-                    [
-                        'label' => 'KPI Dashboard',
-                        'route' => 'kpi.dashboard',
-                        'icon' => 'fa fa-line-chart',
-                        'roles' => ['super-admin', 'director'],
-                    ],
-                ],
-            ],
-
-            // Master Data
-            [
-                'label' => 'Master Data',
-                'icon' => 'fa fa-database',
-                'order_index' => 8,
+                'label' => 'User Management',
+                'icon' => 'fa fa-users',
+                'order_index' => 6,
                 'roles' => ['super-admin', 'admin'],
                 'children' => [
                     [
-                        'label' => 'Users',
+                        'label' => 'All Users',
                         'route' => 'users.index',
                         'icon' => 'fa fa-users',
                         'roles' => ['super-admin', 'admin'],
                     ],
                     [
-                        'label' => 'Divisions',
-                        'route' => 'divisions.index',
-                        'icon' => 'fa fa-sitemap',
+                        'label' => 'Add User',
+                        'route' => 'users.create',
+                        'icon' => 'fa fa-user-plus',
                         'roles' => ['super-admin', 'admin'],
                     ],
                     [
-                        'label' => 'Locations',
-                        'route' => 'locations.index',
-                        'icon' => 'fa fa-map-marker',
-                        'roles' => ['super-admin', 'admin'],
-                    ],
-                    [
-                        'label' => 'Manufacturers',
-                        'route' => 'manufacturers.index',
-                        'icon' => 'fa fa-industry',
-                        'roles' => ['super-admin', 'admin'],
-                    ],
-                    [
-                        'label' => 'Suppliers',
-                        'route' => 'suppliers.index',
-                        'icon' => 'fa fa-truck',
-                        'roles' => ['super-admin', 'admin'],
-                    ],
-                    [
-                        'label' => 'Statuses',
-                        'route' => 'statuses.index',
-                        'icon' => 'fa fa-info-circle',
+                        'label' => 'User Roles',
+                        'route' => 'users.roles',
+                        'icon' => 'fa fa-id-badge',
                         'roles' => ['super-admin', 'admin'],
                     ],
                 ],
@@ -168,18 +173,18 @@ class MenuSeeder extends Seeder
             [
                 'label' => 'Settings',
                 'icon' => 'fa fa-cogs',
-                'order_index' => 9,
+                'order_index' => 7,
                 'roles' => ['super-admin'],
                 'children' => [
                     [
                         'label' => 'System Settings',
-                        'route' => 'system.settings',
+                        'route' => 'system-settings.index',
                         'icon' => 'fa fa-gear',
                         'roles' => ['super-admin'],
                     ],
                     [
                         'label' => 'Roles & Permissions',
-                        'route' => 'roles.index',
+                        'route' => 'system.roles',
                         'icon' => 'fa fa-lock',
                         'roles' => ['super-admin'],
                     ],
@@ -190,9 +195,9 @@ class MenuSeeder extends Seeder
                         'roles' => ['super-admin'],
                     ],
                     [
-                        'label' => 'SLA Policies',
-                        'route' => 'sla.index',
-                        'icon' => 'fa fa-clock-o',
+                        'label' => 'Approval Rules',
+                        'route' => 'approvals.rules',
+                        'icon' => 'fa fa-sitemap',
                         'roles' => ['super-admin'],
                     ],
                     [
@@ -205,39 +210,26 @@ class MenuSeeder extends Seeder
             ],
         ];
 
-        // Seed menus recursively
         $this->seedMenus($menus);
-
         $this->command->info('Menus seeded successfully!');
     }
 
-    /**
-     * Recursively seed menus and their children
-     *
-     * @param array $menus
-     * @param int|null $parentId
-     * @return void
-     */
     protected function seedMenus(array $menus, $parentId = null)
     {
         foreach ($menus as $index => $menuData) {
-            // Extract roles and children
             $roles = $menuData['roles'] ?? [];
             $children = $menuData['children'] ?? [];
-            
+
             unset($menuData['roles'], $menuData['children']);
 
-            // Set parent and order
             $menuData['parent_id'] = $parentId;
             $menuData['order_index'] = $menuData['order_index'] ?? $index;
             $menuData['is_active'] = $menuData['is_active'] ?? true;
             $menuData['is_external'] = $menuData['is_external'] ?? false;
             $menuData['target'] = $menuData['target'] ?? '_self';
 
-            // Create menu
             $menu = Menu::create($menuData);
 
-            // Attach roles
             if (!empty($roles)) {
                 $normalizedRoles = Role::expandNames(array_map(static function ($roleName): string {
                     return (string) $roleName;
@@ -248,16 +240,15 @@ class MenuSeeder extends Seeder
                     ->whereIn('name', Role::canonicalNames())
                     ->pluck('id')
                     ->toArray();
-                
+
                 $syncData = [];
                 foreach ($roleIds as $roleId) {
                     $syncData[$roleId] = ['can_view' => true];
                 }
-                
+
                 $menu->roles()->sync($syncData);
             }
 
-            // Recursively seed children
             if (!empty($children)) {
                 $this->seedMenus($children, $menu->id);
             }
