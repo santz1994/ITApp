@@ -13,9 +13,6 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\TestDatabaseColumns::class,
-        Commands\TestViewFixes::class,
-        Commands\TestAllViewFixes::class,
         Commands\TestCriticalFixes::class,
         Commands\DetectDuplicateSerials::class,
         Commands\ExportDuplicateSerialRows::class,

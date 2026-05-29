@@ -2,110 +2,57 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { vehicleApi } from '../../services/api';
 
 export const fetchVehicles = createAsyncThunk('vehicles/fetchAll', async (params = {}, { rejectWithValue }) => {
-    try {
-        const response = await vehicleApi.getAll(params);
-        return response.data.data;
-    } catch (error) {
-        return rejectWithValue(error.response?.data?.message || 'Gagal memuat data kendaraan');
-    }
+    try { const res = await vehicleApi.getAll(params); return res.data.data; }
+    catch (e) { return rejectWithValue(e.response?.data?.message || 'Gagal memuat kendaraan'); }
 });
 
 export const fetchVehicle = createAsyncThunk('vehicles/fetchOne', async (id, { rejectWithValue }) => {
-    try {
-        const response = await vehicleApi.getById(id);
-        return response.data.data;
-    } catch (error) {
-        return rejectWithValue(error.response?.data?.message || 'Gagal memuat data kendaraan');
-    }
+    try { const res = await vehicleApi.getById(id); return res.data.data; }
+    catch (e) { return rejectWithValue(e.response?.data?.message || 'Gagal memuat kendaraan'); }
 });
 
 export const createVehicle = createAsyncThunk('vehicles/create', async (data, { rejectWithValue }) => {
-    try {
-        const response = await vehicleApi.create(data);
-        return response.data.data;
-    } catch (error) {
-        return rejectWithValue(error.response?.data?.message || 'Gagal menambah kendaraan');
-    }
+    try { const res = await vehicleApi.create(data); return res.data.data; }
+    catch (e) { return rejectWithValue(e.response?.data?.message || 'Gagal menambah kendaraan'); }
 });
 
 export const updateVehicle = createAsyncThunk('vehicles/update', async ({ id, data }, { rejectWithValue }) => {
-    try {
-        const response = await vehicleApi.update(id, data);
-        return response.data.data;
-    } catch (error) {
-        return rejectWithValue(error.response?.data?.message || 'Gagal memperbarui kendaraan');
-    }
+    try { const res = await vehicleApi.update(id, data); return res.data.data; }
+    catch (e) { return rejectWithValue(e.response?.data?.message || 'Gagal memperbarui kendaraan'); }
 });
 
 export const deleteVehicle = createAsyncThunk('vehicles/delete', async (id, { rejectWithValue }) => {
-    try {
-        await vehicleApi.delete(id);
-        return id;
-    } catch (error) {
-        return rejectWithValue(error.response?.data?.message || 'Gagal menghapus kendaraan');
-    }
+    try { await vehicleApi.delete(id); return id; }
+    catch (e) { return rejectWithValue(e.response?.data?.message || 'Gagal menghapus kendaraan'); }
 });
 
-export const fetchBookings = createAsyncThunk('vehicles/fetchBookings', async (params = {}, { rejectWithValue }) => {
-    try {
-        const response = await vehicleApi.getBookings(params);
-        return response.data.data;
-    } catch (error) {
-        return rejectWithValue(error.response?.data?.message || 'Gagal memuat data booking');
-    }
-});
-
-export const createBooking = createAsyncThunk('vehicles/createBooking', async (data, { rejectWithValue }) => {
-    try {
-        const response = await vehicleApi.createBooking(data);
-        return response.data.data;
-    } catch (error) {
-        return rejectWithValue(error.response?.data?.message || 'Gagal membuat booking');
-    }
+export const fetchMyBookings = createAsyncThunk('vehicles/fetchMyBookings', async (_, { rejectWithValue }) => {
+    try { const res = await vehicleApi.getMyBookings(); return res.data.data; }
+    catch (e) { return rejectWithValue(e.response?.data?.message || 'Gagal memuat booking'); }
 });
 
 const vehicleSlice = createSlice({
     name: 'vehicles',
-    initialState: {
-        vehicles: [],
-        currentVehicle: null,
-        bookings: [],
-        loading: false,
-        error: null,
-    },
-    reducers: {
-        clearError: (state) => { state.error = null; },
-        clearCurrentVehicle: (state) => { state.currentVehicle = null; },
-    },
+    initialState: { vehicles: [], currentVehicle: null, myBookings: [], loading: false, error: null },
+    reducers: { clearError: (state) => { state.error = null; } },
     extraReducers: (builder) => {
         builder
-            // Fetch all vehicles
-            .addCase(fetchVehicles.pending, (state) => { state.loading = true; state.error = null; })
-            .addCase(fetchVehicles.fulfilled, (state, action) => { state.loading = false; state.vehicles = action.payload; })
-            .addCase(fetchVehicles.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
-            // Fetch single vehicle
-            .addCase(fetchVehicle.pending, (state) => { state.loading = true; state.error = null; })
-            .addCase(fetchVehicle.fulfilled, (state, action) => { state.loading = false; state.currentVehicle = action.payload; })
-            .addCase(fetchVehicle.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
-            // Create vehicle
-            .addCase(createVehicle.fulfilled, (state, action) => { state.vehicles.push(action.payload); })
-            // Update vehicle
-            .addCase(updateVehicle.fulfilled, (state, action) => {
-                const index = state.vehicles.findIndex(v => v.id === action.payload.id);
-                if (index !== -1) state.vehicles[index] = action.payload;
-                state.currentVehicle = action.payload;
+            .addCase(fetchVehicles.pending, (s) => { s.loading = true; s.error = null; })
+            .addCase(fetchVehicles.fulfilled, (s, a) => { s.loading = false; s.vehicles = a.payload; })
+            .addCase(fetchVehicles.rejected, (s, a) => { s.loading = false; s.error = a.payload; })
+            .addCase(fetchVehicle.fulfilled, (s, a) => { s.loading = false; s.currentVehicle = a.payload; })
+            .addCase(createVehicle.fulfilled, (s, a) => { s.vehicles.unshift(a.payload); })
+            .addCase(updateVehicle.fulfilled, (s, a) => {
+                const i = s.vehicles.findIndex(v => v.id === a.payload.id);
+                if (i !== -1) s.vehicles[i] = a.payload;
+                s.currentVehicle = a.payload;
             })
-            // Delete vehicle
-            .addCase(deleteVehicle.fulfilled, (state, action) => {
-                state.vehicles = state.vehicles.filter(v => v.id !== action.payload);
-            })
-            // Bookings
-            .addCase(fetchBookings.pending, (state) => { state.loading = true; })
-            .addCase(fetchBookings.fulfilled, (state, action) => { state.loading = false; state.bookings = action.payload; })
-            .addCase(fetchBookings.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
-            .addCase(createBooking.fulfilled, (state, action) => { state.bookings.push(action.payload); });
+            .addCase(deleteVehicle.fulfilled, (s, a) => { s.vehicles = s.vehicles.filter(v => v.id !== a.payload); })
+            .addCase(fetchMyBookings.pending, (s) => { s.loading = true; })
+            .addCase(fetchMyBookings.fulfilled, (s, a) => { s.loading = false; s.myBookings = a.payload; })
+            .addCase(fetchMyBookings.rejected, (s, a) => { s.loading = false; s.error = a.payload; });
     },
 });
 
-export const { clearError, clearCurrentVehicle } = vehicleSlice.actions;
+export const { clearError } = vehicleSlice.actions;
 export default vehicleSlice.reducer;

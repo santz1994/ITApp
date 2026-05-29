@@ -1,39 +1,33 @@
 import axios from 'axios';
 
-// Create Axios instance with base configuration
 const api = axios.create({
     baseURL: '/api/v1',
-    headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-    },
-    withCredentials: true, // Important for Laravel Sanctum CSRF
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+    withCredentials: true,
 });
 
-// Request interceptor to add auth token
-api.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('auth_token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => Promise.reject(error)
-);
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem('auth_token');
+    if (token) config.headers.Authorization = `Bearer ${token}`;
+    return config;
+}, (error) => Promise.reject(error));
 
-// Response interceptor for error handling
-api.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-            localStorage.removeItem('auth_token');
-            window.location.href = '/login';
-        }
-        return Promise.reject(error);
+api.interceptors.response.use((response) => response, (error) => {
+    if (error.response?.status === 401) {
+        localStorage.removeItem('auth_token');
+        window.location.href = '/login';
     }
-);
+    return Promise.reject(error);
+});
+
+// ========================================
+// AUTH API
+// ========================================
+export const authApi = {
+    login: (credentials) => api.post('/login', credentials),
+    logout: () => api.post('/logout'),
+    getUser: () => api.get('/user'),
+};
 
 // ========================================
 // VEHICLE API
@@ -45,8 +39,6 @@ export const vehicleApi = {
     update: (id, data) => api.put(`/vehicles/${id}`, data),
     delete: (id) => api.delete(`/vehicles/${id}`),
     checkAvailability: (data) => api.post('/vehicles/check-availability', data),
-    
-    // Bookings
     getBookings: (params) => api.get('/vehicles/bookings/all', { params }),
     getMyBookings: () => api.get('/vehicles/bookings/my'),
     createBooking: (data) => api.post('/vehicles/bookings', data),
@@ -56,8 +48,6 @@ export const vehicleApi = {
     cancelBooking: (id) => api.post(`/vehicles/bookings/${id}/cancel`),
     startTrip: (id) => api.post(`/vehicles/bookings/${id}/start`),
     completeTrip: (id, data) => api.post(`/vehicles/bookings/${id}/complete`, data),
-    
-    // Maintenance
     getMaintenanceLogs: (id) => api.get(`/vehicles/${id}/maintenance`),
     addMaintenance: (id, data) => api.post(`/vehicles/${id}/maintenance`, data),
 };
@@ -75,8 +65,6 @@ export const inventoryApi = {
     reduceStock: (id, data) => api.post(`/inventory/${id}/reduce-stock`, data),
     getLowStock: () => api.get('/inventory/low-stock'),
     getCategories: () => api.get('/inventory/categories'),
-    
-    // Requests
     getRequests: (params) => api.get('/inventory/requests/all', { params }),
     createRequest: (data) => api.post('/inventory/requests', data),
     getRequest: (id) => api.get(`/inventory/requests/${id}`),
@@ -94,8 +82,6 @@ export const approvalApi = {
     approve: (id, data) => api.post(`/approvals/${id}/approve`, data),
     reject: (id, data) => api.post(`/approvals/${id}/reject`, data),
     show: (id) => api.get(`/approvals/${id}`),
-    
-    // Rules (Admin)
     getRules: () => api.get('/approvals/rules/all'),
     createRule: (data) => api.post('/approvals/rules', data),
     updateRule: (id, data) => api.put(`/approvals/rules/${id}`, data),
@@ -103,4 +89,51 @@ export const approvalApi = {
     toggleRule: (id) => api.post(`/approvals/rules/${id}/toggle`),
 };
 
+// ========================================
+// USER MANAGEMENT API
+// ========================================
+export const userApi = {
+    getAll: (params) => api.get('/users', { params }),
+    getById: (id) => api.get(`/users/${id}`),
+    create: (data) => api.post('/users', data),
+    update: (id, data) => api.put(`/users/${id}`, data),
+    delete: (id) => api.delete(`/users/${id}`),
+    bulkDelete: (ids) => api.post('/users/bulk-delete', { ids }),
+    getRoles: () => api.get('/users/roles'),
+};
+
+// ========================================
+// PROFILE API
+// ========================================
+export const profileApi = {
+    get: () => api.get('/profile'),
+    update: (data) => api.put('/profile', data),
+    changePassword: (data) => api.put('/profile/change-password', data),
+    uploadPicture: (formData) => api.post('/profile/change-picture', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    }),
+    deletePicture: () => api.delete('/profile/delete-picture'),
+    getNotifications: () => api.get('/profile/notifications'),
+    updateNotifications: (data) => api.put('/profile/notifications', data),
+};
+
+// ========================================
+// REPORT API
+// ========================================
+export const reportApi = {
+    getDashboard: () => api.get('/reports/dashboard'),
+    getMeetingRoomReport: (params) => api.get('/reports/meeting-rooms', { params }),
+    getVehicleReport: (params) => api.get('/reports/vehicles', { params }),
+    getInventoryReport: (params) => api.get('/reports/inventory', { params }),
+};
+
+// ========================================
+// SYSTEM SETTINGS API
+// ========================================
+export const settingsApi = {
+    getDivisions: () => api.get('/system-settings/divisions'),
+    getMenus: () => api.get('/menus'),
+};
+
 export default api;
+

@@ -36,7 +36,7 @@ return new class extends Migration
         Schema::create('vehicle_bookings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('vehicle_id')->constrained('vehicles')->onDelete('cascade');
-            $table->foreignId('requested_by')->constrained('users')->onDelete('cascade');
+            $table->unsignedInteger('requested_by');
             $table->string('purpose'); // Tujuan penggunaan
             $table->string('destination'); // Lokasi tujuan
             $table->decimal('estimated_distance', 10, 2)->nullable(); // Estimasi jarak (km)
@@ -51,7 +51,7 @@ return new class extends Migration
                 'completed',
                 'cancelled'
             ])->default('pending');
-            $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->unsignedInteger('approved_by')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->text('rejection_reason')->nullable();
             $table->text('notes')->nullable();
@@ -71,7 +71,7 @@ return new class extends Migration
             $table->date('next_maintenance_date')->nullable();
             $table->decimal('mileage_at_service', 10, 2)->nullable();
             $table->string('service_provider')->nullable(); // Bengkel/vendor
-            $table->foreignId('recorded_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->unsignedInteger('recorded_by')->nullable();
             $table->timestamps();
         });
     }

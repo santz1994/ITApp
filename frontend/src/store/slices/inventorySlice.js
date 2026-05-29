@@ -2,101 +2,58 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { inventoryApi } from '../../services/api';
 
 export const fetchItems = createAsyncThunk('inventory/fetchAll', async (params = {}, { rejectWithValue }) => {
-    try {
-        const response = await inventoryApi.getAll(params);
-        return response.data;
-    } catch (error) {
-        return rejectWithValue(error.response?.data?.message || 'Gagal memuat data inventaris');
-    }
+    try { const res = await inventoryApi.getAll(params); return res.data; }
+    catch (e) { return rejectWithValue(e.response?.data?.message || 'Gagal memuat inventaris'); }
 });
 
 export const fetchItem = createAsyncThunk('inventory/fetchOne', async (id, { rejectWithValue }) => {
-    try {
-        const response = await inventoryApi.getById(id);
-        return response.data;
-    } catch (error) {
-        return rejectWithValue(error.response?.data?.message || 'Gagal memuat data item');
-    }
+    try { const res = await inventoryApi.getById(id); return res.data; }
+    catch (e) { return rejectWithValue(e.response?.data?.message || 'Gagal memuat item'); }
 });
 
 export const createItem = createAsyncThunk('inventory/create', async (data, { rejectWithValue }) => {
-    try {
-        const response = await inventoryApi.create(data);
-        return response.data.data;
-    } catch (error) {
-        return rejectWithValue(error.response?.data?.message || 'Gagal menambah item');
-    }
+    try { const res = await inventoryApi.create(data); return res.data.data; }
+    catch (e) { return rejectWithValue(e.response?.data?.message || 'Gagal menambah item'); }
 });
 
 export const updateItem = createAsyncThunk('inventory/update', async ({ id, data }, { rejectWithValue }) => {
-    try {
-        const response = await inventoryApi.update(id, data);
-        return response.data.data;
-    } catch (error) {
-        return rejectWithValue(error.response?.data?.message || 'Gagal memperbarui item');
-    }
+    try { const res = await inventoryApi.update(id, data); return res.data.data; }
+    catch (e) { return rejectWithValue(e.response?.data?.message || 'Gagal memperbarui item'); }
 });
 
 export const fetchRequests = createAsyncThunk('inventory/fetchRequests', async (params = {}, { rejectWithValue }) => {
-    try {
-        const response = await inventoryApi.getRequests(params);
-        return response.data.data;
-    } catch (error) {
-        return rejectWithValue(error.response?.data?.message || 'Gagal memuat data request');
-    }
+    try { const res = await inventoryApi.getRequests(params); return res.data.data; }
+    catch (e) { return rejectWithValue(e.response?.data?.message || 'Gagal memuat request'); }
 });
 
 export const fetchLowStock = createAsyncThunk('inventory/fetchLowStock', async (_, { rejectWithValue }) => {
-    try {
-        const response = await inventoryApi.getLowStock();
-        return response.data.data;
-    } catch (error) {
-        return rejectWithValue(error.response?.data?.message || 'Gagal memuat data low stock');
-    }
+    try { const res = await inventoryApi.getLowStock(); return res.data.data; }
+    catch (e) { return rejectWithValue(e.response?.data?.message || 'Gagal memuat low stock'); }
 });
 
 const inventorySlice = createSlice({
     name: 'inventory',
-    initialState: {
-        items: [],
-        categories: [],
-        stats: {},
-        currentItem: null,
-        requests: [],
-        lowStockItems: [],
-        stockMovements: [],
-        loading: false,
-        error: null,
-    },
-    reducers: {
-        clearError: (state) => { state.error = null; },
-        clearCurrentItem: (state) => { state.currentItem = null; },
-    },
+    initialState: { items: [], categories: [], stats: {}, currentItem: null, requests: [], lowStockItems: [], stockMovements: [], loading: false, error: null },
+    reducers: { clearError: (s) => { s.error = null; }, clearCurrentItem: (s) => { s.currentItem = null; } },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchItems.pending, (state) => { state.loading = true; state.error = null; })
-            .addCase(fetchItems.fulfilled, (state, action) => {
-                state.loading = false;
-                state.items = action.payload.data;
-                state.categories = action.payload.categories;
-                state.stats = action.payload.stats;
+            .addCase(fetchItems.pending, (s) => { s.loading = true; s.error = null; })
+            .addCase(fetchItems.fulfilled, (s, a) => {
+                s.loading = false; s.items = a.payload.data || []; s.categories = a.payload.categories || []; s.stats = a.payload.stats || {};
             })
-            .addCase(fetchItems.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
-            .addCase(fetchItem.pending, (state) => { state.loading = true; })
-            .addCase(fetchItem.fulfilled, (state, action) => {
-                state.loading = false;
-                state.currentItem = action.payload.data;
-                state.stockMovements = action.payload.stock_movements;
+            .addCase(fetchItems.rejected, (s, a) => { s.loading = false; s.error = a.payload; })
+            .addCase(fetchItem.fulfilled, (s, a) => {
+                s.loading = false; s.currentItem = a.payload.data; s.stockMovements = a.payload.stock_movements || [];
             })
-            .addCase(fetchItem.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
-            .addCase(createItem.fulfilled, (state, action) => { state.items.push(action.payload); })
-            .addCase(updateItem.fulfilled, (state, action) => {
-                const index = state.items.findIndex(i => i.id === action.payload.id);
-                if (index !== -1) state.items[index] = action.payload;
-                state.currentItem = action.payload;
+            .addCase(createItem.fulfilled, (s, a) => { s.items.unshift(a.payload); })
+            .addCase(updateItem.fulfilled, (s, a) => {
+                const i = s.items.findIndex(x => x.id === a.payload.id);
+                if (i !== -1) s.items[i] = a.payload; s.currentItem = a.payload;
             })
-            .addCase(fetchRequests.fulfilled, (state, action) => { state.requests = action.payload; })
-            .addCase(fetchLowStock.fulfilled, (state, action) => { state.lowStockItems = action.payload; });
+            .addCase(fetchRequests.pending, (s) => { s.loading = true; })
+            .addCase(fetchRequests.fulfilled, (s, a) => { s.loading = false; s.requests = a.payload; })
+            .addCase(fetchRequests.rejected, (s, a) => { s.loading = false; s.error = a.payload; })
+            .addCase(fetchLowStock.fulfilled, (s, a) => { s.lowStockItems = a.payload; });
     },
 });
 
