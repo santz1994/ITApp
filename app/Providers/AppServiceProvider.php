@@ -4,7 +4,6 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
-use App\Services\SlackNotifier;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -18,24 +17,8 @@ class AppServiceProvider extends ServiceProvider
         // Register custom Blade directives
         $this->registerBladeDirectives();
         
-        // Register view composers
-        $this->registerViewComposers();
-        
         // Configure mail transport with custom SSL settings
         $this->configureMailTransport();
-        
-        // Register observers for cache invalidation
-        \App\Location::observe(\App\Observers\LocationObserver::class);
-        \App\Status::observe(\App\Observers\StatusObserver::class);
-        
-        // Observe assets so status changes dispatch events
-        \App\Asset::observe(\App\Observers\AssetObserver::class);
-        
-        // Observe tickets to keep immutable ticket_history audit
-        \App\Ticket::observe(\App\Observers\TicketObserver::class);
-        
-        // Observe movements to maintain denormalized asset.location_id
-        \App\Movement::observe(\App\Observers\MovementObserver::class);
     }
     
     /**
@@ -64,45 +47,6 @@ class AppServiceProvider extends ServiceProvider
             return "<?php endif; ?>";
         });
     }
-    
-    /**
-     * Register view composers for common form data
-     */
-    protected function registerViewComposers()
-    {
-        // General form data composer for user management forms only
-        view()->composer([
-            'admin.users.create',
-            'admin.users.edit',
-            'users.create',
-            'users.edit',
-        ], \App\Http\ViewComposers\FormDataComposer::class);
-        
-        // Ticket-specific composer for ticket-related views
-        view()->composer([
-            'tickets.create',
-            'tickets.edit',
-            'tickets.show',
-            'admin.tickets.create',
-            'admin.tickets.edit',
-        ], \App\Http\ViewComposers\TicketFormComposer::class);
-        
-        // Asset-specific composer for asset-related views
-        view()->composer([
-            'assets.create',
-            'assets.edit',
-            'admin.assets.create',
-            'admin.assets.edit',
-            'asset-requests.create',
-        ], \App\Http\ViewComposers\AssetFormComposer::class);
-        
-        // Daily activities composer for activity forms only (not calendar)
-        // Temporarily disabled to investigate blank page issues
-        // view()->composer([
-        //     'daily-activities.create',
-        //     'daily-activities.edit',
-        // ], \App\Http\ViewComposers\FormDataComposer::class);
-    }
 
     /**
      * Register any application services.
@@ -111,31 +55,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(SlackNotifier::class, function ($app) {
-            return new SlackNotifier();
-        });
-        
-        // Bind Asset Repository
-        $this->app->bind(
-            \App\Repositories\Assets\AssetRepositoryInterface::class,
-            \App\Repositories\Assets\AssetRepository::class
-        );
-        
-        // Bind Ticket Repository
-        $this->app->bind(
-            \App\Repositories\Tickets\TicketRepositoryInterface::class,
-            \App\Repositories\Tickets\TicketRepository::class
-        );
-        
-        // Bind User Repository
-        $this->app->bind(
-            \App\Repositories\Users\UserRepositoryInterface::class,
-            \App\Repositories\Users\UserRepository::class
-        );
-        
-        // Bind Services
-        $this->app->singleton(\App\Services\TicketService::class);
-        $this->app->singleton(\App\Services\AssetService::class);
-        $this->app->singleton(\App\Services\UserService::class);
+        // Services will be auto-discovered by Laravel
     }
 }
