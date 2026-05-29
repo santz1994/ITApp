@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Asset;
 use App\DailyActivity;
 use App\User;
 use Illuminate\Support\Facades\Cache;
@@ -179,9 +178,8 @@ class CacheService
      */
     public static function getAssetModels()
     {
-        return Cache::remember('asset_models_all', self::CACHE_TTL, function () {
-            return \App\AssetModel::with('manufacturer')->orderBy('asset_model')->get();
-        });
+        // Asset model removed — return empty collection
+        return collect();
     }
 
     /**
@@ -199,9 +197,8 @@ class CacheService
      */
     public static function getAssetTypes()
     {
-        return Cache::remember('asset_types_all', self::CACHE_TTL, function () {
-            return \App\AssetType::orderBy('type_name')->get();
-        });
+        // Asset types removed — return empty collection
+        return collect();
     }
 
     /**
@@ -239,9 +236,7 @@ class CacheService
         self::getTicketPriorities();
         self::getRoles();
         self::getDivisions();
-        self::getAssetModels();
         self::getSuppliers();
-        self::getAssetTypes();
         self::getUsers();
         self::getAdmins();
 
@@ -265,9 +260,7 @@ class CacheService
             'ticket_priorities_all',
             'roles_all',
             'divisions_all',
-            'asset_models_all',
             'suppliers_all',
-            'asset_types_all',
             'users_all',
             'admins_all'
         ];

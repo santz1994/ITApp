@@ -79,7 +79,7 @@ Menampilkan menu utama yang terdiri dari beberapa modul, antara lain:
     - Settings
     - Profile
     - Reporting
-
+    
 Strategi Implementasi Arsitektur Sistem Terpadu (Project.md)
 
 Dalam lanskap pengembangan perangkat lunak tahun 2025, efisiensi bukan lagi sekadar pilihan, melainkan keharusan strategis. Sebagai Senior Software Architect, saya melihat pergeseran fundamental dari kompleksitas yang dipaksakan menuju kesederhanaan yang terukur. Laporan ini merinci strategi teknis yang menyatukan metodologi "Models as Code", antarmuka yang berpusat pada produktivitas, hingga optimasi infrastruktur berbasis data untuk memastikan sistem tetap tangguh, skalabel, dan bebas dari pembusukan dokumentasi (documentation decay).

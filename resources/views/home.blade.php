@@ -29,16 +29,16 @@
     {{-- Quick Stats Row --}}
     <div class="row" style="margin-bottom: 20px;">
         <div class="col-lg-3 col-xs-6">
-            <div class="small-box bg-aqua" onclick="window.location.href='{{ route('assets.index') }}'" style="cursor: pointer;">
+            <div class="small-box bg-aqua" style="cursor: default;">
                 <div class="inner">
-                    <h3>{{ isset($assetStats) ? $assetStats['total_assets'] : \App\Asset::count() }}</h3>
-                    <p>Total Assets</p>
+                        <h3>{{ isset($assetStats) ? $assetStats['total_assets'] : 0 }}</h3>
+                        <p>Total Inventory Items</p>
                 </div>
                 <div class="icon">
                     <i class="fa fa-cube"></i>
                 </div>
-                <a href="{{ route('assets.index') }}" class="small-box-footer">
-                    View Details <i class="fa fa-arrow-circle-right"></i>
+                    <a href="#" class="small-box-footer">
+                        View Details <i class="fa fa-arrow-circle-right"></i>
                 </a>
             </div>
         </div>
@@ -107,7 +107,7 @@
     <div class="charts-grid">
         <!-- Asset Distribution Chart -->
         <div class="chart-card">
-            <div class="chart-header">
+                <div class="chart-header">
                 <div>
                     <h3 class="chart-title">
                         <i class="fa fa-cube"></i> Asset Distribution by Type
@@ -142,7 +142,7 @@
 
         <!-- Ticket Status Chart -->
         <div class="chart-card">
-            <div class="chart-header">
+                <div class="chart-header">
                 <div>
                     <h3 class="chart-title">
                         <i class="fa fa-tasks"></i> Ticket Status Overview
@@ -173,7 +173,7 @@
 
         <!-- Monthly Ticket Trend Chart -->
         <div class="chart-card">
-            <div class="chart-header">
+                <div class="chart-header">
                 <div>
                     <h3 class="chart-title">
                         <i class="fa fa-line-chart"></i> Ticket Trend (6 Months)
@@ -249,9 +249,9 @@
                     @if(isset($movements) && $movements->count() > 0)
                         <ul class="timeline timeline-inverse">
                             @foreach($movements as $movement)
-                                @php
+                                    @php
                                     $createdDate = \Carbon\Carbon::parse($movement->created_at);
-                                    $asset = $movement->asset ?? App\Asset::find($movement->asset_id);
+                                    $asset = $movement->asset ?? null;
                                 @endphp
                                 
                                 <li>
@@ -261,8 +261,8 @@
                                             <i class="fa fa-clock-o"></i> {{ $createdDate->diffForHumans() }}
                                         </span>
                                         <h3 class="timeline-header">
-                                            <strong>{{ optional($movement->user)->name ?? 'System' }}</strong> moved asset 
-                                            <a href="{{ url('/assets/' . $movement->asset_id) }}">{{ $asset->asset_tag ?? 'N/A' }}</a>
+                                            <strong>{{ optional($movement->user)->name ?? 'System' }}</strong> performed an inventory movement
+                                            <span>{{ $asset->asset_tag ?? 'N/A' }}</span>
                                         </h3>
                                         <div class="timeline-body">
                                             <div class="row">
@@ -301,7 +301,7 @@
                 </div>
                 @if(isset($movements) && $movements->count() > 0)
                 <div class="box-footer text-center">
-                    <a href="{{ route('assets.index') }}" class="btn btn-default">View All Activity</a>
+                    <a href="#" class="btn btn-default">View All Activity</a>
                 </div>
                 @endif
             </div>
@@ -350,7 +350,7 @@
                                     </td>
                                     <td>{{ $asset->created_at->diffForHumans() }}</td>
                                     <td>
-                                        <a href="{{ url('/assets/' . $asset->id) }}" class="btn btn-sm btn-info">
+                                        <a href="#" class="btn btn-sm btn-info">
                                             <i class="fa fa-eye"></i> View
                                         </a>
                                     </td>

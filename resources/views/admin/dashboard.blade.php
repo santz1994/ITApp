@@ -40,7 +40,7 @@
             </div>
 
             <div class="col-md-3 col-sm-6 col-xs-12">
-                <a href="{{ route('assets.index') }}" style="text-decoration: none; color: inherit;">
+                <a href="#" style="text-decoration: none; color: inherit;">
                     <div class="kpi-card">
                         <div class="kpi-icon bg-danger">
                             <i class="fa fa-desktop"></i>
@@ -82,7 +82,7 @@
             </div>
 
             <div class="col-md-3 col-sm-6 col-xs-12">
-                <a href="{{ route('asset-requests.index') }}" style="text-decoration: none; color: inherit;">
+                <a href="#" style="text-decoration: none; color: inherit;">
                     <div class="kpi-card">
                         <div class="kpi-icon bg-warning">
                             <i class="fa fa-exclamation-triangle"></i>

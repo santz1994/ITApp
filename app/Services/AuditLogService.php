@@ -107,53 +107,7 @@ class AuditLogService
         }
     }
 
-    /**
-     * Log a ticket action with specific details.
-     *
-     * @param string $action
-     * @param \App\Ticket $ticket
-     * @param array|null $oldValues
-     * @param array|null $newValues
-     * @param string|null $description
-     * @return AuditLog|null
-     */
-    public function logTicketAction(
-        string $action,
-        $ticket,
-        ?array $oldValues = null,
-        ?array $newValues = null,
-        ?string $description = null
-    ): ?AuditLog {
-        if (!$description) {
-            $description = $this->generateTicketDescription($action, $ticket, $oldValues, $newValues);
-        }
 
-        return $this->logModelAction($action, $ticket, $oldValues, $newValues, $description);
-    }
-
-    /**
-     * Log an asset action with specific details.
-     *
-     * @param string $action
-     * @param \App\Asset $asset
-     * @param array|null $oldValues
-     * @param array|null $newValues
-     * @param string|null $description
-     * @return AuditLog|null
-     */
-    public function logAssetAction(
-        string $action,
-        $asset,
-        ?array $oldValues = null,
-        ?array $newValues = null,
-        ?string $description = null
-    ): ?AuditLog {
-        if (!$description) {
-            $description = $this->generateAssetDescription($action, $asset, $oldValues, $newValues);
-        }
-
-        return $this->logModelAction($action, $asset, $oldValues, $newValues, $description);
-    }
 
     /**
      * Generate a description for model action.
@@ -199,96 +153,7 @@ class AuditLogService
         return $actionMap[$action] ?? "Auth action: {$action}";
     }
 
-    /**
-     * Generate a description for ticket action.
-     *
-     * @param string $action
-     * @param \App\Ticket $ticket
-     * @param array|null $oldValues
-     * @param array|null $newValues
-     * @return string
-     */
-    protected function generateTicketDescription(
-        string $action,
-        $ticket,
-        ?array $oldValues = null,
-        ?array $newValues = null
-    ): string {
-        $ticketId = $ticket->id ?? 'Unknown';
-        $ticketTitle = isset($ticket->subject) ? " ('{$ticket->subject}')" : '';
 
-        if ($action === 'update' && $oldValues && $newValues) {
-            $changes = [];
-            foreach ($newValues as $key => $newValue) {
-                $oldValue = $oldValues[$key] ?? null;
-                if ($oldValue != $newValue) {
-                    $changes[] = ucfirst(str_replace('_', ' ', $key));
-                }
-            }
-            
-            if (!empty($changes)) {
-                $changedFields = implode(', ', $changes);
-                return "Ticket #{$ticketId}{$ticketTitle} was updated: {$changedFields} changed";
-            }
-        }
-
-        $actionMap = [
-            'create' => 'created',
-            'update' => 'updated',
-            'delete' => 'deleted',
-            'assign' => 'assigned',
-            'close' => 'closed',
-            'reopen' => 'reopened',
-        ];
-
-        $actionText = $actionMap[$action] ?? $action;
-        return "Ticket #{$ticketId}{$ticketTitle} was {$actionText}";
-    }
-
-    /**
-     * Generate a description for asset action.
-     *
-     * @param string $action
-     * @param \App\Asset $asset
-     * @param array|null $oldValues
-     * @param array|null $newValues
-     * @return string
-     */
-    protected function generateAssetDescription(
-        string $action,
-        $asset,
-        ?array $oldValues = null,
-        ?array $newValues = null
-    ): string {
-        $assetId = $asset->id ?? 'Unknown';
-        $assetName = isset($asset->asset_name) ? " ('{$asset->asset_name}')" : '';
-
-        if ($action === 'update' && $oldValues && $newValues) {
-            $changes = [];
-            foreach ($newValues as $key => $newValue) {
-                $oldValue = $oldValues[$key] ?? null;
-                if ($oldValue != $newValue) {
-                    $changes[] = ucfirst(str_replace('_', ' ', $key));
-                }
-            }
-            
-            if (!empty($changes)) {
-                $changedFields = implode(', ', $changes);
-                return "Asset #{$assetId}{$assetName} was updated: {$changedFields} changed";
-            }
-        }
-
-        $actionMap = [
-            'create' => 'created',
-            'update' => 'updated',
-            'delete' => 'deleted',
-            'checkout' => 'checked out',
-            'checkin' => 'checked in',
-        ];
-
-        $actionText = $actionMap[$action] ?? $action;
-        return "Asset #{$assetId}{$assetName} was {$actionText}";
-    }
 
     /**
      * Get a model identifier (name, title, id, etc.).

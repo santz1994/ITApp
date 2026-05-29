@@ -9,9 +9,6 @@ use App\Traits\DatabaseInspector;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use App\User;
-use App\Asset;
-use App\Ticket;
-use App\AssetRequest;
 
 class AdminController extends Controller
 {
@@ -26,18 +23,17 @@ class AdminController extends Controller
      */
     public function dashboard()
     {
-        // Get permission and role statistics
         $totalPermissions = \Spatie\Permission\Models\Permission::count();
         $totalRoles = \Spatie\Permission\Models\Role::count();
         $usersWithRoles = User::whereHas('roles')->count();
         
         $stats = [
             'total_users' => User::count(),
-            'total_assets' => Asset::count(),
-            'active_tickets' => Ticket::whereHas('ticket_status', function($query) {
-                $query->where('status', '!=', 'closed')->where('status', '!=', 'resolved');
-            })->count(),
-            'pending_requests' => class_exists('App\AssetRequest') ? AssetRequest::where('status', 'pending')->count() : 0,
+            'total_vehicles' => \App\Vehicle::count(),
+            'total_inventory_items' => \App\InventoryItem::count(),
+            'pending_vehicle_bookings' => \App\VehicleBooking::where('status', 'pending')->count(),
+            'pending_inventory_requests' => \App\InventoryRequest::where('status', 'pending')->count(),
+            'pending_approvals' => \App\ApprovalInstance::where('status', 'in_progress')->count(),
             'total_permissions' => $totalPermissions,
             'total_roles' => $totalRoles,
             'users_with_roles' => $usersWithRoles,

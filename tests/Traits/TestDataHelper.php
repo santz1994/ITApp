@@ -80,12 +80,7 @@ trait TestDataHelper
                 'storeroom' => false
             ]
         );
-        /**
-         * Create a test ticket with all required relationships
-         * 
-         * @param array $overrides Override default values
-         * @return \App\Ticket
-         */
+    }
 
     /**
      * Create a test ticket with all required relationships

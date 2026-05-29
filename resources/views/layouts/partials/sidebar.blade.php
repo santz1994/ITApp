@@ -19,7 +19,6 @@
   $validWorkspaces = [
     'it_support',
     'meeting_room',
-    'assets_management',
     'purchase_request',
     'user_management',
     'settings',
@@ -32,24 +31,7 @@
   if (\Illuminate\Support\Str::startsWith($routeName, 'meeting-room-bookings.')) {
     $workspaceFromRoute = 'meeting_room';
   } elseif (
-    \Illuminate\Support\Str::startsWith($routeName, 'assets.')
-    || \Illuminate\Support\Str::startsWith($routeName, 'asset-maintenance.')
-    || \Illuminate\Support\Str::startsWith($routeName, 'spares.')
-    || \Illuminate\Support\Str::startsWith($routeName, 'models.')
-    || \Illuminate\Support\Str::startsWith($routeName, 'pcspecs.')
-    || \Illuminate\Support\Str::startsWith($routeName, 'manufacturers.')
-    || \Illuminate\Support\Str::startsWith($routeName, 'asset-types.')
-    || \Illuminate\Support\Str::startsWith($routeName, 'suppliers.')
-    || \Illuminate\Support\Str::startsWith($routeName, 'locations.')
-    || \Illuminate\Support\Str::startsWith($routeName, 'divisions.')
-    || \Illuminate\Support\Str::startsWith($routeName, 'invoices.')
-    || \Illuminate\Support\Str::startsWith($routeName, 'budgets.')
-    || \Illuminate\Support\Str::startsWith($routeName, 'masterdata.')
-  ) {
-    $workspaceFromRoute = 'assets_management';
-  } elseif (
     \Illuminate\Support\Str::startsWith($routeName, 'purchase-requests.')
-    || \Illuminate\Support\Str::startsWith($routeName, 'asset-requests.')
   ) {
     $workspaceFromRoute = 'purchase_request';
   } elseif (
@@ -95,7 +77,6 @@
   $workspaceLabels = [
     'it_support' => ['en' => 'IT Support Module', 'id' => 'Modul Dukungan TI'],
     'meeting_room' => ['en' => 'Meeting Room', 'id' => 'Ruang Rapat'],
-    'assets_management' => ['en' => 'Assets Management', 'id' => 'Manajemen Aset'],
     'purchase_request' => ['en' => 'Purchase Request', 'id' => 'Permintaan Pengadaan'],
     'user_management' => ['en' => 'User Management', 'id' => 'Manajemen Pengguna'],
     'settings' => ['en' => 'Settings', 'id' => 'Pengaturan'],
@@ -133,14 +114,7 @@
             <!-- 🏷️ Assets (Admin=2, SuperAdmin=3, Management=4 view-only) -->
             <!-- Assets & Spares removed (legacy) -->
 
-            <!-- 📦 Asset Requests (All authenticated users) -->
-            @if($showWorkspace(['purchase_request']))
-            @auth
-              <li class="header sidebar-section-header">Asset Requests</li>
-              <li><a href="{{ route('asset-requests.index') }}"><i class="fa fa-inbox"></i> All Requests</a></li>
-              <li><a href="{{ route('asset-requests.create') }}"><i class="fa fa-plus-circle"></i> New Request</a></li>
-            @endauth
-            @endif
+            <!-- Asset request menu removed -->
 
             <!-- 📅 Meeting Room Booking (All authenticated users) -->
             @if($showWorkspace(['meeting_room']))
@@ -197,48 +171,7 @@
             @endcan
             @endif
 
-            <!-- 💻 Models & Master Data (SuperAdmin=3 only) -->
-            @if($showWorkspace(['assets_management']))
-            @can('view-models')
-              <li class="header sidebar-section-header">Models &amp; Master Data</li>
-              <li><a href="{{ url('/models')}}"><i class="fa fa-laptop"></i> Models</a></li>
-              <li><a href="{{ url('/pcspecs')}}"><i class="fa fa-microchip"></i> PC Specifications</a></li>
-              <li><a href="{{ url('/manufacturers')}}"><i class="fa fa-industry"></i> Manufacturers</a></li>
-              <li><a href="{{ url('/asset-types')}}"><i class="fa fa-cubes"></i> Asset Types</a></li>
-              @can('view-suppliers')
-              <li><a href="{{ url('/suppliers')}}"><i class="fa fa-shopping-cart"></i> Suppliers</a></li>
-              @endcan
-              @can('view-locations')
-              <li><a href="{{ url('/locations')}}"><i class="fa fa-building"></i> Locations</a></li>
-              @endcan
-              @can('view-divisions')
-              <li><a href="{{ url('/divisions')}}"><i class="fa fa-group"></i> Divisions</a></li>
-              @endcan
-            @endcan
-            @endif
-
-            <!-- 💰 Invoices and Budgets (SuperAdmin=3 only) -->
-            @if($showWorkspace(['assets_management']))
-            @can('view-invoices')
-              <li class="header sidebar-section-header">Invoices and Budgets</li>
-              <li><a href="{{ url('/invoices')}}"><i class="fa fa-file-text-o"></i> Invoices</a></li>
-              <li><a href="{{ url('/budgets')}}"><i class="fa fa-money"></i> Budgets</a></li>
-            @endcan
-            @endif
-
-            <!-- 📥📤 Import/Export (admin & super-admin) -->
-            @if($showWorkspace(['assets_management']))
-            @can('export-data')
-              <li class="header sidebar-section-header">Import/Export</li>
-              @can('export-data')
-              <li><a href="{{ route('masterdata.index') }}"><i class="fa fa-download"></i> Export Data</a></li>
-              @endcan
-              @can('import-data')
-              <li><a href="{{ route('masterdata.imports') }}"><i class="fa fa-upload"></i> Import Data</a></li>
-              @endcan
-              <li><a href="{{ route('masterdata.templates') }}"><i class="fa fa-file-excel-o"></i> Download Templates</a></li>
-            @endcan
-            @endif
+            <!-- Legacy asset/model/invoice/budget/import-export menus removed -->
 
             <!-- 👥 User Management (admin & super-admin) -->
             @if($showWorkspace(['user_management']))

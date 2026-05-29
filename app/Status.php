@@ -19,6 +19,7 @@ class Status extends Model
 
     public function assets()
     {
-        return $this->hasMany(Asset::class);
+        // Asset relations removed
+        return collect();
     }
 }
