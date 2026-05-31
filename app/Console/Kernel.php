@@ -13,14 +13,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\TestCriticalFixes::class,
-        Commands\DetectDuplicateSerials::class,
-        Commands\ExportDuplicateSerialRows::class,
-        Commands\CleanupDuplicateSerials::class,
         Commands\DatabaseBackup::class,
         Commands\UpdateMeetingRoomStatuses::class,
-        Commands\FixBlockingBookingEndTime::class,
-        Commands\TestNotificationUpdate::class,
     ];
 
     /**
