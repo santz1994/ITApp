@@ -25,7 +25,7 @@ export default function Login() {
             try {
                 localStorage.setItem('itapp_auth', JSON.stringify({ token, user }));
             } catch (err) { }
-            navigate('/');
+            navigate('/home');
         } catch (err) {
             setError(err.response?.data?.message || 'Login failed');
         }

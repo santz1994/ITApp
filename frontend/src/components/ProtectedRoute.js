@@ -6,8 +6,9 @@ import { Navigate } from 'react-router-dom';
 
 function ProtectedRoute({ children, permission = null }) {
   const { isAuthenticated, loading, user } = useSelector((state) => state.auth);
+  const hasAuthToken = Boolean(localStorage.getItem('auth_token'));
 
-  if (loading) {
+  if (loading || (!isAuthenticated && hasAuthToken)) {
     return (
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: 2 }}>
         <CircularProgress size={48} />

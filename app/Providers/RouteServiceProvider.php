@@ -25,11 +25,11 @@ class RouteServiceProvider extends ServiceProvider
                 ->namespace($this->namespace)
                 ->group(base_path('routes/api.php'));
 
-            // API routes (new modules - Vehicle, Inventory, Approval)
+            // API routes (vehicle, inventory, approval)
             \Illuminate\Support\Facades\Route::prefix('api')
                 ->middleware('api')
                 ->namespace($this->namespace)
-                ->group(base_path('routes/api/new-modules.php'));
+                ->group(base_path('routes/api/modules.php'));
                 
             // Web routes
             \Illuminate\Support\Facades\Route::middleware('web')

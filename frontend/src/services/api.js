@@ -18,8 +18,17 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use((response) => response, (error) => {
     if (error.response?.status === 401) {
-        localStorage.removeItem('auth_token');
-        window.location.href = '/login';
+        const hasToken = Boolean(localStorage.getItem('auth_token'));
+        const authPaths = ['/login', '/register', '/forgot-password', '/password/reset'];
+        const isAuthPage = authPaths.some((path) => window.location.pathname.startsWith(path));
+
+        if (hasToken) {
+            localStorage.removeItem('auth_token');
+        }
+
+        if (hasToken && !isAuthPage) {
+            window.location.href = '/login';
+        }
     }
     return Promise.reject(error);
 });
@@ -82,15 +91,15 @@ export const inventoryApi = {
 // APPROVAL API
 // ========================================
 export const approvalApi = {
-    getPending: () => api.get('/approvals/pending'),
-    approve: (id, data) => api.post(`/approvals/${id}/approve`, data),
-    reject: (id, data) => api.post(`/approvals/${id}/reject`, data),
-    show: (id) => api.get(`/approvals/${id}`),
-    getRules: () => api.get('/approvals/rules/all'),
-    createRule: (data) => api.post('/approvals/rules', data),
-    updateRule: (id, data) => api.put(`/approvals/rules/${id}`, data),
-    deleteRule: (id) => api.delete(`/approvals/rules/${id}`),
-    toggleRule: (id) => api.post(`/approvals/rules/${id}/toggle`),
+    getPending: () => api.get('/v1/approvals/pending'),
+    approve: (id, data) => api.post(`/v1/approvals/${id}/approve`, data),
+    reject: (id, data) => api.post(`/v1/approvals/${id}/reject`, data),
+    show: (id) => api.get(`/v1/approvals/${id}`),
+    getRules: () => api.get('/v1/approvals/rules/all'),
+    createRule: (data) => api.post('/v1/approvals/rules', data),
+    updateRule: (id, data) => api.put(`/v1/approvals/rules/${id}`, data),
+    deleteRule: (id) => api.delete(`/v1/approvals/rules/${id}`),
+    toggleRule: (id) => api.post(`/v1/approvals/rules/${id}/toggle`),
 };
 
 // ========================================

@@ -3,6 +3,9 @@ import { authApi } from '../../services/api';
 
 export const fetchUser = createAsyncThunk('auth/fetchUser', async (_, { rejectWithValue }) => {
     try {
+        if (!localStorage.getItem('auth_token')) {
+            return rejectWithValue('Not authenticated');
+        }
         const response = await authApi.getUser();
         return response.data;
     } catch (error) {

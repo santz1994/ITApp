@@ -84,8 +84,12 @@ function App() {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        dispatch(fetchUser());
-        dispatch(fetchPendingApprovals());
+        const token = localStorage.getItem('auth_token');
+
+        if (token) {
+            dispatch(fetchUser());
+            dispatch(fetchPendingApprovals());
+        }
     }, [dispatch]);
 
     return (
