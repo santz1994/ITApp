@@ -115,11 +115,13 @@ export default function AppRoutes() {
                 <Route path="meeting-rooms" element={<MeetingRoomsList />} />
                 <Route path="meeting-rooms/create" element={<MeetingRoomCreate />} />
                 <Route path="meeting-rooms/calendar" element={<MeetingRoomCalendar />} />
+                <Route path="meeting-rooms/schedule" element={<ReceptionistSchedule />} />
                 <Route path="meeting-rooms/r-dashboard" element={<MeetingRoomRDashboard />} />
                 <Route path="meeting-rooms/d-dashboard" element={<MeetingRoomDDashboard />} />
                 <Route path="meeting-rooms/lcd" element={<LcdDashboard />} />
                 <Route path="meeting-rooms/lcd-settings" element={<LcdSettings />} />
                 <Route path="meeting-rooms/lcd-maintenance" element={<LcdMaintenance />} />
+                <Route path="meeting-rooms/rooms" element={<RoomManager />} />
                 <Route path="meeting-rooms/:id" element={<MeetingRoomShow />} />
                 <Route path="meeting-rooms/:id/print" element={<MeetingRoomPrint />} />
                 <Route path="meeting-rooms/:id/edit" element={<MeetingRoomCreate />} />
@@ -165,6 +167,7 @@ export default function AppRoutes() {
                 <Route path="admin/menus/:id/edit" element={<MenuEdit />} />
                 <Route path="admin/menus/:id/permissions" element={<MenuPermissions />} />
                 <Route path="admin/notification-settings" element={<AdminNotificationSettings />} />
+                <Route path="admin/system-settings" element={<SystemSettingsPage />} />
 
                 {/* Audit Logs */}
                 <Route path="audit-logs" element={<AuditLogsList />} />

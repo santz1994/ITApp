@@ -53,10 +53,12 @@ const NAV_SECTIONS = [
             { label: 'All Bookings', path: '/meeting-rooms' },
             { label: 'New Booking', path: '/meeting-rooms/create' },
             { label: 'Calendar View', path: '/meeting-rooms/calendar' },
+            { label: 'Receptionist Schedule', path: '/meeting-rooms/schedule' },
             { label: 'Director Dashboard', path: '/meeting-rooms/d-dashboard' },
             { label: 'Receptionist Dashboard', path: '/meeting-rooms/r-dashboard' },
             { label: 'LCD Display', path: '/meeting-rooms/lcd' },
             { label: 'LCD Settings', path: '/meeting-rooms/lcd-settings' },
+            { label: 'Room Manager', path: '/meeting-rooms/rooms' },
         ],
     },
     {
@@ -200,7 +202,12 @@ export default function MainLayout() {
     const location = useLocation();
     const user = useSelector((s) => s.auth.user);
     const [drawerOpen, setDrawerOpen] = useState(true);
-    const [expanded, setExpanded] = useState({});
+    const [expanded, setExpanded] = useState(() => {
+        // Expand all sections by default so users can see all menu items
+        const initial = {};
+        NAV_SECTIONS.forEach(s => { if (s.children) initial[s.label] = true; });
+        return initial;
+    });
     const [anchorEl, setAnchorEl] = useState(null);
 
     // Auto-expand active section on mount/route change
