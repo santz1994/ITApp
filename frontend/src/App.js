@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { fetchPendingApprovals } from './store/slices/approvalSlice';
 import { fetchUser } from './store/slices/authSlice';
 
@@ -60,8 +60,7 @@ function App() {
     }, [dispatch]);
 
     return (
-        <Router>
-            <Routes>
+        <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
                     <Route index element={<Dashboard />} />
@@ -108,8 +107,7 @@ function App() {
                     <Route path="reports" element={<ReportsDashboard />} />
                 </Route>
                 <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-        </Router>
+        </Routes>
     );
 }
 

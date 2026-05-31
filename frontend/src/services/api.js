@@ -1,7 +1,15 @@
 import axios from 'axios';
 
+// Determine API base URL:
+// - Use REACT_APP_API_URL when provided (recommended)
+// - During dev on CRA (localhost:3000) point to Laravel dev server
+// - Otherwise use '/api' for same-origin in production when Laravel serves the app
+const defaultApiBase = (typeof window !== 'undefined' && window.location.hostname === 'localhost' && window.location.port === '3000')
+    ? 'http://127.0.0.1:8000/api'
+    : '/api';
+
 const api = axios.create({
-    baseURL: '/api/v1',
+    baseURL: process.env.REACT_APP_API_URL || defaultApiBase,
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
     withCredentials: true,
 });
