@@ -4,7 +4,11 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\User;
+use App\Role;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -84,5 +88,118 @@ class UserController extends Controller
     public function getKpiData()
     {
         return response()->json(['success' => true, 'data' => []]);
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6',
+            'division_id' => 'nullable|exists:divisions,id',
+            'phone' => 'nullable|string|max:20',
+            'role_id' => 'nullable|exists:roles,id',
+        ]);
+
+        $validated['password'] = Hash::make($validated['password']);
+
+        $user = User::create($validated);
+
+        if (!empty($validated['role_id'])) {
+            $role = Role::find($validated['role_id']);
+            if ($role) {
+                $user->assignRole($role);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User created successfully',
+            'data' => $user->load(['roles', 'division']),
+        ], 201);
+    }
+
+    public function update(Request $request, User $user): JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:6',
+            'division_id' => 'nullable|exists:divisions,id',
+            'phone' => 'nullable|string|max:20',
+            'is_active' => 'sometimes|boolean',
+            'role_id' => 'nullable|exists:roles,id',
+        ]);
+
+        if (!empty($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
+        } else {
+            unset($validated['password']);
+        }
+
+        $user->update($validated);
+
+        if (!empty($validated['role_id'])) {
+            $role = Role::find($validated['role_id']);
+            if ($role) {
+                $user->syncRoles([$role]);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User updated successfully',
+            'data' => $user->fresh()->load(['roles', 'division']),
+        ]);
+    }
+
+    public function destroy(User $user): JsonResponse
+    {
+        if ($user->id === Auth::id()) {
+            return response()->json(['success' => false, 'message' => 'Cannot delete your own account'], 400);
+        }
+
+        $user->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User deleted successfully',
+        ]);
+    }
+
+    public function bulkDelete(Request $request): JsonResponse
+    {
+        $ids = $request->input('ids', []);
+        if (empty($ids)) {
+            return response()->json(['success' => false, 'message' => 'No user IDs provided'], 400);
+        }
+
+        $deleted = User::whereIn('id', $ids)->where('id', '!=', Auth::id())->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$deleted} users deleted successfully",
+            'deleted' => $deleted,
+        ]);
+    }
+
+    public function roles(): JsonResponse
+    {
+        $roles = Role::query()
+            ->canonical()
+            ->with(['permissions'])
+            ->get()
+            ->map(fn($role) => [
+                'id' => $role->id,
+                'name' => $role->name,
+                'display_name' => $role->display_name,
+                'description' => $role->description,
+                'permissions' => $role->permissions->pluck('name'),
+            ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => $roles,
+        ]);
     }
 }

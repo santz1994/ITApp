@@ -11,8 +11,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\VehicleApiController;
 use App\Http\Controllers\API\InventoryApiController;
 use App\Http\Controllers\API\ApprovalApiController;
+use App\Http\Controllers\API\UserController;
 
-Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
 
     // ========================================
     // VEHICLE MANAGEMENT API
@@ -86,5 +87,33 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
         Route::put('/rules/{id}', [ApprovalApiController::class, 'updateRule'])->middleware('permission:manage_approval_rules');
         Route::delete('/rules/{id}', [ApprovalApiController::class, 'destroyRule'])->middleware('permission:manage_approval_rules');
         Route::post('/rules/{id}/toggle', [ApprovalApiController::class, 'toggleRule'])->middleware('permission:manage_approval_rules');
+    });
+
+    // ========================================
+    // USER MANAGEMENT API
+    // ========================================
+    Route::prefix('users')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->middleware('permission:manage_users');
+        Route::get('/roles', [UserController::class, 'roles'])->middleware('permission:manage_users');
+        Route::post('/bulk-delete', [UserController::class, 'bulkDelete'])->middleware('permission:manage_users');
+        Route::get('/{id}', [UserController::class, 'show']);
+        Route::post('/', [UserController::class, 'store'])->middleware('permission:manage_users');
+        Route::put('/{id}', [UserController::class, 'update'])->middleware('permission:manage_users');
+        Route::delete('/{id}', [UserController::class, 'destroy'])->middleware('permission:manage_users');
+    });
+
+    // ========================================
+    // MEETING ROOM BOOKINGS API
+    // ========================================
+    Route::prefix('meeting-room-bookings')->group(function () {
+        Route::get('/', [\App\Http\Controllers\API\MeetingRoomApiController::class, 'index']);
+        Route::post('/', [\App\Http\Controllers\API\MeetingRoomApiController::class, 'store']);
+        Route::get('/{id}', [\App\Http\Controllers\API\MeetingRoomApiController::class, 'show']);
+        Route::put('/{id}', [\App\Http\Controllers\API\MeetingRoomApiController::class, 'update']);
+        Route::delete('/{id}', [\App\Http\Controllers\API\MeetingRoomApiController::class, 'destroy']);
+        Route::post('/{id}/approve', [\App\Http\Controllers\API\MeetingRoomApiController::class, 'approve']);
+        Route::post('/{id}/reject', [\App\Http\Controllers\API\MeetingRoomApiController::class, 'reject']);
+        Route::post('/{id}/cancel', [\App\Http\Controllers\API\MeetingRoomApiController::class, 'cancel']);
+        Route::post('/{id}/finish', [\App\Http\Controllers\API\MeetingRoomApiController::class, 'finish']);
     });
 });

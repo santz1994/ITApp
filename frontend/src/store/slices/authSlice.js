@@ -37,7 +37,13 @@ export const logout = createAsyncThunk('auth/logout', async () => {
 
 const authSlice = createSlice({
     name: 'auth',
-    initialState: { user: null, isAuthenticated: false, loading: false, error: null },
+    initialState: {
+        user: null,
+        isAuthenticated: false,
+        // Start loading if token exists in localStorage (prevents Login flash on refresh)
+        loading: Boolean(localStorage.getItem('auth_token')),
+        error: null,
+    },
     reducers: { clearAuthError: (state) => { state.error = null; } },
     extraReducers: (builder) => {
         builder

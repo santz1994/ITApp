@@ -91,15 +91,15 @@ export const inventoryApi = {
 // APPROVAL API
 // ========================================
 export const approvalApi = {
-    getPending: () => api.get('/v1/approvals/pending'),
-    approve: (id, data) => api.post(`/v1/approvals/${id}/approve`, data),
-    reject: (id, data) => api.post(`/v1/approvals/${id}/reject`, data),
-    show: (id) => api.get(`/v1/approvals/${id}`),
-    getRules: () => api.get('/v1/approvals/rules/all'),
-    createRule: (data) => api.post('/v1/approvals/rules', data),
-    updateRule: (id, data) => api.put(`/v1/approvals/rules/${id}`, data),
-    deleteRule: (id) => api.delete(`/v1/approvals/rules/${id}`),
-    toggleRule: (id) => api.post(`/v1/approvals/rules/${id}/toggle`),
+    getPending: () => api.get('/approvals/pending'),
+    approve: (id, data) => api.post(`/approvals/${id}/approve`, data),
+    reject: (id, data) => api.post(`/approvals/${id}/reject`, data),
+    show: (id) => api.get(`/approvals/${id}`),
+    getRules: () => api.get('/approvals/rules/all'),
+    createRule: (data) => api.post('/approvals/rules', data),
+    updateRule: (id, data) => api.put(`/approvals/rules/${id}`, data),
+    deleteRule: (id) => api.delete(`/approvals/rules/${id}`),
+    toggleRule: (id) => api.post(`/approvals/rules/${id}/toggle`),
 };
 
 // ========================================
