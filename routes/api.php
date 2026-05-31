@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MeetingRoomBookingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,3 +44,6 @@ Route::middleware('auth:sanctum')->group(function () {
         return response()->json(['message' => 'Logged out']);
     });
 });
+
+// Meeting room display list for frontend (uses same display settings as LCD)
+Route::get('/meeting-rooms', [MeetingRoomBookingController::class, 'apiRooms']);

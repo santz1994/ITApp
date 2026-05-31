@@ -1525,8 +1525,21 @@ class MeetingRoomBookingController extends Controller
                 ->values()
                 ->toArray();
 
-            if (!empty($rooms)) {
-                return $rooms;
+            // Also include any room names that appear in bookings (ensures rooms used previously are selectable)
+            $bookingRooms = MeetingRoomBooking::query()
+                ->distinct()
+                ->pluck('room_name')
+                ->map(function ($roomName) { return trim((string) $roomName); })
+                ->filter()
+                ->unique()
+                ->values()
+                ->toArray();
+
+            // Merge preserving display order, then booking rooms, then defaults
+            $combined = array_values(array_unique(array_merge($rooms, $bookingRooms, $this->defaultRooms)));
+
+            if (!empty($combined)) {
+                return $combined;
             }
         } catch (Throwable $exception) {
             Log::warning('Failed to load meeting room display settings. Using default rooms.', [
@@ -1534,7 +1547,26 @@ class MeetingRoomBookingController extends Controller
             ]);
         }
 
+        // Final fallback
         return $this->defaultRooms;
+    }
+
+    /**
+     * API: Return meeting rooms list for frontend components.
+     * Uses same display rooms logic as LCD; returns [{id, name}]
+     */
+    public function apiRooms()
+    {
+        $rooms = $this->getDisplayRooms();
+        $out = [];
+        foreach ($rooms as $i => $r) {
+            $out[] = [
+                'id' => $i + 1,
+                'name' => $r,
+            ];
+        }
+
+        return response()->json($out);
     }
 
     /**

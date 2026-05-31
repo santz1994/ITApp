@@ -1,9 +1,12 @@
 import { useSelector } from 'react-redux';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
+import ApprovalsList from '../pages/Approvals/ApprovalsList';
+import InventoryList from '../pages/Inventory/InventoryList';
 import Login from '../pages/Login';
 import MeetingRoomsCalendar from '../pages/MeetingRooms/MeetingRoomsCalendar';
 import MeetingRoomsList from '../pages/MeetingRooms/MeetingRoomsList';
+import VehicleList from '../pages/Vehicles/VehicleList';
 
 function RequireAuth({ children }) {
     const token = useSelector((s) => s.auth.token);
@@ -18,6 +21,9 @@ export default function AppRoutes() {
                 <Route index element={<Navigate to="/meeting-rooms" replace />} />
                 <Route path="meeting-rooms" element={<MeetingRoomsList />} />
                 <Route path="meeting-rooms/calendar" element={<MeetingRoomsCalendar />} />
+                <Route path="vehicles" element={<VehicleList />} />
+                <Route path="inventory" element={<InventoryList />} />
+                <Route path="approvals" element={<ApprovalsList />} />
             </Route>
         </Routes>
     );

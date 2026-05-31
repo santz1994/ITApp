@@ -28,6 +28,10 @@ export default function MainLayout() {
                         ITApp
                     </Typography>
                     <Button color="inherit" component={Link} to="/meeting-rooms">Meeting Rooms</Button>
+                    <Button color="inherit" component={Link} to="/vehicles">Vehicles</Button>
+                      <Button color="inherit" component={Link} to="/inventory">Inventory</Button>
+                    <Button color="inherit" component={Link} to="/approvals">Approvals</Button>
+                    <Button color="inherit" component={Link} to="/users">Users</Button>
                     <Button color="inherit" onClick={handleLogout}>Logout</Button>
                 </Toolbar>
             </AppBar>

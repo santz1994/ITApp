@@ -16,10 +16,10 @@ import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import api from '../../api/client';
 
-export default function MeetingRoomForm({ open, onClose, onCreated, booking, onUpdated }) {
-  const [subject, setSubject] = useState('');
-  const [room, setRoom] = useState('');
-  const [rooms, setRooms] = useState([]);
+export default function VehicleForm({ open, onClose, onCreated, onUpdated, booking }) {
+  const [purpose, setPurpose] = useState('');
+  const [vehicle, setVehicle] = useState('');
+  const [vehicles, setVehicles] = useState([]);
   const [start, setStart] = useState(dayjs().startOf('hour'));
   const [end, setEnd] = useState(dayjs().add(1, 'hour').startOf('hour'));
   const [loading, setLoading] = useState(false);
@@ -29,8 +29,8 @@ export default function MeetingRoomForm({ open, onClose, onCreated, booking, onU
     let mounted = true;
     (async () => {
       try {
-        const res = await api.get('/api/meeting-rooms');
-        if (mounted && Array.isArray(res.data)) setRooms(res.data);
+        const res = await api.get('/api/vehicles');
+        if (mounted && Array.isArray(res.data)) setVehicles(res.data);
       } catch (e) {
         // ignore
       }
@@ -38,11 +38,10 @@ export default function MeetingRoomForm({ open, onClose, onCreated, booking, onU
     return () => { mounted = false; };
   }, []);
 
-  // populate when editing
   useEffect(() => {
     if (booking) {
-      setSubject(booking.subject || '');
-      setRoom(booking.room_id || booking.room || '');
+      setPurpose(booking.purpose || booking.subject || '');
+      setVehicle(booking.vehicle_id || booking.vehicle || '');
       setStart(booking.start_time ? dayjs(booking.start_time) : dayjs().startOf('hour'));
       setEnd(booking.end_time ? dayjs(booking.end_time) : dayjs().add(1, 'hour').startOf('hour'));
     }
@@ -51,23 +50,21 @@ export default function MeetingRoomForm({ open, onClose, onCreated, booking, onU
   async function handleSubmit(e) {
     e.preventDefault();
     setError(null);
-    if (!subject) return setError('Subject is required');
+    if (!purpose) return setError('Purpose is required');
     if (!start || !end || dayjs(end).isBefore(dayjs(start))) return setError('End must be after start');
-
     setLoading(true);
     try {
       const payload = {
-        subject,
-        room: room || null,
-        room_id: room || null,
+        purpose,
+        vehicle_id: vehicle || null,
         start_time: dayjs(start).toISOString(),
         end_time: dayjs(end).toISOString(),
       };
       if (booking && booking.id) {
-        await api.put(`/api/meeting-room-bookings/${booking.id}`, payload);
+        await api.put(`/api/vehicle-bookings/${booking.id}`, payload);
         if (onUpdated) onUpdated();
       } else {
-        await api.post('/api/meeting-room-bookings', payload);
+        await api.post('/api/vehicle-bookings', payload);
         if (onCreated) onCreated();
       }
       setLoading(false);
@@ -79,29 +76,22 @@ export default function MeetingRoomForm({ open, onClose, onCreated, booking, onU
   }
 
   function handleClose() {
-    setSubject(''); setRoom(''); setStart(dayjs().startOf('hour')); setEnd(dayjs().add(1, 'hour').startOf('hour')); setError(null);
+    setPurpose(''); setVehicle(''); setStart(dayjs().startOf('hour')); setEnd(dayjs().add(1, 'hour').startOf('hour')); setError(null);
     if (onClose) onClose();
   }
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>New Meeting Room Booking</DialogTitle>
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
+      <DialogTitle>Vehicle Booking</DialogTitle>
       <form onSubmit={handleSubmit}>
         <DialogContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField label="Subject" value={subject} onChange={(e)=>setSubject(e.target.value)} fullWidth />
+            <TextField label="Purpose" value={purpose} onChange={(e)=>setPurpose(e.target.value)} fullWidth />
             <FormControl fullWidth>
-              <InputLabel id="room-label">Room</InputLabel>
-              <Select
-                labelId="room-label"
-                label="Room"
-                value={room}
-                onChange={(e)=>setRoom(e.target.value)}
-              >
+              <InputLabel id="vehicle-label">Vehicle</InputLabel>
+              <Select labelId="vehicle-label" label="Vehicle" value={vehicle} onChange={(e)=>setVehicle(e.target.value)}>
                 <MenuItem value="">None</MenuItem>
-                {rooms.map(r => (
-                  <MenuItem key={r.id} value={r.id}>{r.name || r.label || r.code || `Room ${r.id}`}</MenuItem>
-                ))}
+                {vehicles.map(v => <MenuItem key={v.id} value={v.id}>{v.name || v.reg_no || `Vehicle ${v.id}`}</MenuItem>)}
               </Select>
             </FormControl>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -119,5 +109,3 @@ export default function MeetingRoomForm({ open, onClose, onCreated, booking, onU
     </Dialog>
   );
 }
-
- 

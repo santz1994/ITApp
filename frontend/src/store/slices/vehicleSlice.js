@@ -31,6 +31,11 @@ export const fetchMyBookings = createAsyncThunk('vehicles/fetchMyBookings', asyn
     catch (e) { return rejectWithValue(e.response?.data?.message || 'Gagal memuat booking'); }
 });
 
+export const createBooking = createAsyncThunk('vehicles/createBooking', async (data, { rejectWithValue }) => {
+    try { const res = await vehicleApi.createBooking(data); return res.data.data; }
+    catch (e) { return rejectWithValue(e.response?.data?.message || 'Gagal membuat booking'); }
+});
+
 const vehicleSlice = createSlice({
     name: 'vehicles',
     initialState: { vehicles: [], currentVehicle: null, myBookings: [], loading: false, error: null },
@@ -51,6 +56,8 @@ const vehicleSlice = createSlice({
             .addCase(fetchMyBookings.pending, (s) => { s.loading = true; })
             .addCase(fetchMyBookings.fulfilled, (s, a) => { s.loading = false; s.myBookings = a.payload; })
             .addCase(fetchMyBookings.rejected, (s, a) => { s.loading = false; s.error = a.payload; });
+            
+        builder.addCase(createBooking.fulfilled, (s, a) => { s.myBookings.unshift(a.payload); });
     },
 });
 
