@@ -2,6 +2,8 @@
 
 Booking fasilitas (ruang rapat, kendaraan) dan manajemen inventaris (ATK & sparepart) untuk PT Quty Karunia.
 
+IMPORTANT: This repository enforces a split architecture — Backend MUST be Laravel (API) and Frontend MUST be a React SPA. The legacy Blade views are being migrated to React; do not add new Blade-based UI.
+
 ## Stack
 
 | Layer         | Technology                         |
@@ -47,7 +49,15 @@ npm install        # or: docker compose run --rm node npm install
 npm start          # dev server on http://localhost:3000
 ```
 
-The React dev server proxies API calls to `http://localhost:8000` (configured in `frontend/package.json`).
+Notes for developers:
+- The React dev server proxies API calls to `http://localhost:8000` (see `frontend/package.json`).
+- Production build: set `PUBLIC_URL=/react` before building the frontend so assets resolve under `/react`.
+  - PowerShell example: `$env:PUBLIC_URL = '/react'; npm --prefix frontend run build`
+  - After build copy `frontend/build` → `public/react` (or use a build script that does this).
+  - Ensure Laravel serves the SPA (repo contains a fallback route in `routes/web.php`).
+
+Migration policy:
+- Migrate all Blade views to React before removing the Blade files. A backup branch `backup/blades-2026-05-31` exists as a snapshot. Follow module-by-module migration and smoke-tests before deleting blades.
 
 ## Project Structure
 
@@ -86,5 +96,6 @@ cd frontend && npm test
 ## Architecture
 
 Controller → Service → Repository pattern (Laravel backend).  
-React + Redux Toolkit (frontend with local-first architecture goal).  
+React + Redux Toolkit (frontend SPA).  
+DO NOT add server-rendered Blade pages for new features — implement UI in React and expose APIs from Laravel.  
 Docker Compose for local development.

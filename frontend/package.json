@@ -35,7 +35,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test"
   },
-  "proxy": "http://localhost:8000",
+  "proxy": "http://127.0.0.1:8000",
   "overrides": {
     "svgo": "^2.8.0",
     "source-map": "^0.7.4",

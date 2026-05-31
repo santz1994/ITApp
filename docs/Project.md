@@ -3,6 +3,10 @@
 ## Latar Belakang & Tujuan Proyek
 Proyek ini bertujuan untuk mendigitalisasi dan mengotomatisasi proses booking fasilitas (ruang rapat, kendaraan) serta manajemen inventaris (ATK, sparepart) di lingkungan PT Quty Karunia. Sistem berbasis web dan mobile ini dirancang untuk menghilangkan proses manual, mempercepat alur persetujuan (approval), meminimalisir bentrok jadwal, dan menyajikan laporan penggunaan secara real-time guna meningkatkan produktivitas serta efisiensi anggaran perusahaan.
 
+IMPORTANT: Architecture Enforcement
+- Backend MUST be Laravel (API). All server-side logic and data access live in Laravel controllers/services/repositories.
+- Frontend MUST be a React SPA (React 18 + Redux Toolkit). No new features should be implemented with server-rendered Blade views. All UI work must go through the frontend/ React codebase.
+
 ## Spesifikasi Teknologi
 Infrastruktur akan dibangun dengan pendekatan arsitektur yang solid (direkomendasikan menggunakan pola Controller-Service-Repository di backend) untuk skalabilitas jangka panjang.
 1. Frontend (Web): React.js dengan Redux untuk state management.
@@ -321,6 +325,15 @@ Milestones (high-level):
   - Tambah `docker-compose.yml` untuk PHP-FPM, MySQL, Redis, RabbitMQ; pastikan artisan commands berjalan di container.
 6. ✅ Frontend scaffolding — DONE (stub)
   - `frontend/` folder exists with React 18, Redux Toolkit, Axios, Router v6, configured `proxy: http://localhost:8000`.
+
+### Migration status (live)
+- Backup snapshot branch: `backup/blades-2026-05-31` (contains pre-migration Blade views).
+- React scaffold completed; many pages implemented and placeholders added under `frontend/src/pages`.
+- Production build copied to `public/react` and Laravel configured to serve the SPA via a fallback route in `routes/web.php`.
+- docs/migration/blade-to-react-mapping.md created, and docs/migration/blade-react-coverage.md lists coverage.
+
+Migration policy:
+- Convert Blade → React module-by-module. For each module: implement React page(s), wire APIs, run smoke-tests, then remove Blade views and update routes. Keep backups and make small PRs per module for easy review/rollback.
 7. Tests & CI
   - Tambah feature tests untuk booking flow, approval flow, and inventory request; run with `phpunit` and headless JS tests for frontend.
 

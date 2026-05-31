@@ -32,3 +32,14 @@ require __DIR__ . '/modules/vehicles.php';
 require __DIR__ . '/modules/inventory.php';
 require __DIR__ . '/modules/approvals.php';
 require __DIR__ . '/modules/profile.php';
+
+use Illuminate\Support\Str;
+
+// React SPA fallback: serve built React app for non-API routes.
+Route::get('/{any}', function () {
+    $path = request()->path();
+    if (Str::startsWith($path, 'api') || Str::startsWith($path, 'storage') || Str::startsWith($path, 'public')) {
+        abort(404);
+    }
+    return file_get_contents(public_path('react/index.html'));
+})->where('any', '.*');

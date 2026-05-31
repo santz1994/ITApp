@@ -1,0 +1,17 @@
+﻿{
+    "value":  [
+                  {
+                      "id":  1,
+                      "name":  "Ruang Meeting 3"
+                  },
+                  {
+                      "id":  2,
+                      "name":  "Ruang Meeting 2"
+                  },
+                  {
+                      "id":  3,
+                      "name":  "Ruang Meeting 1"
+                  }
+              ],
+    "Count":  3
+}
