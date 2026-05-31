@@ -38,10 +38,7 @@ class ResetPasswordController extends Controller
      */
     public function showResetForm($token)
     {
-        return view('auth.passwords.reset')->with([
-            'token' => $token,
-            'email' => request('email')
-        ]);
+        return response()->file(public_path('react/index.html'));
     }
 
     /**

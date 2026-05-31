@@ -45,7 +45,7 @@ class PasswordController extends Controller
      */
     public function getEmail()
     {
-        return view('auth.passwords.email');
+        return response()->file(public_path('react/index.html'));
     }
 
     /**
@@ -67,10 +67,7 @@ class PasswordController extends Controller
      */
     public function getReset($token = null)
     {
-        return view('auth.passwords.reset')->with([
-            'token' => $token,
-            'email' => request('email')
-        ]);
+        return response()->file(public_path('react/index.html'));
     }
 
     /**

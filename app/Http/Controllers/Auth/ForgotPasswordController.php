@@ -26,7 +26,7 @@ class ForgotPasswordController extends Controller
      */
     public function showLinkRequestForm()
     {
-        return view('auth.passwords.email');
+        return response()->file(public_path('react/index.html'));
     }
 
     /**

@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Auth;
 // Login Routes - Rate limited to prevent brute force attacks
 Route::middleware(['throttle:30,1'])->group(function () {
     Route::get('/login', function () {
-        return view('auth.login');
+        return response()->file(public_path('react/index.html'));
     })->name('login');
 
     Route::post('/login', function (\Illuminate\Http\Request $request) {
@@ -49,7 +49,7 @@ Route::middleware(['throttle:20,1'])->group(function () {
 
     // Redirect GET requests to /password/email back to the forgot password form (prevents 405 error)
     Route::get('/password/email', function() {
-        return redirect()->route('password.request')->with('info', 'Please use the form below to request a password reset link.');
+        return redirect('/forgot-password');
     });
 
     Route::post('/password/email', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
@@ -79,7 +79,7 @@ if (app()->environment('local')) {
 // Registration routes (web) - Rate limited to prevent spam
 Route::middleware(['throttle:20,1'])->group(function () {
     Route::get('/register', function () {
-        return view('auth.register');
+        return response()->file(public_path('react/index.html'));
     })->name('register');
 
     Route::post('/register', function (\Illuminate\Http\Request $request) {
