@@ -34,7 +34,9 @@ function Login() {
         e.preventDefault();
         dispatch(clearAuthError());
         const result = await dispatch(login({ email, password }));
-        if (result.meta.requestStatus === 'fulfilled') navigate('/home');
+        if (result.meta.requestStatus === 'fulfilled') {
+            navigate('/home');
+        }
     };
 
     return (

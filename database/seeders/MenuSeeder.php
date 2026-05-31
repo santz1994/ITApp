@@ -15,13 +15,15 @@ class MenuSeeder extends Seeder
         DB::table('menu_role')->truncate();
         DB::table('menus')->truncate();
 
+        // Use canonical role names from config('itquty.canonical_roles')
+        // Legacy aliases (super-admin→developer, admin→administrator) resolved via Role::expandNames()
         $menus = [
             [
                 'label' => 'Dashboard',
                 'route' => 'home',
                 'icon' => 'fa fa-dashboard',
                 'order_index' => 1,
-                'roles' => ['super-admin', 'admin', 'director', 'user', 'receptionist'],
+                'roles' => ['developer', 'administrator', 'director', 'user', 'receptionist'],
             ],
 
             // Meeting Room Booking
@@ -29,37 +31,37 @@ class MenuSeeder extends Seeder
                 'label' => 'Meeting Rooms',
                 'icon' => 'fa fa-calendar',
                 'order_index' => 2,
-                'roles' => ['super-admin', 'admin', 'director', 'user', 'receptionist'],
+                'roles' => ['developer', 'administrator', 'director', 'user', 'receptionist'],
                 'children' => [
                     [
                         'label' => 'All Bookings',
                         'route' => 'meeting-room-bookings.index',
                         'icon' => 'fa fa-list',
-                        'roles' => ['super-admin', 'admin', 'director', 'user', 'receptionist'],
+                        'roles' => ['developer', 'administrator', 'director', 'user', 'receptionist'],
                     ],
                     [
                         'label' => 'New Booking',
                         'route' => 'meeting-room-bookings.create',
                         'icon' => 'fa fa-plus',
-                        'roles' => ['super-admin', 'admin', 'user'],
+                        'roles' => ['developer', 'administrator', 'user'],
                     ],
                     [
                         'label' => 'Calendar View',
                         'route' => 'meeting-room-bookings-calendar',
                         'icon' => 'fa fa-calendar-o',
-                        'roles' => ['super-admin', 'admin', 'director', 'receptionist'],
+                        'roles' => ['developer', 'administrator', 'director', 'receptionist'],
                     ],
                     [
                         'label' => 'Receptionist Dashboard',
                         'route' => 'meeting-room-receptionist-dashboard',
                         'icon' => 'fa fa-tachometer',
-                        'roles' => ['super-admin', 'admin', 'receptionist'],
+                        'roles' => ['developer', 'administrator', 'receptionist'],
                     ],
                     [
                         'label' => 'Director Dashboard',
                         'route' => 'meeting-room-director-dashboard',
                         'icon' => 'fa fa-check-square-o',
-                        'roles' => ['super-admin', 'director'],
+                        'roles' => ['developer', 'director'],
                     ],
                 ],
             ],
@@ -69,31 +71,31 @@ class MenuSeeder extends Seeder
                 'label' => 'Vehicles',
                 'icon' => 'fa fa-car',
                 'order_index' => 3,
-                'roles' => ['super-admin', 'admin', 'director', 'user'],
+                'roles' => ['developer', 'administrator', 'director', 'user'],
                 'children' => [
                     [
                         'label' => 'Vehicle List',
                         'route' => 'vehicles.index',
                         'icon' => 'fa fa-list',
-                        'roles' => ['super-admin', 'admin', 'director', 'user'],
+                        'roles' => ['developer', 'administrator', 'director', 'user'],
                     ],
                     [
                         'label' => 'New Booking',
                         'route' => 'vehicles.booking.create',
                         'icon' => 'fa fa-plus',
-                        'roles' => ['super-admin', 'admin', 'user'],
+                        'roles' => ['developer', 'administrator', 'user'],
                     ],
                     [
                         'label' => 'My Bookings',
                         'route' => 'vehicles.my-bookings',
                         'icon' => 'fa fa-history',
-                        'roles' => ['super-admin', 'admin', 'director', 'user'],
+                        'roles' => ['developer', 'administrator', 'director', 'user'],
                     ],
                     [
                         'label' => 'All Bookings',
                         'route' => 'vehicles.bookings',
                         'icon' => 'fa fa-list-alt',
-                        'roles' => ['super-admin', 'admin', 'director'],
+                        'roles' => ['developer', 'administrator', 'director'],
                     ],
                 ],
             ],
@@ -103,31 +105,31 @@ class MenuSeeder extends Seeder
                 'label' => 'Inventory',
                 'icon' => 'fa fa-cubes',
                 'order_index' => 4,
-                'roles' => ['super-admin', 'admin', 'director', 'user'],
+                'roles' => ['developer', 'administrator', 'director', 'user'],
                 'children' => [
                     [
                         'label' => 'Item List',
                         'route' => 'inventory.index',
                         'icon' => 'fa fa-list',
-                        'roles' => ['super-admin', 'admin', 'director', 'user'],
+                        'roles' => ['developer', 'administrator', 'director', 'user'],
                     ],
                     [
                         'label' => 'New Request',
                         'route' => 'inventory.request.create',
                         'icon' => 'fa fa-plus',
-                        'roles' => ['super-admin', 'admin', 'user'],
+                        'roles' => ['developer', 'administrator', 'user'],
                     ],
                     [
                         'label' => 'My Requests',
                         'route' => 'inventory.requests',
                         'icon' => 'fa fa-file-text-o',
-                        'roles' => ['super-admin', 'admin', 'director', 'user'],
+                        'roles' => ['developer', 'administrator', 'director', 'user'],
                     ],
                     [
                         'label' => 'Low Stock Alert',
                         'route' => 'inventory.low-stock',
                         'icon' => 'fa fa-exclamation-triangle',
-                        'roles' => ['super-admin', 'admin'],
+                        'roles' => ['developer', 'administrator'],
                     ],
                 ],
             ],
@@ -138,7 +140,7 @@ class MenuSeeder extends Seeder
                 'route' => 'approvals.pending',
                 'icon' => 'fa fa-check-circle',
                 'order_index' => 5,
-                'roles' => ['super-admin', 'admin', 'director'],
+                'roles' => ['developer', 'administrator', 'director'],
             ],
 
             // User Management
@@ -146,25 +148,25 @@ class MenuSeeder extends Seeder
                 'label' => 'User Management',
                 'icon' => 'fa fa-users',
                 'order_index' => 6,
-                'roles' => ['super-admin', 'admin'],
+                'roles' => ['developer', 'administrator'],
                 'children' => [
                     [
                         'label' => 'All Users',
                         'route' => 'users.index',
                         'icon' => 'fa fa-users',
-                        'roles' => ['super-admin', 'admin'],
+                        'roles' => ['developer', 'administrator'],
                     ],
                     [
                         'label' => 'Add User',
                         'route' => 'users.create',
                         'icon' => 'fa fa-user-plus',
-                        'roles' => ['super-admin', 'admin'],
+                        'roles' => ['developer', 'administrator'],
                     ],
                     [
                         'label' => 'User Roles',
                         'route' => 'users.roles',
                         'icon' => 'fa fa-id-badge',
-                        'roles' => ['super-admin', 'admin'],
+                        'roles' => ['developer', 'administrator'],
                     ],
                 ],
             ],
@@ -174,37 +176,37 @@ class MenuSeeder extends Seeder
                 'label' => 'Settings',
                 'icon' => 'fa fa-cogs',
                 'order_index' => 7,
-                'roles' => ['super-admin'],
+                'roles' => ['developer'],
                 'children' => [
                     [
                         'label' => 'System Settings',
                         'route' => 'system-settings.index',
                         'icon' => 'fa fa-gear',
-                        'roles' => ['super-admin'],
+                        'roles' => ['developer'],
                     ],
                     [
                         'label' => 'Roles & Permissions',
                         'route' => 'users.roles',
                         'icon' => 'fa fa-lock',
-                        'roles' => ['super-admin'],
+                        'roles' => ['developer'],
                     ],
                     [
                         'label' => 'Menu Management',
                         'route' => 'admin.menus.index',
                         'icon' => 'fa fa-bars',
-                        'roles' => ['super-admin'],
+                        'roles' => ['developer'],
                     ],
                     [
                         'label' => 'Approval Rules',
                         'route' => 'approvals.rules',
                         'icon' => 'fa fa-sitemap',
-                        'roles' => ['super-admin'],
+                        'roles' => ['developer'],
                     ],
                     [
                         'label' => 'Audit Logs',
                         'route' => 'audit-logs.index',
                         'icon' => 'fa fa-history',
-                        'roles' => ['super-admin'],
+                        'roles' => ['developer'],
                     ],
                 ],
             ],

@@ -12,7 +12,7 @@ class NotificationSettingController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth', 'role:developer']);
+        $this->middleware(['auth', 'permission:manage_notification_settings']);
     }
 
     /**

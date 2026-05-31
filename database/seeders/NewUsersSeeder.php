@@ -24,21 +24,21 @@ class NewUsersSeeder extends Seeder
         // ============================================
         
         /*
-        // Example: Super Admin
+        // Example: Developer
         $user = User::firstOrCreate(
             ['email' => 'newemail@example.com'],
             [
                 'name' => 'User Full Name',
                 'username' => 'username123',
                 'password' => $defaultPassword,
-            'api_token' => bin2hex(random_bytes(30)),
+                'api_token' => bin2hex(random_bytes(30)),
                 'email_verified_at' => now(),
                 'active' => true,
                 'division_id' => 1, // Optional: Set division (1=IT, 2=Finance, etc)
             ]
         );
-        $user->assignRole('super-admin');
-        $this->command->info("✓ Created: {$user->name} ({$user->email}) - Role: super-admin");
+        $user->assignRole('developer');
+        $this->command->info("✓ Created: {$user->name} ({$user->email}) - Role: developer");
         */
 
         // ============================================

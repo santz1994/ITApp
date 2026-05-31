@@ -7,7 +7,10 @@ export const fetchUser = createAsyncThunk('auth/fetchUser', async (_, { rejectWi
             return rejectWithValue('Not authenticated');
         }
         const response = await authApi.getUser();
-        return response.data;
+        // Backend /api/user (Sanctum) returns user directly
+        // Backend /api/user (wrapped) returns { success, data: { user } }
+        const userData = response.data?.user || response.data?.data?.user || response.data;
+        return userData;
     } catch (error) {
         return rejectWithValue('Not authenticated');
     }
@@ -16,10 +19,12 @@ export const fetchUser = createAsyncThunk('auth/fetchUser', async (_, { rejectWi
 export const login = createAsyncThunk('auth/login', async (credentials, { rejectWithValue }) => {
     try {
         const response = await authApi.login(credentials);
-        if (response.data.token) {
-            localStorage.setItem('auth_token', response.data.token);
+        const token = response.data?.token || response.data?.data?.token;
+        const user = response.data?.user || response.data?.data?.user;
+        if (token) {
+            localStorage.setItem('auth_token', token);
         }
-        return response.data.user;
+        return user;
     } catch (error) {
         return rejectWithValue(error.response?.data?.message || 'Login gagal');
     }

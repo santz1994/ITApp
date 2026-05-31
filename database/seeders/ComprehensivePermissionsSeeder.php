@@ -26,81 +26,61 @@ class ComprehensivePermissionsSeeder extends Seeder
 
         // Define all permissions with their display names and descriptions
         $permissions = [
-            // Asset & Spares permissions removed (legacy)
-            
-            // Ticket Permissions removed (legacy)
-            
-            // Daily Activity Permissions
-            ['name' => 'view-daily-activities', 'display_name' => 'View Daily Activities', 'description' => 'View daily activities'],
-            ['name' => 'create-daily-activities', 'display_name' => 'Create Daily Activities', 'description' => 'Create new daily activities'],
-            ['name' => 'edit-daily-activities', 'display_name' => 'Edit Daily Activities', 'description' => 'Edit daily activities'],
-            ['name' => 'delete-daily-activities', 'display_name' => 'Delete Daily Activities', 'description' => 'Delete daily activities'],
-            
-            // Dashboard & Report Permissions
-            ['name' => 'view-kpi-dashboard', 'display_name' => 'View KPI Dashboard', 'description' => 'View KPI dashboard'],
-            ['name' => 'view-reports', 'display_name' => 'View Reports', 'description' => 'View reports section'],
-            ['name' => 'view-management-dashboard', 'display_name' => 'View Management Dashboard', 'description' => 'View management dashboard'],
-            
-            // Model/Configuration Permissions
-            ['name' => 'view-models', 'display_name' => 'View Models', 'description' => 'View asset models and specifications'],
-            ['name' => 'create-models', 'display_name' => 'Create Models', 'description' => 'Create asset models'],
-            ['name' => 'edit-models', 'display_name' => 'Edit Models', 'description' => 'Edit asset models'],
-            ['name' => 'delete-models', 'display_name' => 'Delete Models', 'description' => 'Delete asset models'],
-            
-            // Supplier Permissions
-            ['name' => 'view-suppliers', 'display_name' => 'View Suppliers', 'description' => 'View supplier list'],
-            ['name' => 'create-suppliers', 'display_name' => 'Create Suppliers', 'description' => 'Create new suppliers'],
-            ['name' => 'edit-suppliers', 'display_name' => 'Edit Suppliers', 'description' => 'Edit suppliers'],
-            ['name' => 'delete-suppliers', 'display_name' => 'Delete Suppliers', 'description' => 'Delete suppliers'],
-            
-            // Location Permissions
-            ['name' => 'view-locations', 'display_name' => 'View Locations', 'description' => 'View location list'],
-            ['name' => 'create-locations', 'display_name' => 'Create Locations', 'description' => 'Create new locations'],
-            ['name' => 'edit-locations', 'display_name' => 'Edit Locations', 'description' => 'Edit locations'],
-            ['name' => 'delete-locations', 'display_name' => 'Delete Locations', 'description' => 'Delete locations'],
-            
-            // Division Permissions
-            ['name' => 'view-divisions', 'display_name' => 'View Divisions', 'description' => 'View division list'],
-            ['name' => 'create-divisions', 'display_name' => 'Create Divisions', 'description' => 'Create new divisions'],
-            ['name' => 'edit-divisions', 'display_name' => 'Edit Divisions', 'description' => 'Edit divisions'],
-            ['name' => 'delete-divisions', 'display_name' => 'Delete Divisions', 'description' => 'Delete divisions'],
-            
-            // Invoice & Budget Permissions
-            ['name' => 'view-invoices', 'display_name' => 'View Invoices', 'description' => 'View invoices and budgets'],
-            ['name' => 'create-invoices', 'display_name' => 'Create Invoices', 'description' => 'Create new invoices'],
-            ['name' => 'edit-invoices', 'display_name' => 'Edit Invoices', 'description' => 'Edit invoices'],
-            ['name' => 'delete-invoices', 'display_name' => 'Delete Invoices', 'description' => 'Delete invoices'],
-            
-            // Import/Export Permissions
-            ['name' => 'export-data', 'display_name' => 'Export Data', 'description' => 'Export data to Excel/CSV'],
-            ['name' => 'import-data', 'display_name' => 'Import Data', 'description' => 'Import data from Excel/CSV'],
-            
-            // User Management Permissions
-            ['name' => 'view-users', 'display_name' => 'View Users', 'description' => 'View user list'],
-            ['name' => 'create-users', 'display_name' => 'Create Users', 'description' => 'Create new users'],
-            ['name' => 'edit-users', 'display_name' => 'Edit Users', 'description' => 'Edit existing users'],
-            ['name' => 'delete-users', 'display_name' => 'Delete Users', 'description' => 'Delete users'],
-            ['name' => 'change-role', 'display_name' => 'Change User Role', 'description' => 'Change user roles'],
-            
-            // System Settings Permissions
-            ['name' => 'view-system-settings', 'display_name' => 'View System Settings', 'description' => 'View system settings and configuration'],
-            ['name' => 'edit-settings', 'display_name' => 'Edit Settings', 'description' => 'Edit system settings, roles, and permissions'],
-            ['name' => 'view-system-logs', 'display_name' => 'View System Logs', 'description' => 'View system logs and diagnostics'],
-            ['name' => 'manage-permissions', 'display_name' => 'Manage Permissions', 'description' => 'Manage user permissions and roles'],
-            
-            // Notification Permissions
-            ['name' => 'view-notifications', 'display_name' => 'View Notifications', 'description' => 'View notification admin panel and statistics'],
-            ['name' => 'manage-notifications', 'display_name' => 'Manage Notifications', 'description' => 'Send notifications and run automatic checks'],
-            
-            // Advanced Asset Management removed (legacy)
-            
-            // Meeting Room Booking Permissions
-            ['name' => 'view-meeting-bookings', 'display_name' => 'View Meeting Bookings', 'description' => 'View meeting room booking list and calendar'],
-            ['name' => 'create-meeting-bookings', 'display_name' => 'Create Meeting Bookings', 'description' => 'Create new meeting room booking requests'],
-            ['name' => 'approve-meeting-bookings', 'display_name' => 'Approve Meeting Bookings', 'description' => 'Approve pending meeting room booking requests'],
-            ['name' => 'reject-meeting-bookings', 'display_name' => 'Reject Meeting Bookings', 'description' => 'Reject meeting room booking requests'],
-            ['name' => 'cancel-meeting-bookings', 'display_name' => 'Cancel Meeting Bookings', 'description' => 'Cancel approved meeting room bookings'],
-            ['name' => 'manage-receptionist-dashboard', 'display_name' => 'Manage Receptionist Dashboard', 'description' => 'Access and manage receptionist dashboard for meeting rooms'],
+            // ===== Meeting Room Booking Permissions =====
+            ['name' => 'create_booking', 'display_name' => 'Create Booking', 'description' => 'Create meeting room bookings'],
+            ['name' => 'view_bookings', 'display_name' => 'View Bookings', 'description' => 'View meeting room bookings'],
+            ['name' => 'approve_booking', 'display_name' => 'Approve Booking', 'description' => 'Approve meeting room bookings'],
+            ['name' => 'reject_booking', 'display_name' => 'Reject Booking', 'description' => 'Reject meeting room bookings'],
+            ['name' => 'cancel_booking', 'display_name' => 'Cancel Booking', 'description' => 'Cancel meeting room bookings'],
+            ['name' => 'finish_booking', 'display_name' => 'Finish Booking', 'description' => 'Finish/complete meeting room bookings'],
+            ['name' => 'extend_booking', 'display_name' => 'Extend Booking', 'description' => 'Extend meeting room booking time'],
+            ['name' => 'quick_edit_booking', 'display_name' => 'Quick Edit Booking', 'description' => 'Quick edit booking subject/time'],
+            ['name' => 'view_meeting_room_lcd', 'display_name' => 'View LCD Dashboard', 'description' => 'View LCD dashboard (public)'],
+            ['name' => 'manage_meeting_room_lcd_settings', 'display_name' => 'Manage LCD Settings', 'description' => 'Configure LCD display settings'],
+            ['name' => 'print_booking', 'display_name' => 'Print Booking', 'description' => 'Print booking details'],
+            ['name' => 'export_booking_report', 'display_name' => 'Export Booking Report', 'description' => 'Export booking reports'],
+            ['name' => 'view_director_dashboard', 'display_name' => 'Director Dashboard', 'description' => 'View director dashboard for meeting rooms'],
+            ['name' => 'view_receptionist_dashboard', 'display_name' => 'Receptionist Dashboard', 'description' => 'View receptionist dashboard'],
+            ['name' => 'manage_room_availability', 'display_name' => 'Manage Room Availability', 'description' => 'Toggle room availability'],
+            ['name' => 'quick_booking', 'display_name' => 'Quick Booking', 'description' => 'Create quick bookings from dashboard'],
+            ['name' => 'update_booking_time', 'display_name' => 'Update Booking Time', 'description' => 'Drag & drop booking time'],
+            ['name' => 'view_booking_calendar', 'display_name' => 'View Booking Calendar', 'description' => 'View booking calendar'],
+
+            // ===== Vehicle Permissions =====
+            ['name' => 'manage_vehicles', 'display_name' => 'Manage Vehicles', 'description' => 'CRUD operations on vehicles (admin)'],
+            ['name' => 'view_vehicles', 'display_name' => 'View Vehicles', 'description' => 'View vehicle list'],
+            ['name' => 'create_vehicle_booking', 'display_name' => 'Create Vehicle Booking', 'description' => 'Create vehicle bookings'],
+            ['name' => 'approve_vehicle_booking', 'display_name' => 'Approve Vehicle Booking', 'description' => 'Approve/reject vehicle bookings'],
+            ['name' => 'manage_vehicle_maintenance', 'display_name' => 'Manage Vehicle Maintenance', 'description' => 'Add maintenance logs'],
+            ['name' => 'view_vehicle_reports', 'display_name' => 'View Vehicle Reports', 'description' => 'View vehicle usage reports'],
+
+            // ===== Inventory Permissions =====
+            ['name' => 'view_inventory', 'display_name' => 'View Inventory', 'description' => 'View inventory items'],
+            ['name' => 'manage_inventory', 'display_name' => 'Manage Inventory', 'description' => 'CRUD operations on inventory items'],
+            ['name' => 'manage_stock', 'display_name' => 'Manage Stock', 'description' => 'Add/reduce stock'],
+            ['name' => 'create_inventory_request', 'display_name' => 'Create Inventory Request', 'description' => 'Create inventory requests'],
+            ['name' => 'approve_inventory_request', 'display_name' => 'Approve Inventory Request', 'description' => 'Approve/reject inventory requests'],
+            ['name' => 'fulfill_inventory_request', 'display_name' => 'Fulfill Inventory Request', 'description' => 'Issue/fulfill inventory requests'],
+            ['name' => 'view_inventory_reports', 'display_name' => 'View Inventory Reports', 'description' => 'View inventory reports'],
+
+            // ===== Approval Workflow Permissions =====
+            ['name' => 'view_pending_approvals', 'display_name' => 'View Pending Approvals', 'description' => 'View approvals pending for current user'],
+            ['name' => 'approve_requests', 'display_name' => 'Approve Requests', 'description' => 'Approve/reject requests'],
+            ['name' => 'manage_approval_rules', 'display_name' => 'Manage Approval Rules', 'description' => 'CRUD approval rules (admin)'],
+
+            // ===== Admin & System Permissions =====
+            ['name' => 'manage_users', 'display_name' => 'Manage Users', 'description' => 'Full user CRUD'],
+            ['name' => 'manage_roles', 'display_name' => 'Manage Roles', 'description' => 'Role management'],
+            ['name' => 'view_admin_panel', 'display_name' => 'View Admin Panel', 'description' => 'Access admin configuration panel'],
+            ['name' => 'manage_system_settings', 'display_name' => 'Manage System Settings', 'description' => 'System settings management'],
+            ['name' => 'manage_menus', 'display_name' => 'Manage Menus', 'description' => 'Menu management'],
+            ['name' => 'manage_audit_logs', 'display_name' => 'Manage Audit Logs', 'description' => 'View and manage audit logs'],
+            ['name' => 'manage_notification_settings', 'display_name' => 'Manage Notification Settings', 'description' => 'Configure notification settings'],
+            ['name' => 'update_activity', 'display_name' => 'Update Activity', 'description' => 'Update activity status'],
+
+            // ===== Report Permissions =====
+            ['name' => 'view_reports', 'display_name' => 'View Reports', 'description' => 'View reports section'],
+            ['name' => 'export_data', 'display_name' => 'Export Data', 'description' => 'Export data to Excel/CSV'],
         ];
 
         // Create all permissions
@@ -138,38 +118,62 @@ class ComprehensivePermissionsSeeder extends Seeder
         echo "  ✓ Developer: " . Permission::count() . " permissions\n";
 
         // Administrator - operational full access except developer-only areas
-            $administratorPermissions = [
-            'view-daily-activities', 'create-daily-activities', 'edit-daily-activities', 'delete-daily-activities',
-            'view-kpi-dashboard', 'view-reports',
-            'export-data', 'import-data',
-            'view-users', 'create-users', 'edit-users',
-            'view-notifications', 'manage-notifications',
-            'view-meeting-bookings', 'create-meeting-bookings', 'approve-meeting-bookings', 'reject-meeting-bookings', 'cancel-meeting-bookings',
+        $administratorPermissions = [
+            // Meetings
+            'create_booking', 'view_bookings', 'approve_booking', 'reject_booking', 'cancel_booking',
+            'finish_booking', 'extend_booking', 'quick_edit_booking', 'view_booking_calendar',
+            'print_booking', 'export_booking_report', 'view_receptionist_dashboard',
+            'manage_room_availability', 'quick_booking', 'update_booking_time',
+            // Vehicles
+            'manage_vehicles', 'view_vehicles', 'create_vehicle_booking', 'approve_vehicle_booking',
+            'manage_vehicle_maintenance', 'view_vehicle_reports',
+            // Inventory
+            'view_inventory', 'manage_inventory', 'manage_stock',
+            'create_inventory_request', 'approve_inventory_request', 'fulfill_inventory_request', 'view_inventory_reports',
+            // Approvals
+            'view_pending_approvals', 'approve_requests',
+            // Admin
+            'manage_users', 'manage_roles', 'view_admin_panel', 'manage_menus',
+            'manage_audit_logs', 'manage_notification_settings',
+            // Reports
+            'view_reports', 'export_data', 'update_activity',
         ];
         $administratorRole->syncPermissions($administratorPermissions);
         echo "  ✓ Administrator: " . count($administratorPermissions) . " permissions\n";
 
-        // Director - View and report permissions (LV 8)
+        // Director - Approvals, view and report permissions (LV 8)
         $directorPermissions = [
-            'view-daily-activities', 'create-daily-activities', 'edit-daily-activities',
-            'view-kpi-dashboard', 'view-reports', 'view-management-dashboard',
-            'view-meeting-bookings', 'create-meeting-bookings', 'approve-meeting-bookings', 'reject-meeting-bookings',
+            // Meetings
+            'create_booking', 'view_bookings', 'approve_booking', 'reject_booking',
+            'view_director_dashboard', 'view_booking_calendar',
+            // Vehicles
+            'view_vehicles', 'view_vehicle_reports',
+            // Inventory
+            'view_inventory', 'view_inventory_reports',
+            // Approvals
+            'view_pending_approvals', 'approve_requests',
+            // Reports
+            'view_reports', 'update_activity',
         ];
         $directorRole->syncPermissions($directorPermissions);
         echo "  ✓ Director: " . count($directorPermissions) . " permissions\n";
 
-        // Human Resources - user management + profile workflows (LV 3)
+        // Human Resources - user management (LV 3)
         if ($humanResourcesRole) {
             $humanResourcesPermissions = [
-                'view-users', 'create-users', 'edit-users',
+                'manage_users',
             ];
             $humanResourcesRole->syncPermissions($humanResourcesPermissions);
             echo "  ✓ Human Resources: " . count($humanResourcesPermissions) . " permissions\n";
         }
 
-        // User - Limited permissions
+        // User - Limited permissions (LV 1)
         $userPermissions = [
-            'view-meeting-bookings', 'create-meeting-bookings',
+            'create_booking', 'view_bookings',
+            'view_vehicles', 'create_vehicle_booking',
+            'view_inventory', 'create_inventory_request',
+            'view_pending_approvals',
+            'update_activity',
         ];
         $userRole->syncPermissions($userPermissions);
         echo "  ✓ User: " . count($userPermissions) . " permissions\n";
@@ -180,10 +184,12 @@ class ComprehensivePermissionsSeeder extends Seeder
             echo "  ✓ Guest: 0 permissions\n";
         }
         
-        // Receptionist - Meeting room management
+        // Receptionist - Meeting room management (LV 2)
         if ($receptionistRole) {
             $receptionistPermissions = [
-                'view-meeting-bookings', 'create-meeting-bookings', 'cancel-meeting-bookings', 'manage-receptionist-dashboard',
+                'view_bookings', 'create_booking', 'cancel_booking',
+                'view_receptionist_dashboard', 'manage_room_availability',
+                'quick_booking', 'update_booking_time', 'view_booking_calendar',
             ];
             $receptionistRole->syncPermissions($receptionistPermissions);
             echo "  ✓ Receptionist: " . count($receptionistPermissions) . " permissions\n";

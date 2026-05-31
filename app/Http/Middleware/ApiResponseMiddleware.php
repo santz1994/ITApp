@@ -22,7 +22,7 @@ class ApiResponseMiddleware
             // Add API headers
             $response->headers->set('Content-Type', 'application/json');
             $response->headers->set('X-API-Version', '1.0');
-            $response->headers->set('X-Powered-By', 'Laravel IT Asset Management API');
+            $response->headers->set('X-Powered-By', 'QutyApp API');
             
             // Add CORS headers for API endpoints
             if ($response instanceof \Illuminate\Http\JsonResponse) {

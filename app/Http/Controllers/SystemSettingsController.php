@@ -10,7 +10,7 @@ class SystemSettingsController extends BaseController
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('role:developer');
+        $this->middleware('permission:manage_system_settings');
     }
 
     public function index()
